@@ -54,9 +54,18 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
         BottomNavigationView bottomMenu=findViewById(R.id.bottom_navigation_view);
         bottomMenu.setOnItemSelectedListener(v->{
-            if(v.equals(R.id.nav_library))
+            if(v.getItemId()==R.id.bottom_nav_library)
             {
                 Log.d("bottomMenu","Selected library");
+                navController.navigate(R.id.nav_library);
+            }
+            if(v.getItemId()==R.id.bottom_nav_home)
+            {
+                navController.navigate(R.id.nav_home);
+            }
+            if(v.getItemId()==R.id.bottom_nav_settings)
+            {
+                navController.navigate(R.id.nav_settings);
             }
             return true;
         });

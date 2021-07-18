@@ -22,4 +22,64 @@
     <style name="Theme.Ampflower.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Ampflower.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppLightTheme" parent="BaseLightTheme"/>
+    <style name="AppDarkTheme" parent="BaseDarkTheme" />
+    <style name="AppPrimaryTheme" parent="BasePrimaryTheme" />
+
+    <style name="BaseLightTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:fontFamily">@font/custom_font</item>
+    </style>
+
+    <style name="BaseDarkTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorDarkPrimary</item>
+        <item name="colorPrimaryDark">@color/colorDarkStatusBar</item>
+        <item name="colorAccent">@color/colorDarkAccent</item>
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
+        <item name="android:windowBackground">@color/colorBackgroundDark</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:fontFamily">@font/custom_font</item>
+    </style>
+
+    <style name="BasePrimaryTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:fontFamily">@font/custom_font</item>
+    </style>
+
+    <style name="ActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppThemeTwo" parent="Widget.AppCompat.SeekBar">
+        <item name="android:colorControlNormal">#ffffff</item>
+    </style>
+
+    <style name="ProgressBarStyle">
+        <item name="colorAccent">@color/progressBarColor</item>
+    </style>
+
+    <style name="NavigationView" >
+        <item name="fontFamily">@font/custom_font</item>
+    </style>
+
+    <style name="CustomTabTextStyle" parent="@android:style/TextAppearance.Widget.TabWidget">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+
 </resources>

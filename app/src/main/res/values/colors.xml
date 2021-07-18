@@ -7,4 +7,40 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!--app main color-->
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorLight">#FFFFFF</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#5C6BC0</color>
+
+    <color name="colorDarkPrimary">#50b3f4</color>
+    <color name="colorDarkAccent">#50b3f4</color>
+    <color name="colorDarkStatusBar">#50b3f4</color>
+    <color name="colorSelectedTabDark">#4e575d</color>
+
+    <!--dark theme color-->
+    <color name="colorStatusBarDark">#0F1D24</color>
+    <color name="colorToolbarDark">#222D36</color>
+    <color name="colorBackgroundDark">#101D24</color>
+
+    <!--app tab color-->
+    <color name="tabTextColor">#5f6267</color>
+    <color name="textColorGrey">#9ba0a6</color>
+    <color name="tabSelectedBackgroundLight">#E8EAF6</color>
+
+    <!--others-->
+    <color name="grey">#5f6267</color>
+    <color name="dark_dialog">#434243</color>
+    <color name="background_color">#f2f2f2</color>
+    <color name="colorGrey">#e1e1e1</color>
+    <color name="colorRipple">#7E7E7E</color>
+    <color name="colorPlayButton">#D81B60</color>
+    <color name="progressBarColor">#FFE719</color>
+
+    <!--do not change this-->
+    <color name="gnt_white">#FFFFFF</color>
+    <color name="gnt_ad_yellow">#FBB828</color>
+    <color name="gnt_gray">#808080</color>
+
 </resources>

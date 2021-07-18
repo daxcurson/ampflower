@@ -1,15 +1,14 @@
 package ar.com.strellis.ampflower;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 
-import com.google.android.material.bottomappbar.BottomAppBar;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -17,6 +16,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Objects;
 
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 
@@ -31,44 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        setSupportActionBar(binding.appBarMain.toolbar);
-        binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        DrawerLayout drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
-        NavHostFragment navHostFragment= (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        assert navHostFragment != null;
-        NavController navController = navHostFragment.getNavController();
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph())
-                .setOpenableLayout(drawer)
-                .build();
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
-        BottomNavigationView bottomMenu=findViewById(R.id.bottom_navigation_view);
-        bottomMenu.setOnItemSelectedListener(v->{
-            if(v.getItemId()==R.id.bottom_nav_library)
-            {
-                Log.d("bottomMenu","Selected library");
-                navController.navigate(R.id.nav_library);
-            }
-            if(v.getItemId()==R.id.bottom_nav_home)
-            {
-                navController.navigate(R.id.nav_home);
-            }
-            if(v.getItemId()==R.id.bottom_nav_settings)
-            {
-                navController.navigate(R.id.nav_settings);
-            }
-            return true;
-        });
+        configureNavigation();
     }
 
     @Override
@@ -80,8 +44,39 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+    private void configureNavigation()
+    {
+        setSupportActionBar(binding.appBarMain.toolbar);
+        binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+        DrawerLayout drawer = binding.drawerLayout;
+        NavigationView navigationView = binding.navView;
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        DrawerLayout drawerLayout=findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle=new ActionBarDrawerToggle(this,drawerLayout,binding.appBarMain.toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavHostFragment navHostFragment= (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
+        assert navHostFragment != null;
+        NavController navController=navHostFragment.getNavController();
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                navController.getGraph())
+                .setOpenableLayout(drawer)
+                .build();
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
+    }
+
 }

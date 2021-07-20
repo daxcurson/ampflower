@@ -22,4 +22,10 @@
         android:name="ar.com.strellis.ampflower.ui.settings.SettingsFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/nav_server_status"
+        android:name="ar.com.strellis.ampflower.ui.serverstatus.ServerStatusFragment"
+        android:label="@string/server_status"
+        tools:layout="@layout/fragment_server_status"/>
 </navigation>

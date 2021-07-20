@@ -6,4 +6,12 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_server_status"
+        android:orderInCategory="99"
+        android:title="@string/server_status"
+        android:iconTint="@color/white"
+        android:iconTintMode="src_over"
+        android:icon="@drawable/ic_cloud_unavail"
+        app:showAsAction="ifRoom" />
 </menu>

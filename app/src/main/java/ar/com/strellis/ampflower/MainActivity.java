@@ -85,8 +85,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationUI.setupWithNavController(binding.toolbar, navController, appBarConfiguration);
 
     }
-
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id=item.getItemId();
+        if(id==R.id.action_server_status)
+        {
+            navController.navigate(R.id.nav_server_status);
+        }
+        if(id==R.id.action_settings)
+        {
+            // Settings
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+        @Override
     public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
         int id=item.getItemId();
         if(id==R.id.nav_settings)

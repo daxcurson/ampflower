@@ -28,4 +28,13 @@
     <string name="play">Play!</string>
     <string name="next">Next</string>
     <string name="volume">Volume</string>
+    <string name="playlist">Playlist</string>
+    <string name="server_status">Server Status</string>
+    <string name="ampache_url">Ampache URL</string>
+    <string name="ampache_username">Ampache Username</string>
+    <string name="ampache_password">Ampache Password</string>
+    <string name="unavailable">Unavailable</string>
+    <string name="server_status_colon">Server Status:</string>
+    <string name="test">Test!</string>
+    <string name="save_server_settings">Save Server Settings</string>
 </resources>

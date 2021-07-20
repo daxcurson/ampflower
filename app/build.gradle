@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "ar.com.strellis.ampflower"
-        minSdkVersion 23
+        minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"

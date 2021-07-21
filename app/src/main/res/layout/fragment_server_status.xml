@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/server_status_colon"
-                android:textSize="20sp" />
+                android:textSize="25sp" />
 
             <ImageButton
                 android:id="@+id/button_status"
@@ -32,13 +33,16 @@
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/server_status"
                 android:padding="0dp"
-                android:src="@drawable/ic_cloud_unavail" />
+                android:src="@drawable/ic_cloud_unavail"
+                app:tint="#FF000000"
+                android:backgroundTint="@color/white"
+                />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/unavailable"
-                android:textSize="20sp" />
+                android:textSize="25sp" />
 
         </LinearLayout>
 

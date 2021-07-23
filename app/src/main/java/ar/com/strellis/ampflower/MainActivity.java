@@ -3,7 +3,6 @@ package ar.com.strellis.ampflower;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +31,7 @@ import java.util.Objects;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.NetworkStatus;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
+import ar.com.strellis.ampflower.network.NetworkReceiver;
 import ar.com.strellis.ampflower.viewmodel.NetworkStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("configureSettingsObserver","Settings changed, saving");
             saveSettings(settings);
         };
+        settingsViewModel.getAmpacheSettings().observe(this,settingsObserver);
     }
     private AmpacheSettings loadSavedSettings()
     {
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressLint("ApplySharedPref")
     private void saveSettings(AmpacheSettings settings)
     {
+        Log.d("saveSettings","About to save settings");
         Gson gson=new Gson();
         String serializedPreferences=gson.toJson(settings);
         prefsEditor=sharedPreferences.edit();
@@ -108,6 +110,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("configureNetworkStatusListener","Trying to log in to ampache");
             }
         };
+        networkStatusViewModel.getNetworkStatus().observe(this,networkStatusObserver);
+        NetworkReceiver networkReceiver=new NetworkReceiver(getApplicationContext(),networkStatusViewModel);
+        networkReceiver.registerNetworkCallback();
     }
     private void configureDataViewModel()
     {

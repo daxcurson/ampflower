@@ -37,4 +37,6 @@
     <string name="server_status_colon">Server Status:</string>
     <string name="test">Test!</string>
     <string name="save_server_settings">Save Server Settings</string>
+    <string name="login_denied">Login Denied</string>
+    <string name="online">Online</string>
 </resources>

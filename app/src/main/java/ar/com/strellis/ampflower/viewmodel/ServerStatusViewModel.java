@@ -4,17 +4,20 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
+import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.ServerStatus;
 
 public class ServerStatusViewModel extends ViewModel {
 
     private final MutableLiveData<ServerStatus> serverStatusMutableLiveData;
     private final MutableLiveData<AmpacheSettings> ampacheSettingsMutableLiveData;
+    private final MutableLiveData<LoginResponse> loginResponseMutableLiveData;
 
     public ServerStatusViewModel()
     {
         serverStatusMutableLiveData=new MutableLiveData<>();
         ampacheSettingsMutableLiveData=new MutableLiveData<>();
+        loginResponseMutableLiveData=new MutableLiveData<>();
     }
     public MutableLiveData<ServerStatus> getServerStatus()
     {
@@ -31,5 +34,13 @@ public class ServerStatusViewModel extends ViewModel {
     public void setAmpacheSettings(AmpacheSettings settings)
     {
         ampacheSettingsMutableLiveData.postValue(settings);
+    }
+    public MutableLiveData<LoginResponse> getLoginResponse()
+    {
+        return this.loginResponseMutableLiveData;
+    }
+    public void setLoginResponse(LoginResponse response)
+    {
+        loginResponseMutableLiveData.postValue(response);
     }
 }

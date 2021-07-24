@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -26,15 +27,24 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
+import ar.com.strellis.ampflower.data.model.AmpacheAuth;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
+import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkStatus;
+import ar.com.strellis.ampflower.data.model.ServerStatus;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
+import ar.com.strellis.ampflower.network.AmpacheService;
+import ar.com.strellis.ampflower.network.AmpacheUtil;
 import ar.com.strellis.ampflower.network.NetworkReceiver;
 import ar.com.strellis.ampflower.viewmodel.NetworkStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
@@ -56,7 +66,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sharedPreferences = getPreferences(MODE_PRIVATE);
         configureNavigation();
         configureDataViewModel();
-        serverStatusViewModel.setAmpacheSettings(loadSavedSettings());
+        configureStatusDisplay();
+        configureInitialState();
+        configureSettingsLoader();
         configureNetworkStatusListener();
         configureSettingsObserver();
     }
@@ -73,6 +85,101 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+    private void configureInitialState()
+    {
+        // We'll configure the initial state, which is, server unavailable.
+        serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
+    }
+    private void configureStatusDisplay()
+    {
+        // This changes the cloud icon to display the different server status.
+        Observer<ServerStatus> serverStatusObserver=status->{
+            Log.d("configureStatusDisplay","Observing the change in server status");
+            // We need to invalidate the options menu, to force the call to onPrepareOptionsMenu(),
+            // thus, we have an opportunity to modify the icon according to the server status.
+            invalidateOptionsMenu();
+        };
+        serverStatusViewModel.getServerStatus().observe(this,serverStatusObserver);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem serverStatusMenuItem=menu.findItem(R.id.action_server_status);
+        // Now, with the menu item on hand, update its icon.
+        ServerStatus serverStatus=serverStatusViewModel.getServerStatus().getValue();
+        switch(Objects.requireNonNull(serverStatus))
+        {
+            case UNAVAILABLE:
+                serverStatusMenuItem.setIcon(R.drawable.ic_cloud_unavail);
+                break;
+            case LOGIN_DENIED:
+                serverStatusMenuItem.setIcon(R.drawable.ic_cloud_cross);
+                break;
+            case ONLINE:
+                serverStatusMenuItem.setIcon(R.drawable.ic_cloud_checked);
+                break;
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void configureSettingsLoader()
+    {
+        // We'll create an observer for the settings loader that will try to connect to the server.
+        Observer<AmpacheSettings> loadedSettingsObserver=settings->{
+            Log.d("configureSettingsLoader","Loaded settings");
+            ServerStatus serverStatus=serverStatusViewModel.getServerStatus().getValue();
+            assert serverStatus != null;
+            if(serverStatus.equals(ServerStatus.UNAVAILABLE))
+            {
+                Log.d("configureSettingsLoader","The server is in status unavailable and we loaded settings, trying to connect");
+                loginToAmpache();
+            }
+        };
+        serverStatusViewModel.getAmpacheSettings().observe(this,loadedSettingsObserver);
+        serverStatusViewModel.setAmpacheSettings(loadSavedSettings());
+    }
+    private synchronized void loginToAmpache()
+    {
+        Log.d("DEBUG","Attempting to log in");
+        AmpacheSettings settings=settingsViewModel.getAmpacheSettings().getValue();
+        if(settings!=null
+                && settings.getAmpacheUrl()!=null
+                && !settings.getAmpacheUrl().equals("")) {
+            AmpacheService ampacheService= AmpacheUtil.getService(settings);
+            String user = settings.getAmpacheUsername();
+            String password = settings.getAmpachePassword();
+            // We attempt to log in only if we actually have data in those fields
+            if(user!=null && !user.equals("") && password!=null && !password.equals("")) {
+                AmpacheAuth auth;
+                try {
+                    auth = AmpacheUtil.getAmpacheAuth(password);
+                    Call<LoginResponse> call = ampacheService.handshake(auth.getAuthToSend(), user, auth.getTimestamp());
+                    call.enqueue(new Callback<LoginResponse>() {
+                        @Override
+                        public void onResponse(@NotNull Call<LoginResponse> call, @NotNull Response<LoginResponse> response) {
+                            if (response.body() != null) {
+                                int duration = Toast.LENGTH_LONG;
+                                Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
+                                toast.show();
+                                // We're online, update all the status.
+                                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
+                                serverStatusViewModel.setLoginResponse(response.body());
+                                Log.d("loginToAmpache.onResponse","We're in");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NotNull Call<LoginResponse> call, @NotNull Throwable t) {
+                            Log.d("loginToAmpache.onFailure","Failed to log in: "+t.getMessage());
+                            serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
+                        }
+                    });
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
     private void configureSettingsObserver()
     {

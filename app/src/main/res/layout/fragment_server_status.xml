@@ -28,7 +28,7 @@
                 android:textSize="25sp" />
 
             <ImageButton
-                android:id="@+id/button_status"
+                android:id="@+id/ampache_server_status_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/server_status"
@@ -42,6 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/unavailable"
+                android:id="@+id/ampache_server_status_text"
                 android:textSize="25sp" />
 
         </LinearLayout>

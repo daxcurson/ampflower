@@ -71,7 +71,7 @@ public class AmpacheUtil
     }
     public static synchronized void loginToAmpache(AmpacheSettings settings,LoginCallback callback)
     {
-        Log.d("DEBUG","Attempting to log in");
+        Log.d("AmpacheUtil.loginToAmpache","Attempting to log in");
         if(settings!=null
                 && settings.getAmpacheUrl()!=null
                 && !settings.getAmpacheUrl().equals("")) {
@@ -82,21 +82,22 @@ public class AmpacheUtil
             if(user!=null && !user.equals("") && password!=null && !password.equals("")) {
                 AmpacheAuth auth;
                 try {
+                    Log.d("AmpacheUtil.loginToAmpache","I have settings, trying to connect to "+settings.getAmpacheUrl()+" with username "+settings.getAmpacheUsername()+" and password "+settings.getAmpachePassword());
                     auth = AmpacheUtil.getAmpacheAuth(password);
                     Call<LoginResponse> call = ampacheService.handshake(auth.getAuthToSend(), user, auth.getTimestamp());
                     call.enqueue(new Callback<LoginResponse>() {
                         @Override
                         public void onResponse(@NotNull Call<LoginResponse> call, @NotNull Response<LoginResponse> response) {
-                            Log.d("loginToAmpache.onResponse","Success, let's see the response");
+                            Log.d("AmpacheUtil.loginToAmpache.onResponse","Success, let's see the response");
                             if (response.body() != null) {
-                                Log.d("loginToAmpache.onResponse","We have a body!!!");
+                                Log.d("AmpacheUtil.loginToAmpache.onResponse","We have a body!!!");
                                 callback.loginSuccess(response.body());
                             }
                         }
 
                         @Override
                         public void onFailure(@NotNull Call<LoginResponse> call, @NotNull Throwable t) {
-                            Log.d("loginToAmpache.onFailure","Failed to log in: "+t.getMessage());
+                            Log.d("AmpacheUtil.loginToAmpache.onFailure","Failed to log in: "+t.getMessage());
                             callback.loginFailure(t.getMessage());
                         }
                     });
@@ -104,6 +105,14 @@ public class AmpacheUtil
                     e.printStackTrace();
                 }
             }
+            else
+            {
+                Log.d("AmpacheUtil.loginToAmpache","Either username, password or url are blank, not doing anything");
+            }
+        }
+        else
+        {
+            Log.d("AmpacheUtil.loginToAmpache","Either the settings are null or the url is null, not doing anything");
         }
     }
 }

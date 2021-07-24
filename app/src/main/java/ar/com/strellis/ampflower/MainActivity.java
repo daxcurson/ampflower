@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureSettingsLoader();
         configureNetworkStatusListener();
         configureSettingsObserver();
+        configureServerStatusObserver();
     }
 
     @Override
@@ -85,6 +86,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+    private void showToast(String message)
+    {
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = Toast.makeText(getApplicationContext(), message, duration);
+        toast.show();
+    }
+    private void configureServerStatusObserver()
+    {
+        Observer<ServerStatus> serverStatusObserver=status->{
+            switch(Objects.requireNonNull(status))
+            {
+                case UNAVAILABLE:
+                    showToast("The server is unavailable");
+                    break;
+                case LOGIN_DENIED:
+                    showToast("Login denied");
+                    break;
+                case ONLINE:
+                    showToast("We're online!");
+                    break;
+            }
+        };
+        serverStatusViewModel.getServerStatus().observe(this,serverStatusObserver);
     }
     private void configureInitialState()
     {
@@ -135,13 +160,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("configureSettingsLoader","The server is in status unavailable and we loaded settings, trying to connect");
                 loginToAmpache();
             }
+            else
+            {
+                Log.d("configureSettingsLoader","The server is in the state "+serverStatus.name()+", I won't try to connect");
+            }
         };
         serverStatusViewModel.getAmpacheSettings().observe(this,loadedSettingsObserver);
         serverStatusViewModel.setAmpacheSettings(loadSavedSettings());
     }
     private synchronized void loginToAmpache()
     {
-        Log.d("DEBUG","Attempting to log in");
+        Log.d("MainActivity.loginToAmpache","Attempting to log in");
         AmpacheSettings settings=settingsViewModel.getAmpacheSettings().getValue();
         if(settings!=null
                 && settings.getAmpacheUrl()!=null
@@ -165,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 // We're online, update all the status.
                                 serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
                                 serverStatusViewModel.setLoginResponse(response.body());
-                                Log.d("loginToAmpache.onResponse","We're in");
+                                Log.d("MainActivity.loginToAmpache","We're in");
                             }
                         }
 
@@ -179,6 +208,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     e.printStackTrace();
                 }
             }
+            else
+            {
+                Log.d("MainActivity.loginToAmpache","The required parameters user, password and url are blank, not attempting connection");
+            }
+        }
+        else
+        {
+            Log.d("MainActivity.loginToAmpache","Either the settings are null, or the URL is null, not doing anything");
         }
     }
     private void configureSettingsObserver()
@@ -214,7 +251,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("configureNetworkStatusListener","Network state changed");
             if(networkStatus.equals(NetworkStatus.ONLINE))
             {
-                Log.d("configureNetworkStatusListener","Trying to log in to ampache");
+                Log.d("configureNetworkStatusListener","Network status is online");
+                ServerStatus serverStatus=serverStatusViewModel.getServerStatus().getValue();
+                if(serverStatus.equals(ServerStatus.UNAVAILABLE))
+                {
+                    Log.d("configureNetworkStatusListener","The server is unavailable, trying to connect");
+                    loginToAmpache();
+                }
+                else
+                {
+                    Log.d("configureNetworkStatusListener","The server is in the status "+serverStatus.name()+", I won't try to log in");
+                }
             }
         };
         networkStatusViewModel.getNetworkStatus().observe(this,networkStatusObserver);

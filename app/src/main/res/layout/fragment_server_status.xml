@@ -78,7 +78,7 @@
                 android:autofillHints="@string/ampache_url"
                 android:hint="@string/ampache_url"
                 android:inputType="textUri"
-                android:textColor="#FFF" />
+                />
         </RelativeLayout>
 
         <View
@@ -112,7 +112,7 @@
                 android:autofillHints="@string/ampache_username"
                 android:hint="@string/ampache_username"
                 android:inputType="text"
-                android:textColor="#FFF" />
+                />
         </RelativeLayout>
 
         <View
@@ -147,7 +147,7 @@
                 android:fontFamily="sans-serif"
                 android:hint="@string/ampache_password"
                 android:inputType="textPassword"
-                android:textColor="#FFF" />
+                />
         </RelativeLayout>
 
         <View

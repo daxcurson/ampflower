@@ -103,19 +103,24 @@ public class ServerStatusFragment extends Fragment {
     private void configureServerStatus()
     {
         Observer<ServerStatus> serverStatusObserver=serverStatus -> {
-            switch(Objects.requireNonNull(serverStatus)) {
-                case UNAVAILABLE:
-                    binding.ampacheServerStatusButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_cloud_unavail));
-                    binding.ampacheServerStatusText.setText(R.string.unavailable);
-                    break;
-                case LOGIN_DENIED:
-                    binding.ampacheServerStatusButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_cloud_cross));
-                    binding.ampacheServerStatusText.setText(R.string.login_denied);
-                    break;
-                case ONLINE:
-                    binding.ampacheServerStatusButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_cloud_checked));
-                    binding.ampacheServerStatusText.setText(R.string.online);
-                    break;
+            if (binding != null) {
+                switch (Objects.requireNonNull(serverStatus)) {
+                    case UNAVAILABLE:
+                        binding.ampacheServerStatusButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_cloud_unavail));
+                        binding.ampacheServerStatusText.setText(R.string.unavailable);
+                        break;
+                    case LOGIN_DENIED:
+                        binding.ampacheServerStatusButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_cloud_cross));
+                        binding.ampacheServerStatusText.setText(R.string.login_denied);
+                        break;
+                    case ONLINE:
+                        binding.ampacheServerStatusButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_cloud_checked));
+                        binding.ampacheServerStatusText.setText(R.string.online);
+                        break;
+                }
+            } else
+            {
+                Log.d("ServerStatusFragment.configureServerStatus","Not setting the status icon as binding is null");
             }
         };
         serverStatusViewModel.getServerStatus().observe(requireActivity(),serverStatusObserver);

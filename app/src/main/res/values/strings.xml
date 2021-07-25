@@ -39,4 +39,7 @@
     <string name="save_server_settings">Save Server Settings</string>
     <string name="login_denied">Login Denied</string>
     <string name="online">Online</string>
+    <string name="albums">Albums</string>
+    <string name="artists">Artists</string>
+    <string name="playlists">Playlists</string>
 </resources>

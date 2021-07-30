@@ -42,4 +42,7 @@
     <string name="albums">Albums</string>
     <string name="artists">Artists</string>
     <string name="playlists">Playlists</string>
+    <string name="album_art">Album Art</string>
+    <string name="album_title">Album Title</string>
+    <string name="artist">Artist</string>
 </resources>

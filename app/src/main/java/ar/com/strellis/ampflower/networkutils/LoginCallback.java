@@ -1,4 +1,4 @@
-package ar.com.strellis.ampflower.network;
+package ar.com.strellis.ampflower.networkutils;
 
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 

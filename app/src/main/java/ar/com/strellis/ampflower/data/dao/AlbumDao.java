@@ -1,6 +1,7 @@
 package ar.com.strellis.ampflower.data.dao;
 
 import androidx.lifecycle.LiveData;
+import androidx.paging.PagingSource;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -26,6 +27,10 @@ public interface AlbumDao {
     void deleteAlbum(Album albums);
     @Query("DELETE FROM albums")
     void deleteAll();
+    @Query("DELETE FROM albums where name like :query")
+    void deleteByQuery(String query);
+    @Query("SELECT * FROM albums")
+    PagingSource<Integer, Album> pagingSource(String query);
     @Query("SELECT * FROM albums")
     List<Album> listAllAlbums();
 }

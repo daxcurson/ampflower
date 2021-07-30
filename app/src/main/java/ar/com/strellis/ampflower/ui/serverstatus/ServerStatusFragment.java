@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,8 +23,8 @@ import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.ServerStatus;
 import ar.com.strellis.ampflower.databinding.FragmentServerStatusBinding;
-import ar.com.strellis.ampflower.network.AmpacheUtil;
-import ar.com.strellis.ampflower.network.LoginCallback;
+import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
+import ar.com.strellis.ampflower.networkutils.LoginCallback;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
 

@@ -1,7 +1,6 @@
-package ar.com.strellis.ampflower.network;
+package ar.com.strellis.ampflower.networkutils;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import ar.com.strellis.ampflower.data.model.AmpacheAuth;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
-import ar.com.strellis.ampflower.data.model.ServerStatus;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;

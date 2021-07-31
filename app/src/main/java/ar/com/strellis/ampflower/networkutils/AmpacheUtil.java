@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import ar.com.strellis.ampflower.data.model.AmpacheAuth;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
+import ar.com.strellis.ampflower.data.model.ServerStatus;
+import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,9 +69,10 @@ public class AmpacheUtil
                 .build();
         return retrofit.create(AmpacheService.class);
     }
-    public static synchronized void loginToAmpache(AmpacheSettings settings,LoginCallback callback)
+    public static synchronized void loginToAmpache(ServerStatusViewModel serverStatusViewModel,AmpacheSettings settings, LoginCallback callback)
     {
         Log.d("AmpacheUtil.loginToAmpache","Attempting to log in");
+        serverStatusViewModel.setServerStatus(ServerStatus.CONNECTING);
         if(settings!=null
                 && settings.getAmpacheUrl()!=null
                 && !settings.getAmpacheUrl().equals("")) {

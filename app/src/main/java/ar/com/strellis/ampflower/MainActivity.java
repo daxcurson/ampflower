@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
@@ -171,9 +172,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("configureSettingsLoader","Loaded settings");
             ServerStatus serverStatus=serverStatusViewModel.getServerStatus().getValue();
             assert serverStatus != null;
-            if(serverStatus.equals(ServerStatus.UNAVAILABLE))
+            if(!serverStatus.equals(ServerStatus.CONNECTING) && !serverStatus.equals(ServerStatus.LOGIN_DENIED) && !serverStatus.equals(ServerStatus.ONLINE))
             {
-                Log.d("configureSettingsLoader","The server is in status unavailable and we loaded settings, trying to connect");
+                Log.d("configureSettingsLoader","The server is not connectiong, we are not denied and not online and we loaded settings, trying to connect");
                 loginToAmpache();
             }
             else
@@ -187,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private synchronized void loginToAmpache()
     {
         Log.d("MainActivity.loginToAmpache","Attempting to log in");
+        serverStatusViewModel.setServerStatus(ServerStatus.CONNECTING);
         AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
         if(settings!=null
                 && settings.getAmpacheUrl()!=null
@@ -200,6 +202,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     auth = AmpacheUtil.getAmpacheAuth(password);
                     Call<LoginResponse> call = ampacheService.handshake(auth.getAuthToSend(), user, auth.getTimestamp());
+                    /*
+                    if(call==null)
+                    {
+                        Log.d("loginToAmpache.onFailure","Failed to log in: call is null");
+                        serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
+                    }
+                    else {
+                        Response<LoginResponse> response = call.execute();
+                        if (response.isSuccessful()) {
+                            if (response.body() != null) {
+                                int duration = Toast.LENGTH_LONG;
+                                Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
+                                toast.show();
+                                // We're online, update all the status.
+                                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
+                                serverStatusViewModel.setLoginResponse(response.body());
+                                Log.d("MainActivity.loginToAmpache", "We're in");
+                            } else {
+                                Log.d("loginToAmpache.onFailure", "Failed to log in: body is null");
+                                serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
+                            }
+                        }
+                    }*/
+
                     call.enqueue(new Callback<LoginResponse>() {
                         @Override
                         public void onResponse(@NotNull Call<LoginResponse> call, @NotNull Response<LoginResponse> response) {
@@ -289,9 +315,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("configureNetworkStatusListener","Network status is online");
                 ServerStatus serverStatus=serverStatusViewModel.getServerStatus().getValue();
                 assert serverStatus != null;
-                if(serverStatus.equals(ServerStatus.UNAVAILABLE))
+                if(!serverStatus.equals(ServerStatus.CONNECTING) && !serverStatus.equals(ServerStatus.LOGIN_DENIED) && !serverStatus.equals(ServerStatus.ONLINE))
                 {
-                    Log.d("configureNetworkStatusListener","The server is unavailable, trying to connect");
+                    Log.d("configureNetworkStatusListener","The server is not connectiong, we are not denied and not online, trying to connect");
                     loginToAmpache();
                 }
                 else

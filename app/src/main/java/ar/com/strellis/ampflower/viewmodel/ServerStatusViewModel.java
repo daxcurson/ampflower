@@ -25,7 +25,7 @@ public class ServerStatusViewModel extends ViewModel {
     }
     public void setServerStatus(ServerStatus serverStatus)
     {
-        serverStatusMutableLiveData.postValue(serverStatus);
+        serverStatusMutableLiveData.setValue(serverStatus);
     }
     public MutableLiveData<AmpacheSettings> getAmpacheSettings()
     {
@@ -41,6 +41,6 @@ public class ServerStatusViewModel extends ViewModel {
     }
     public void setLoginResponse(LoginResponse response)
     {
-        loginResponseMutableLiveData.postValue(response);
+        loginResponseMutableLiveData.setValue(response);
     }
 }

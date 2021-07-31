@@ -14,7 +14,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import ar.com.strellis.ampflower.data.dao.AlbumDao;
-import ar.com.strellis.ampflower.data.dao.AlbumRemoteKeyDao;
 import ar.com.strellis.ampflower.data.dao.ArtistDao;
 import ar.com.strellis.ampflower.data.dao.PlaylistDao;
 import ar.com.strellis.ampflower.data.dao.SongDao;
@@ -32,7 +31,6 @@ public abstract class AmpacheDatabase extends RoomDatabase {
     public abstract ArtistDao artistDao();
     public abstract PlaylistDao playlistDao();
     public abstract SongDao songDao();
-    public abstract AlbumRemoteKeyDao albumRemoteKeyDao();
     private static final Object sLock = new Object();
 
     private static volatile AmpacheDatabase INSTANCE;

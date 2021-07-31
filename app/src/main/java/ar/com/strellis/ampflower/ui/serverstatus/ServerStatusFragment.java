@@ -39,13 +39,14 @@ public class ServerStatusFragment extends Fragment {
 
         binding = FragmentServerStatusBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        serverStatusViewModel=new ViewModelProvider(requireActivity()).get(ServerStatusViewModel.class);
+
         return root;
     }
 
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        serverStatusViewModel=new ViewModelProvider(requireActivity()).get(ServerStatusViewModel.class);
         settingsViewModel=new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
         settings=settingsViewModel.getAmpacheSettings().getValue();
         if(settings!=null) {
@@ -56,12 +57,12 @@ public class ServerStatusFragment extends Fragment {
         binding.ampacheButtonTest.setOnClickListener(event->{
             Log.d("ServerStatusFragment.onViewCreated.onClickListener for test","The test button was pressed, check if the settings are correct");
             saveSettingsFromTextBoxes();
-            AmpacheUtil.loginToAmpache(settings,getCallbackFunctionForLogin(false));
+            AmpacheUtil.loginToAmpache(serverStatusViewModel,settings,getCallbackFunctionForLogin(false));
         });
         binding.ampacheButtonSaveServerSettings.setOnClickListener(event->{
             Log.d("ServerStatusFragment.onViewCreated.onClickListener for save","The save button was pressed, save these settings");
             saveSettingsFromTextBoxes();
-            AmpacheUtil.loginToAmpache(settings,getCallbackFunctionForLogin(true));
+            AmpacheUtil.loginToAmpache(serverStatusViewModel,settings,getCallbackFunctionForLogin(true));
             // And now, in addition to trying to log in, let's save the settings.
             Navigation.findNavController(event).navigateUp();
         });
@@ -88,6 +89,9 @@ public class ServerStatusFragment extends Fragment {
                 // We managed to log in.
                 serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
                 serverStatusViewModel.setLoginResponse(response);
+                // This may be the first time the settings are stored, I'm going to record them
+                // in the in-memory settings object.
+                serverStatusViewModel.setAmpacheSettings(settings);
                 if(saveSettings) {
                     settingsViewModel.setAmpacheSettings(settings);
                 }

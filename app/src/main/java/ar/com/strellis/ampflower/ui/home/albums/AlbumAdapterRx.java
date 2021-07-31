@@ -7,11 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.paging.PagedListAdapter;
+import androidx.paging.PagingDataAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -19,16 +21,17 @@ import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 
-public class AlbumAdapter extends PagedListAdapter<Album, RecyclerView.ViewHolder>
+public class AlbumAdapterRx extends PagingDataAdapter<Album,RecyclerView.ViewHolder>
 {
     private NetworkState networkState;
-    public AlbumAdapter()
-    {
-        super(AlbumAdapter.callback_diff);
+    public AlbumAdapterRx() {
+        super(callback_diff);
     }
+
     @NonNull
+    @NotNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         if(viewType== R.layout.list_item_album) {
@@ -45,22 +48,17 @@ public class AlbumAdapter extends PagedListAdapter<Album, RecyclerView.ViewHolde
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull @NotNull RecyclerView.ViewHolder holder, int position) {
         if(getItemViewType(position)==R.layout.list_item_album)
         {
             AlbumViewHolder albumViewHolder=(AlbumViewHolder)holder;
             Album album=getItem(position);
-            albumViewHolder.getAlbumTitle().setText(Objects.requireNonNull(album).getName());
-            albumViewHolder.getArtistName().setText(Objects.requireNonNull(album).getArtist().getName());
-            // Now, attempt to download the image.
-            Picasso.get().load(album.getArt()).into(albumViewHolder.getAlbumArt());
         }
         if(getItemViewType(position)==R.layout.network_state_item)
         {
             ((NetworkStateItemViewHolder) holder).bindView(networkState);
         }
     }
-
     public static DiffUtil.ItemCallback<Album> callback_diff=new DiffUtil.ItemCallback<Album>() {
         @Override
         public boolean areItemsTheSame(@NonNull Album oldItem,@NonNull Album newItem) {
@@ -75,30 +73,4 @@ public class AlbumAdapter extends PagedListAdapter<Album, RecyclerView.ViewHolde
         }
 
     };
-    private boolean hasExtraRow() {
-        return networkState != null && networkState != NetworkState.LOADED;
-    }
-    @Override
-    public int getItemViewType(int position) {
-        if (hasExtraRow() && position == getItemCount() - 1) {
-            return R.layout.network_state_item;
-        } else {
-            return R.layout.list_item_album;
-        }
-    }
-    public void setNetworkState(NetworkState newNetworkState) {
-        NetworkState previousState = this.networkState;
-        boolean previousExtraRow = hasExtraRow();
-        this.networkState = newNetworkState;
-        boolean newExtraRow = hasExtraRow();
-        if (previousExtraRow != newExtraRow) {
-            if (previousExtraRow) {
-                notifyItemRemoved(getItemCount());
-            } else {
-                notifyItemInserted(getItemCount());
-            }
-        } else if (newExtraRow && previousState != newNetworkState) {
-            notifyItemChanged(getItemCount() - 1);
-        }
-    }
 }

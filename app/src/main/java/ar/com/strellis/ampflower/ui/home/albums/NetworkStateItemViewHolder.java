@@ -1,4 +1,4 @@
-package ar.com.strellis.ampflower.ui.home.network;
+package ar.com.strellis.ampflower.ui.home.albums;
 
 import android.view.View;
 import android.widget.ProgressBar;

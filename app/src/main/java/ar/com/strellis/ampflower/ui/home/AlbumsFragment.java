@@ -25,12 +25,13 @@ import ar.com.strellis.ampflower.databinding.FragmentAlbumsBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapter;
+import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapterRx;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 
 public class AlbumsFragment extends Fragment {
     private FragmentAlbumsBinding binding;
-    private AlbumAdapter adapter;
+    private AlbumAdapterRx adapter;
     private AlbumsViewModel albumsViewModel;
     private RecyclerView albumsRecycler;
 
@@ -42,6 +43,7 @@ public class AlbumsFragment extends Fragment {
         binding = FragmentAlbumsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        albumsViewModel=new ViewModelProvider(requireActivity()).get(AlbumsViewModel.class);
         return root;
     }
 
@@ -53,10 +55,6 @@ public class AlbumsFragment extends Fragment {
         AmpacheService networkService= AmpacheUtil.getService(Objects.requireNonNull(serverStatusViewModel.getAmpacheSettings().getValue()));
         AlbumDao albumDao= database.albumDao();
         String query="";
-        Pager<Integer, Album> pager = new Pager(
-                new PagingConfig(/* pageSize = */ 20),
-                null, // initialKey,
-                new AlbumRemoteMediator(networkService,database),
-        () -> albumDao.pagingSource(query));
+
     }
 }

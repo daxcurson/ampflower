@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/custom_ripple"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:longClickable="true">
+
+    <ImageView
+        android:id="@+id/list_item_playlist_image"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="10dp"
+        android:background="#222"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/playlist" />
+
+    <LinearLayout
+        android:id="@+id/row_item_holder_playlist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_toEndOf="@+id/list_item_playlist_image"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/list_item_playlist_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/playlist"
+            android:textColor="#FFF"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/list_item_playlist_songs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/songs"
+            android:textColor="#EEE"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#333" />
+
+</RelativeLayout>

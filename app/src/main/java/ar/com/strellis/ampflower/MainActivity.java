@@ -36,14 +36,19 @@ import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkStatus;
 import ar.com.strellis.ampflower.data.model.ServerStatus;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepository;
+import ar.com.strellis.ampflower.data.repository.ArtistsRepository;
+import ar.com.strellis.ampflower.data.repository.PlaylistsRepository;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.networkutils.NetworkReceiver;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
+import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.NetworkStatusViewModel;
+import ar.com.strellis.ampflower.viewmodel.PlaylistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
+import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -56,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NetworkStatusViewModel networkStatusViewModel;
     private ServerStatusViewModel serverStatusViewModel;
     private AlbumsViewModel albumsViewModel;
+    private ArtistsViewModel artistsViewModel;
+    private SongsViewModel songsViewModel;
+    private PlaylistsViewModel playlistsViewModel;
     private SettingsViewModel settingsViewModel;
     private SharedPreferences.Editor prefsEditor;
     private SharedPreferences sharedPreferences;
@@ -341,18 +349,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         serverStatusViewModel=new ViewModelProvider(this).get(ServerStatusViewModel.class);
         settingsViewModel=new ViewModelProvider(this).get(SettingsViewModel.class);
         albumsViewModel=new ViewModelProvider(this).get(AlbumsViewModel.class);
+        artistsViewModel=new ViewModelProvider(this).get(ArtistsViewModel.class);
+        playlistsViewModel=new ViewModelProvider(this).get(PlaylistsViewModel.class);
     }
     private void configureDataModels()
     {
         configureAlbumsViewModel();
+        configureArtistsViewModel();
+        configurePlaylistsViewModel();
     }
     private void configureAlbumsViewModel()
     {
         AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
+        assert settings != null;
         AmpacheService networkService= AmpacheUtil.getService(settings);
         LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
         AlbumsRepository albumRepository = AlbumsRepository.getInstance(this,networkService, settings,loginResponse);
         albumsViewModel.setAlbumsRepository(albumRepository);
+    }
+    private void configureArtistsViewModel()
+    {
+        AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
+        assert settings != null;
+        AmpacheService service= AmpacheUtil.getService(settings);
+        LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
+        ArtistsRepository artistsRepository = ArtistsRepository.getInstance(this,service, settings,loginResponse);
+        artistsViewModel.setArtistsRepository(artistsRepository);
+    }
+    private void configurePlaylistsViewModel()
+    {
+        AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
+        assert settings != null;
+        AmpacheService service= AmpacheUtil.getService(settings);
+        LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
+        PlaylistsRepository playlistsRepository = PlaylistsRepository.getInstance(this,service, settings,loginResponse);
+        playlistsViewModel.setPlaylistsRepository(playlistsRepository);
     }
     private void configureNavigation()
     {

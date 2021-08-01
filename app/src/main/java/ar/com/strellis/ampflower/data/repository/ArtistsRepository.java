@@ -10,98 +10,92 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PagedList;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
-import ar.com.strellis.ampflower.data.datasource.network.AlbumRemote;
-import ar.com.strellis.ampflower.data.datasource.network.NetAlbumsDataSourceFactory;
-import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.datasource.network.ArtistRemote;
+import ar.com.strellis.ampflower.data.datasource.network.NetArtistsDataSourceFactory;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
+import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.schedulers.Schedulers;
 
-public class AlbumsRepository {
-    private static final String TAG = AlbumsRepository.class.getSimpleName();
-    private static AlbumsRepository instance;
-    private AlbumRemote network;
+public class ArtistsRepository {
+    private static final String TAG = ArtistsRepository.class.getSimpleName();
+    private static ArtistsRepository instance;
+    private ArtistRemote network;
     final private AmpacheDatabase database;
-    private MediatorLiveData<PagedList<Album>> liveDataMerger;
-    private AmpacheService ampacheService;
+    private MediatorLiveData<PagedList<Artist>> liveDataMerger;
     private LoginResponse loginResponse;
 
     @SuppressLint("CheckResult")
-    private AlbumsRepository(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse) {
-
+    public ArtistsRepository(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse)
+    {
         // find the settings from the application
         // ... with a pretty little detail, if we don't have any network configuration,
         // we need to show only what we find in the database.
         network=null;
-        liveDataMerger= new MediatorLiveData<>();
-        this.ampacheService=ampacheService;
-        this.loginResponse=loginResponse;
+        liveDataMerger=null;
         // So, we check here if the ampache details are configured.
         if(settings.getAmpacheUrl()!=null
                 && !settings.getAmpacheUrl().equals("")
                 && settings.getAmpacheUsername()!=null
                 && !settings.getAmpacheUsername().equals(""))
         {
-            NetAlbumsDataSourceFactory dataSourceFactory = new NetAlbumsDataSourceFactory(ampacheService,loginResponse);
+            NetArtistsDataSourceFactory dataSourceFactory = new NetArtistsDataSourceFactory(ampacheService,loginResponse);
 
-            PagedList.BoundaryCallback<Album> boundaryCallback = new PagedList.BoundaryCallback<Album>() {
+            PagedList.BoundaryCallback<Artist> boundaryCallback = new PagedList.BoundaryCallback<Artist>() {
                 @Override
                 public void onZeroItemsLoaded() {
                     super.onZeroItemsLoaded();
-                    liveDataMerger.addSource(database.getAlbums(), value -> {
+                    liveDataMerger.addSource(database.getArtists(), value -> {
                         liveDataMerger.setValue(value);
-                        liveDataMerger.removeSource(database.getAlbums());
+                        liveDataMerger.removeSource(database.getArtists());
                     });
                 }
             };
-            network = new AlbumRemote(dataSourceFactory, boundaryCallback);
+            network = new ArtistRemote(dataSourceFactory, boundaryCallback);
             database = AmpacheDatabase.getDatabase(context.getApplicationContext());
-            // Albums retrieved from the network will be stored in the database.
+            // Artists retrieved from the network will be stored in the database.
             liveDataMerger = new MediatorLiveData<>();
-            liveDataMerger.addSource(network.getAlbumsPaged(), value -> {
+            liveDataMerger.addSource(network.getArtistsPaged(), value -> {
                 liveDataMerger.setValue(value);
                 Log.d(TAG, value.toString());
             });
 
             // save the movies into db
-            dataSourceFactory.getAlbums().
+            dataSourceFactory.getArtists().
                     observeOn(Schedulers.io()).
-                    subscribe(album -> database.albumDao().insertAlbum(album));
+                    subscribe(artist -> database.artistDao().insertArtist(artist));
         }
         else
         {
             // Load only what we have in the database
             database=AmpacheDatabase.getDatabase(context.getApplicationContext());
-            liveDataMerger = new MediatorLiveData<>();
-            liveDataMerger.addSource(database.getAlbums(), value -> {
+            liveDataMerger.addSource(database.getArtists(), value -> {
                 liveDataMerger.setValue(value);
-                liveDataMerger.removeSource(database.getAlbums());
+                liveDataMerger.removeSource(database.getArtists());
             });
         }
         // We should add a listener here, for when the server is configured or comes back
         // online again?
     }
-
-    public static AlbumsRepository getInstance(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse){
+    public static ArtistsRepository getInstance(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse){
         if(instance == null){
-            instance = new AlbumsRepository(context,ampacheService,settings,loginResponse);
+            instance = new ArtistsRepository(context,ampacheService,settings,loginResponse);
         }
         return instance;
     }
 
-    public LiveData<PagedList<Album>> getAlbums(){
-        return  liveDataMerger;
+    public LiveData<PagedList<Artist>> getArtists() {
+        return liveDataMerger;
     }
 
     public LiveData<NetworkState> getNetworkState() {
-        // If we don't have any user settings for the server, it will be impossible to obtain any network
-        // state, in fact, it will be null. I'll return an empty LiveData object.
         if(network==null)
             return new MutableLiveData<>();
         return network.getNetworkState();
     }
+
     public void setLoginResponse(LoginResponse loginResponse)
     {
         this.loginResponse=loginResponse;

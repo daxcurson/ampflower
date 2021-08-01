@@ -12,6 +12,7 @@ import androidx.room.Update;
 import java.util.List;
 
 import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import io.reactivex.Maybe;
 
 @Dao
@@ -32,7 +33,7 @@ public interface AlbumDao {
     LiveData<List<Album>> listAlbums(int albumId);
     @Transaction
     @Query("select * from albums where id=:albumId")
-    Maybe<Album> listAlbumSongsObservable(int albumId);
+    Maybe<AlbumWithSongs> listAlbumSongsObservable(int albumId);
     @Query("SELECT * FROM albums")
     List<Album> listAllAlbums();
 }

@@ -36,7 +36,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/album_title"
-            android:textColor="#FFF"
             android:textSize="14sp" />
 
         <TextView
@@ -47,7 +46,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/artist"
-            android:textColor="#EEE"
             android:textSize="12sp" />
     </LinearLayout>
 

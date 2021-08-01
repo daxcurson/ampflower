@@ -45,4 +45,5 @@
     <string name="album_art">Album Art</string>
     <string name="album_title">Album Title</string>
     <string name="artist">Artist</string>
+    <string name="connecting">Connecting</string>
 </resources>

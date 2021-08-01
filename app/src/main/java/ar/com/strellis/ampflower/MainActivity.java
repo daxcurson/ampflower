@@ -27,7 +27,6 @@ import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
@@ -36,10 +35,12 @@ import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkStatus;
 import ar.com.strellis.ampflower.data.model.ServerStatus;
+import ar.com.strellis.ampflower.data.repository.AlbumsRepository;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.networkutils.NetworkReceiver;
+import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.NetworkStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavController navController;
     private NetworkStatusViewModel networkStatusViewModel;
     private ServerStatusViewModel serverStatusViewModel;
+    private AlbumsViewModel albumsViewModel;
     private SettingsViewModel settingsViewModel;
     private SharedPreferences.Editor prefsEditor;
     private SharedPreferences sharedPreferences;
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * Observes the server status view to display a Toast message whenever the status changes.
+     * Observes the server status view to trigger the load of the data repositories
      */
     private void configureServerStatusObserver()
     {
@@ -111,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 case ONLINE:
                     showToast("We're online!");
+                    configureDataModels();
                     break;
             }
         };
@@ -153,6 +156,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case LOGIN_DENIED:
                 serverStatusMenuItem.setIcon(R.drawable.ic_cloud_cross);
+                break;
+            case CONNECTING:
+                serverStatusMenuItem.setIcon(R.drawable.ic_cloud_loading);
                 break;
             case ONLINE:
                 serverStatusMenuItem.setIcon(R.drawable.ic_cloud_checked);
@@ -233,10 +239,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 int duration = Toast.LENGTH_LONG;
                                 Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
                                 toast.show();
-                                // We're online, update all the status.
-                                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
-                                serverStatusViewModel.setLoginResponse(response.body());
                                 Log.d("MainActivity.loginToAmpache","We're in");
+                                serverStatusViewModel.setLoginResponse(response.body());
+                                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
                             }
                         }
 
@@ -335,6 +340,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         networkStatusViewModel=new ViewModelProvider(this).get(NetworkStatusViewModel.class);
         serverStatusViewModel=new ViewModelProvider(this).get(ServerStatusViewModel.class);
         settingsViewModel=new ViewModelProvider(this).get(SettingsViewModel.class);
+        albumsViewModel=new ViewModelProvider(this).get(AlbumsViewModel.class);
+    }
+    private void configureDataModels()
+    {
+        configureAlbumsViewModel();
+    }
+    private void configureAlbumsViewModel()
+    {
+        AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
+        AmpacheService networkService= AmpacheUtil.getService(settings);
+        LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
+        AlbumsRepository albumRepository = AlbumsRepository.getInstance(this,networkService, settings,loginResponse);
+        albumsViewModel.setAlbumsRepository(albumRepository);
     }
     private void configureNavigation()
     {

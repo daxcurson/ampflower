@@ -87,11 +87,11 @@ public class ServerStatusFragment extends Fragment {
             @Override
             public void loginSuccess(LoginResponse response) {
                 // We managed to log in.
-                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
                 serverStatusViewModel.setLoginResponse(response);
                 // This may be the first time the settings are stored, I'm going to record them
                 // in the in-memory settings object.
                 serverStatusViewModel.setAmpacheSettings(settings);
+                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
                 if(saveSettings) {
                     settingsViewModel.setAmpacheSettings(settings);
                 }
@@ -120,6 +120,9 @@ public class ServerStatusFragment extends Fragment {
                         binding.ampacheServerStatusButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_cloud_checked));
                         binding.ampacheServerStatusText.setText(R.string.online);
                         break;
+                    case CONNECTING:
+                        binding.ampacheServerStatusButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_cloud_loading));
+                        binding.ampacheServerStatusText.setText(R.string.connecting);
                 }
             } else
             {

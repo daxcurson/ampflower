@@ -33,7 +33,7 @@ public class ServerStatusViewModel extends ViewModel {
     }
     public void setAmpacheSettings(AmpacheSettings settings)
     {
-        ampacheSettingsMutableLiveData.postValue(settings);
+        ampacheSettingsMutableLiveData.setValue(settings);
     }
     public MutableLiveData<LoginResponse> getLoginResponse()
     {

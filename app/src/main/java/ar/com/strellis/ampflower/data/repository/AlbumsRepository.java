@@ -35,7 +35,7 @@ public class AlbumsRepository {
         // ... with a pretty little detail, if we don't have any network configuration,
         // we need to show only what we find in the database.
         network=null;
-        liveDataMerger=null;
+        liveDataMerger= new MediatorLiveData<>();;
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;
         // So, we check here if the ampache details are configured.

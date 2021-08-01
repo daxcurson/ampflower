@@ -266,11 +266,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else
             {
                 Log.d("MainActivity.loginToAmpache","The required parameters user, password and url are blank, not attempting connection");
+                serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
             }
         }
         else
         {
             Log.d("MainActivity.loginToAmpache","Either the settings are null, or the URL is null, not doing anything");
+            serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
         }
     }
 

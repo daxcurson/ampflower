@@ -14,4 +14,11 @@
         android:iconTintMode="src_over"
         android:icon="@drawable/ic_cloud_unavail"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_search"
+        android:title="@string/search"
+        android:icon="@android:drawable/ic_menu_search"
+        android:orderInCategory="100"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom"/>
 </menu>

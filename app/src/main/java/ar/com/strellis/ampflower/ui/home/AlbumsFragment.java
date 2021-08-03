@@ -1,12 +1,17 @@
 package ar.com.strellis.ampflower.ui.home;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -14,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.jetbrains.annotations.NotNull;
 
+import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.databinding.FragmentAlbumsBinding;
 import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapter;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
@@ -50,4 +56,29 @@ public class AlbumsFragment extends Fragment {
         binding.albumsRecycler.setAdapter(adapter);
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) requireActivity().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // update the albums model with the search string
+                albumsViewModel.setQuery(newText);
+                // Now, invalidate the paging, to force it to refresh?
+                binding.albumsRecycler.getAdapter().notifyDataSetChanged();
+                return false;
+            }
+        });
+    }
 }

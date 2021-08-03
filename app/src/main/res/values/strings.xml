@@ -47,4 +47,5 @@
     <string name="artist">Artist</string>
     <string name="connecting">Connecting</string>
     <string name="songs">Songs</string>
+    <string name="search">Search</string>
 </resources>

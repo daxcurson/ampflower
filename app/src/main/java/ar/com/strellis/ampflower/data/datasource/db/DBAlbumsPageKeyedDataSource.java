@@ -3,6 +3,7 @@ package ar.com.strellis.ampflower.data.datasource.db;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.paging.PageKeyedDataSource;
 
 import java.util.List;
@@ -14,14 +15,16 @@ public class DBAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Alb
 
     public static final String TAG = DBAlbumsPageKeyedDataSource.class.getSimpleName();
     private final AlbumDao albumDao;
-    public DBAlbumsPageKeyedDataSource(AlbumDao dao) {
+    private LiveData<String> query;
+    public DBAlbumsPageKeyedDataSource(AlbumDao dao,LiveData<String> query) {
         albumDao = dao;
+        this.query=query;
     }
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull final LoadInitialCallback<String, Album> callback) {
         Log.i(TAG, "Loading Initial Range, Count " + params.requestedLoadSize);
-        List<Album> albums = albumDao.listAllAlbums();
+        List<Album> albums = albumDao.listAlbumsByname(query.getValue());
         if(albums.size() != 0) {
             callback.onResult(albums, "0", "1");
         }
@@ -33,5 +36,9 @@ public class DBAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Alb
 
     @Override
     public void loadBefore(@NonNull LoadParams<String> params, @NonNull LoadCallback<String, Album> callback) {
+    }
+
+    public void setQuery(LiveData<String> query) {
+        this.query=query;
     }
 }

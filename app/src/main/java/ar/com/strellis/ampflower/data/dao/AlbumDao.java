@@ -1,6 +1,7 @@
 package ar.com.strellis.ampflower.data.dao;
 
 import androidx.lifecycle.LiveData;
+import androidx.paging.PagingSource;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -36,4 +37,8 @@ public interface AlbumDao {
     Maybe<AlbumWithSongs> listAlbumSongsObservable(int albumId);
     @Query("SELECT * FROM albums")
     List<Album> listAllAlbums();
+    @Query("select * from albums where name like :query")
+    List<Album> listAlbumsByname(String query);
+    @Query("select * from albums where name like :query")
+    PagingSource<Integer, Album> pagingSource(String query);
 }

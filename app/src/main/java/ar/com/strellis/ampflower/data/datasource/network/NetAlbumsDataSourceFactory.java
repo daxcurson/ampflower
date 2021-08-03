@@ -1,6 +1,7 @@
 package ar.com.strellis.ampflower.data.datasource.network;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.DataSource;
 
@@ -13,9 +14,9 @@ public class NetAlbumsDataSourceFactory extends DataSource.Factory<String, Album
 
     private final MutableLiveData<NetAlbumsPageKeyedDataSource> networkStatus;
     private final NetAlbumsPageKeyedDataSource albumsPageKeyedDataSource;
-    public NetAlbumsDataSourceFactory(AmpacheService service, LoginResponse settings) {
+    public NetAlbumsDataSourceFactory(AmpacheService service, LoginResponse settings, LiveData<String> query) {
         this.networkStatus = new MutableLiveData<>();
-        albumsPageKeyedDataSource = new NetAlbumsPageKeyedDataSource(service,settings);
+        albumsPageKeyedDataSource = new NetAlbumsPageKeyedDataSource(service,settings,query);
     }
 
 

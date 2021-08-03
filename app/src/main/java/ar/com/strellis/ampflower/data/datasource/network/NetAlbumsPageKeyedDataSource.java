@@ -3,6 +3,7 @@ package ar.com.strellis.ampflower.data.datasource.network;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PageKeyedDataSource;
 
@@ -11,11 +12,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ar.com.strellis.ampflower.data.model.Album;
-import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import io.reactivex.subjects.ReplaySubject;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,13 +27,14 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
     private final MutableLiveData<NetworkState> networkState;
     private final ReplaySubject<Album> albumsObservable;
     private LoginResponse loginResponse;
+    private final LiveData<String> query;
 
-
-    public NetAlbumsPageKeyedDataSource(AmpacheService service, LoginResponse login) {
+    public NetAlbumsPageKeyedDataSource(AmpacheService service, LoginResponse login,LiveData<String> query) {
         ampacheService = service;
         networkState = new MutableLiveData<>();
         albumsObservable = ReplaySubject.create();
         this.loginResponse=login;
+        this.query=query;
     }
 
     public void setLoginResponse(LoginResponse login)
@@ -57,7 +57,8 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
         networkState.postValue(NetworkState.LOADING);
         int offset=0;
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        Call<List<Album>> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),"",offset,limit);
+        String query=this.query.getValue();
+        Call<List<Album>> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),query,offset,limit);
         callBack.enqueue(new Callback<List<Album>>() {
             @Override
             public void onResponse(@NonNull Call<List<Album>> call, @NonNull Response<List<Album>> response) {

@@ -29,7 +29,7 @@ public class AlbumsRepository {
     private LoginResponse loginResponse;
 
     @SuppressLint("CheckResult")
-    private AlbumsRepository(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse) {
+    private AlbumsRepository(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse,LiveData<String> query) {
 
         // find the settings from the application
         // ... with a pretty little detail, if we don't have any network configuration,
@@ -44,7 +44,7 @@ public class AlbumsRepository {
                 && settings.getAmpacheUsername()!=null
                 && !settings.getAmpacheUsername().equals(""))
         {
-            NetAlbumsDataSourceFactory dataSourceFactory = new NetAlbumsDataSourceFactory(ampacheService,loginResponse);
+            NetAlbumsDataSourceFactory dataSourceFactory = new NetAlbumsDataSourceFactory(ampacheService,loginResponse,query);
 
             PagedList.BoundaryCallback<Album> boundaryCallback = new PagedList.BoundaryCallback<Album>() {
                 @Override
@@ -84,9 +84,9 @@ public class AlbumsRepository {
         // online again?
     }
 
-    public static AlbumsRepository getInstance(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse){
+    public static AlbumsRepository getInstance(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse,LiveData<String> query){
         if(instance == null){
-            instance = new AlbumsRepository(context,ampacheService,settings,loginResponse);
+            instance = new AlbumsRepository(context,ampacheService,settings,loginResponse,query);
         }
         return instance;
     }

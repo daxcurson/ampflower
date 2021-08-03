@@ -12,8 +12,18 @@ import ar.com.strellis.ampflower.data.repository.AlbumsRepository;
 public class AlbumsViewModel extends ViewModel
 {
     private AlbumsRepository albumsRepository;
+    private MutableLiveData<String> query;
     public AlbumsViewModel()
     {
+        query=new MutableLiveData<>();
+    }
+    public LiveData<String> getQuery()
+    {
+        return query;
+    }
+    public void setQuery(String query)
+    {
+        this.query.setValue(query);
     }
     public void setAlbumsRepository(AlbumsRepository repository)
     {

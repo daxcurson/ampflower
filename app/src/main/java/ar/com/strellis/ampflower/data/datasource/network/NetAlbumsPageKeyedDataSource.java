@@ -3,10 +3,8 @@ package ar.com.strellis.ampflower.data.datasource.network;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.paging.PageKeyedDataSource;
 
 import java.util.ArrayList;
@@ -30,22 +28,13 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
     private final ReplaySubject<Album> albumsObservable;
     private LoginResponse loginResponse;
     private final LiveData<String> query;
-    private LifecycleOwner lifecycleOwner;
 
-    public NetAlbumsPageKeyedDataSource(AmpacheService service, LoginResponse login,LiveData<String> query,LifecycleOwner lifecycleOwner) {
+    public NetAlbumsPageKeyedDataSource(AmpacheService service, LoginResponse login,LiveData<String> query) {
         ampacheService = service;
         networkState = new MutableLiveData<>();
         albumsObservable = ReplaySubject.create();
         this.loginResponse=login;
         this.query=query;
-        this.lifecycleOwner=lifecycleOwner;
-        this.query.observe(lifecycleOwner, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Log.d("NetAlbumsPageKeyedDataSource","About to invalidate the datasource");
-                invalidate();
-            }
-        });
     }
 
     public void setLoginResponse(LoginResponse login)

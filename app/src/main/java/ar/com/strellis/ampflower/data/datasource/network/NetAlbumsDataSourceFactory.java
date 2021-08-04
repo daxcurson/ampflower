@@ -1,5 +1,7 @@
 package ar.com.strellis.ampflower.data.datasource.network;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -14,10 +16,19 @@ import io.reactivex.subjects.ReplaySubject;
 public class NetAlbumsDataSourceFactory extends DataSource.Factory<String, Album> {
 
     private final MutableLiveData<NetAlbumsPageKeyedDataSource> networkStatus;
-    private final NetAlbumsPageKeyedDataSource albumsPageKeyedDataSource;
+    private NetAlbumsPageKeyedDataSource albumsPageKeyedDataSource;
+    private LoginResponse loginResponse;
+
     public NetAlbumsDataSourceFactory(AmpacheService service, LoginResponse settings, LiveData<String> query, LifecycleOwner lifecycleOwner) {
         this.networkStatus = new MutableLiveData<>();
-        albumsPageKeyedDataSource = new NetAlbumsPageKeyedDataSource(service,settings,query,lifecycleOwner);
+        albumsPageKeyedDataSource = new NetAlbumsPageKeyedDataSource(service,settings,query);
+        this.loginResponse=settings;
+        query.observe(lifecycleOwner, newQuery -> {
+            Log.d("NetAlbumsDataSourceFactory","About to invalidate the albums datasource");
+            albumsPageKeyedDataSource.invalidate();
+            albumsPageKeyedDataSource = new NetAlbumsPageKeyedDataSource(service,loginResponse,query);
+        });
+
     }
 
 
@@ -36,4 +47,7 @@ public class NetAlbumsDataSourceFactory extends DataSource.Factory<String, Album
         return albumsPageKeyedDataSource.getAlbums();
     }
 
+    public void setLoginResponse(LoginResponse loginResponse) {
+        this.loginResponse=loginResponse;
+    }
 }

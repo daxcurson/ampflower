@@ -26,8 +26,7 @@ public class AlbumsRepository {
     private AlbumRemote network;
     final private AmpacheDatabase database;
     private MediatorLiveData<PagedList<Album>> liveDataMerger;
-    private AmpacheService ampacheService;
-    private LoginResponse loginResponse;
+    private NetAlbumsDataSourceFactory albumsDataSourceFactory;
 
     @SuppressLint("CheckResult")
     private AlbumsRepository(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner) {
@@ -37,8 +36,6 @@ public class AlbumsRepository {
         // we need to show only what we find in the database.
         network=null;
         liveDataMerger= new MediatorLiveData<>();
-        this.ampacheService=ampacheService;
-        this.loginResponse=loginResponse;
         // So, we check here if the ampache details are configured.
         if(settings.getAmpacheUrl()!=null
                 && !settings.getAmpacheUrl().equals("")
@@ -105,6 +102,6 @@ public class AlbumsRepository {
     }
     public void setLoginResponse(LoginResponse loginResponse)
     {
-        this.loginResponse=loginResponse;
+        this.albumsDataSourceFactory.setLoginResponse(loginResponse);
     }
 }

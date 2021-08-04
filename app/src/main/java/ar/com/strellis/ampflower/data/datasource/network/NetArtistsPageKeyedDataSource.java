@@ -3,6 +3,7 @@ package ar.com.strellis.ampflower.data.datasource.network;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PageKeyedDataSource;
 
@@ -25,12 +26,14 @@ public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, A
     private final MutableLiveData<NetworkState> networkState;
     private final ReplaySubject<Artist> artistsObservable;
     private final LoginResponse loginResponse;
+    private final LiveData<String> query;
 
-    public NetArtistsPageKeyedDataSource(AmpacheService service, LoginResponse login) {
+    public NetArtistsPageKeyedDataSource(AmpacheService service, LoginResponse login,LiveData<String> query) {
         ampacheService=service;
         networkState = new MutableLiveData<>();
         artistsObservable = ReplaySubject.create();
         loginResponse=login;
+        this.query=query;
     }
 
     public MutableLiveData<NetworkState> getNetworkState() {
@@ -43,18 +46,19 @@ public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, A
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull final LoadInitialCallback<String, Artist> callback) {
-        Log.i(TAG, "Loading Initial Range, Count " + params.requestedLoadSize);
+        Log.i(TAG, "Loading Initial Range of Artists, Count " + params.requestedLoadSize);
 
         int limit=params.requestedLoadSize;
         networkState.postValue(NetworkState.LOADING);
         int offset=0;
+        String filterQuery=this.query.getValue();
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        Call<List<Artist>> callBack = ampacheService.get_indexes_artist(loginResponse.getAuth(),"",offset,limit);
+        Call<List<Artist>> callBack = ampacheService.get_indexes_artist(loginResponse.getAuth(),filterQuery,offset,limit);
         callBack.enqueue(new Callback<List<Artist>>() {
             @Override
             public void onResponse(@NonNull Call<List<Artist>> call, @NonNull Response<List<Artist>> response) {
                 if (response.isSuccessful()) {
-                    Log.d(TAG,"We have a successful answer!");
+                    Log.d(TAG,"We have a successful answer! We queried with: >"+filterQuery+"<");
                     assert response.body() != null;
                     callback.onResult(response.body(), null, "1");
                     networkState.postValue(NetworkState.LOADED);
@@ -96,13 +100,15 @@ public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, A
         }
         int limit=params.requestedLoadSize;
         int offset=(page.get())*params.requestedLoadSize;
+        String filterQuery=this.query.getValue();
         Log.d(TAG,"Page="+page.get()+", offset="+offset+", limit="+limit);
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        Call<List<Artist>> callBack = ampacheService.get_indexes_artist(loginResponse.getAuth(),"",offset,limit);
+        Call<List<Artist>> callBack = ampacheService.get_indexes_artist(loginResponse.getAuth(),filterQuery,offset,limit);
         callBack.enqueue(new Callback<List<Artist>>() {
             @Override
             public void onResponse(@NonNull Call<List<Artist>> call, @NonNull Response<List<Artist>> response) {
                 if (response.isSuccessful()) {
+                    Log.d(TAG,"We have a successful answer! We queried with: >"+filterQuery+"<");
                     assert response.body() != null;
                     callback.onResult(response.body(),Integer.toString(page.get()+1));
                     networkState.postValue(NetworkState.LOADED);

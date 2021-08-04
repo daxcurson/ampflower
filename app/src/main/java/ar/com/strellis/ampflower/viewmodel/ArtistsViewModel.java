@@ -12,6 +12,19 @@ import ar.com.strellis.ampflower.data.repository.ArtistsRepository;
 public class ArtistsViewModel extends ViewModel
 {
     private ArtistsRepository artistsRepository;
+    private final MutableLiveData<String> query;
+    public ArtistsViewModel()
+    {
+        this.query= new MutableLiveData<>();
+    }
+    public LiveData<String> getQuery()
+    {
+        return this.query;
+    }
+    public void setQuery(String query)
+    {
+        this.query.setValue(query);
+    }
     public LiveData<PagedList<Artist>> getArtists()
     {
         if(this.artistsRepository==null)

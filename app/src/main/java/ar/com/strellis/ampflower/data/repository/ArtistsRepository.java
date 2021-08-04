@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -28,7 +29,7 @@ public class ArtistsRepository {
     private LoginResponse loginResponse;
 
     @SuppressLint("CheckResult")
-    public ArtistsRepository(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse)
+    public ArtistsRepository(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner)
     {
         // find the settings from the application
         // ... with a pretty little detail, if we don't have any network configuration,
@@ -41,7 +42,7 @@ public class ArtistsRepository {
                 && settings.getAmpacheUsername()!=null
                 && !settings.getAmpacheUsername().equals(""))
         {
-            NetArtistsDataSourceFactory dataSourceFactory = new NetArtistsDataSourceFactory(ampacheService,loginResponse);
+            NetArtistsDataSourceFactory dataSourceFactory = new NetArtistsDataSourceFactory(ampacheService,loginResponse,query,lifecycleOwner);
 
             PagedList.BoundaryCallback<Artist> boundaryCallback = new PagedList.BoundaryCallback<Artist>() {
                 @Override
@@ -79,9 +80,9 @@ public class ArtistsRepository {
         // We should add a listener here, for when the server is configured or comes back
         // online again?
     }
-    public static ArtistsRepository getInstance(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse){
+    public static ArtistsRepository getInstance(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner){
         if(instance == null){
-            instance = new ArtistsRepository(context,ampacheService,settings,loginResponse);
+            instance = new ArtistsRepository(context,ampacheService,settings,loginResponse,query,lifecycleOwner);
         }
         return instance;
     }

@@ -1,6 +1,10 @@
 package ar.com.strellis.ampflower.data.datasource.network;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.DataSource;
 
@@ -10,11 +14,21 @@ import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.subjects.ReplaySubject;
 
 public class NetArtistsDataSourceFactory extends DataSource.Factory<String, Artist>{
+
     private final MutableLiveData<NetArtistsPageKeyedDataSource> networkStatus;
-    private final NetArtistsPageKeyedDataSource artistsPageKeyedDataSource;
-    public NetArtistsDataSourceFactory(AmpacheService service, LoginResponse settings) {
+    private NetArtistsPageKeyedDataSource artistsPageKeyedDataSource;
+    private LoginResponse loginResponse;
+
+    public NetArtistsDataSourceFactory(AmpacheService service, LoginResponse settings, LiveData<String> query, LifecycleOwner lifecycleOwner) {
         this.networkStatus = new MutableLiveData<>();
-        artistsPageKeyedDataSource = new NetArtistsPageKeyedDataSource(service,settings);
+        artistsPageKeyedDataSource = new NetArtistsPageKeyedDataSource(service,settings,query);
+        this.loginResponse=settings;
+        query.observe(lifecycleOwner, newQuery -> {
+            Log.d("NetArtistsDataSourceFactory","About to invalidate the artists datasource");
+            artistsPageKeyedDataSource.invalidate();
+            artistsPageKeyedDataSource = new NetArtistsPageKeyedDataSource(service,loginResponse,query);
+        });
+
     }
 
 

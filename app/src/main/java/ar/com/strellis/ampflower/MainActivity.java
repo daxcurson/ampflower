@@ -378,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         assert settings != null;
         AmpacheService service= AmpacheUtil.getService(settings);
         LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
-        ArtistsRepository artistsRepository = ArtistsRepository.getInstance(this,service, settings,loginResponse);
+        ArtistsRepository artistsRepository = ArtistsRepository.getInstance(this,service, settings,loginResponse,artistsViewModel.getQuery(),this);
         artistsViewModel.setArtistsRepository(artistsRepository);
     }
     private void configurePlaylistsViewModel()

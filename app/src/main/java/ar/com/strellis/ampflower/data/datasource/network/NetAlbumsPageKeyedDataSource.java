@@ -3,8 +3,10 @@ package ar.com.strellis.ampflower.data.datasource.network;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.paging.PageKeyedDataSource;
 
 import java.util.ArrayList;
@@ -28,13 +30,22 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
     private final ReplaySubject<Album> albumsObservable;
     private LoginResponse loginResponse;
     private final LiveData<String> query;
+    private LifecycleOwner lifecycleOwner;
 
-    public NetAlbumsPageKeyedDataSource(AmpacheService service, LoginResponse login,LiveData<String> query) {
+    public NetAlbumsPageKeyedDataSource(AmpacheService service, LoginResponse login,LiveData<String> query,LifecycleOwner lifecycleOwner) {
         ampacheService = service;
         networkState = new MutableLiveData<>();
         albumsObservable = ReplaySubject.create();
         this.loginResponse=login;
         this.query=query;
+        this.lifecycleOwner=lifecycleOwner;
+        this.query.observe(lifecycleOwner, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                Log.d("NetAlbumsPageKeyedDataSource","About to invalidate the datasource");
+                invalidate();
+            }
+        });
     }
 
     public void setLoginResponse(LoginResponse login)
@@ -57,13 +68,13 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
         networkState.postValue(NetworkState.LOADING);
         int offset=0;
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        String query=this.query.getValue();
-        Call<List<Album>> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),query,offset,limit);
+        String filterQuery=this.query.getValue();
+        Call<List<Album>> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),filterQuery,offset,limit);
         callBack.enqueue(new Callback<List<Album>>() {
             @Override
             public void onResponse(@NonNull Call<List<Album>> call, @NonNull Response<List<Album>> response) {
                 if (response.isSuccessful()) {
-                    Log.d(TAG,"We have a successful answer!");
+                    Log.d(TAG,"We have a successful answer! We queried with "+filterQuery);
                     assert response.body() != null;
                     callback.onResult(response.body(), null, "1");
                     networkState.postValue(NetworkState.LOADED);
@@ -95,7 +106,7 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
 
     @Override
     public void loadAfter(@NonNull LoadParams<String> params, final @NonNull LoadCallback<String, Album> callback) {
-        Log.i(TAG, "Loading page " + params.key );
+        Log.i(TAG, "Loading page after:" + params.key );
         networkState.postValue(NetworkState.LOADING);
         final AtomicInteger page = new AtomicInteger(0);
         try {
@@ -107,15 +118,20 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
         int offset=(page.get())*params.requestedLoadSize;
         Log.d(TAG,"Page="+page.get()+", offset="+offset+", limit="+limit);
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        Call<List<Album>> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),"",offset,limit);
+        String filterQuery=this.query.getValue();
+        Call<List<Album>> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),filterQuery,offset,limit);
         callBack.enqueue(new Callback<List<Album>>() {
             @Override
             public void onResponse(@NonNull Call<List<Album>> call, @NonNull Response<List<Album>> response) {
                 if (response.isSuccessful()) {
+                    Log.d(TAG,"We have a successful answer from a subsequent page! We queried with "+filterQuery);
                     assert response.body() != null;
                     callback.onResult(response.body(),Integer.toString(page.get()+1));
                     networkState.postValue(NetworkState.LOADED);
-                    response.body().forEach(albumsObservable::onNext);
+                    List<Album> results=response.body();
+                    Log.d(TAG,"There are "+results.size()+" albums retrieved");
+                    results.forEach(albumsObservable::onNext);
+                    Log.d(TAG,"Done loading albums");
                 } else {
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));
                     Log.e("API CALL", response.message());
@@ -139,6 +155,6 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
 
     @Override
     public void loadBefore(@NonNull LoadParams<String> params, @NonNull LoadCallback<String, Album> callback) {
-
+        Log.i(TAG, "Loading page before: " + params.key );
     }
 }

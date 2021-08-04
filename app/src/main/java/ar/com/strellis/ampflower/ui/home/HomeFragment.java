@@ -1,13 +1,20 @@
 package ar.com.strellis.ampflower.ui.home;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
@@ -17,18 +24,19 @@ import org.jetbrains.annotations.NotNull;
 
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.databinding.FragmentHomeBinding;
+import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-
+    private AlbumsViewModel albumsViewModel;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
+        albumsViewModel=new ViewModelProvider(requireActivity()).get(AlbumsViewModel.class);
         return root;
     }
 

@@ -64,13 +64,13 @@ public class AlbumAdapter extends PagedListAdapter<Album, RecyclerView.ViewHolde
     public static DiffUtil.ItemCallback<Album> callback_diff=new DiffUtil.ItemCallback<Album>() {
         @Override
         public boolean areItemsTheSame(@NonNull Album oldItem,@NonNull Album newItem) {
-            Log.d("DEBUG","Callback comparing item "+oldItem.getId()+" with item "+newItem.getId());
+            //Log.d("DEBUG","Callback comparing item "+oldItem.getId()+" with item "+newItem.getId());
             return oldItem.getId()==newItem.getId() && oldItem.getArtist().getId()==newItem.getArtist().getId();
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull Album oldItem,@NonNull Album newItem) {
-            Log.d("DEBUG","Callback comparing content of item "+oldItem.getId()+" with item "+newItem.getId());
+            //Log.d("DEBUG","Callback comparing content of item "+oldItem.getId()+" with item "+newItem.getId());
             return oldItem.equals(newItem);
         }
 

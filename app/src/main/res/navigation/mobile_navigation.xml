@@ -28,4 +28,10 @@
         android:name="ar.com.strellis.ampflower.ui.serverstatus.ServerStatusFragment"
         android:label="@string/server_status"
         tools:layout="@layout/fragment_server_status"/>
+
+    <fragment
+        android:id="@+id/nav_choose_songs"
+        android:name="ar.com.strellis.ampflower.ui.choose_songs.ChooseSongsFragment"
+        android:label="@string/choose_songs"
+        tools:layout="@layout/fragment_choose_songs" />
 </navigation>

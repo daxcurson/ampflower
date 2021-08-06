@@ -24,12 +24,22 @@ public class SongsViewModel extends ViewModel
     private final MutableLiveData<Searchable> searchableItem;
     private final MutableLiveData<List<SelectableSong>> songsInView;
     private final MutableLiveData<List<MediaItem>> currentPlaylist;
+    private final MutableLiveData<String> query;
     public SongsViewModel()
     {
         super();
         searchableItem =new MutableLiveData<>();
         currentPlaylist=new MutableLiveData<>();
         songsInView =new MutableLiveData<>();
+        query=new MutableLiveData<>();
+    }
+    public LiveData<String> getQuery()
+    {
+        return query;
+    }
+    public void setQuery(String query)
+    {
+        this.query.setValue(query);
     }
     public void setSongsRepository(SongsRepository s)
     {

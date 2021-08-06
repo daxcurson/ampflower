@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,24 +16,31 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 import ar.com.strellis.ampflower.R;
+import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentAlbumsBinding;
 import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapter;
 import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapterRx;
+import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
+import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.disposables.CompositeDisposable;
 
 public class AlbumsFragment extends Fragment {
     private FragmentAlbumsBinding binding;
     private AlbumAdapter adapter;
     private AlbumsViewModel albumsViewModel;
+    private SongsViewModel songsViewModel;
     private ServerStatusViewModel serverStatusViewModel;
     private CompositeDisposable disposable=new CompositeDisposable();
 
@@ -44,6 +52,7 @@ public class AlbumsFragment extends Fragment {
         View root = binding.getRoot();
         serverStatusViewModel=new ViewModelProvider(requireActivity()).get(ServerStatusViewModel.class);
         albumsViewModel=new ViewModelProvider(requireActivity()).get(AlbumsViewModel.class);
+        songsViewModel=new ViewModelProvider(requireActivity()).get(SongsViewModel.class);
         setHasOptionsMenu(true);
         return root;
     }
@@ -58,6 +67,27 @@ public class AlbumsFragment extends Fragment {
         albumsViewModel.getAlbums().observe(getViewLifecycleOwner(), albums -> adapter.submitList(albums));
         albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.albumsRecycler.setAdapter(adapter);
+        binding.albumsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.albumsRecycler)
+        {
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+
+            @Override
+            public boolean onClick(RecyclerView parent, View view, int position, long id) {
+                Searchable entity= Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
+                songsViewModel.setSearchableItem(entity);
+                Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
+                return false;
+            }
+
+            @Override
+            public boolean onLongClick(RecyclerView parent, View view, int position, long id) {
+                return false;
+            }
+        });
         /*adapter=new AlbumAdapterRx();
         albumsViewModel.getAlbums().observe(getViewLifecycleOwner(),pagingData->adapter.submitData()*/
     }

@@ -10,17 +10,15 @@ import com.google.gson.JsonSyntaxException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
-import java.util.Objects;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
 import ar.com.strellis.ampflower.data.datasource.memory.SongsMemoryInteractor;
-import ar.com.strellis.ampflower.data.datasource.network.SongsDatabaseInteractor;
+import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractor;
 import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractor;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import retrofit2.HttpException;

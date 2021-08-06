@@ -48,4 +48,8 @@
     <string name="connecting">Connecting</string>
     <string name="songs">Songs</string>
     <string name="search">Search</string>
+    <string name="_0_selected">0 Selected</string>
+    <string name="clear">Clear</string>
+    <string name="title">Title</string>
+    <string name="choose_songs">Choose Songs</string>
 </resources>

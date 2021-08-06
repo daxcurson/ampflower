@@ -16,6 +16,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -41,6 +42,7 @@ import ar.com.strellis.ampflower.data.model.ServerStatus;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepository;
 import ar.com.strellis.ampflower.data.repository.ArtistsRepository;
 import ar.com.strellis.ampflower.data.repository.PlaylistsRepository;
+import ar.com.strellis.ampflower.data.repository.SongsRepository;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
@@ -362,6 +364,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureAlbumsViewModel();
         configureArtistsViewModel();
         configurePlaylistsViewModel();
+        configureSongsViewModel();
     }
     private void configureAlbumsViewModel()
     {
@@ -389,6 +392,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
         PlaylistsRepository playlistsRepository = PlaylistsRepository.getInstance(this,service, settings,loginResponse);
         playlistsViewModel.setPlaylistsRepository(playlistsRepository);
+    }
+    private void configureSongsViewModel()
+    {
+        AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
+        assert settings != null;
+        AmpacheService service=AmpacheUtil.getService(settings);
+        LiveData<LoginResponse> loginResponse=serverStatusViewModel.getLoginResponse();
+        SongsRepository songsRepository=new SongsRepository(this,service,loginResponse);
+        songsViewModel.setSongsRepository(songsRepository);
     }
     private void configureNavigation()
     {

@@ -1,8 +1,6 @@
 package ar.com.strellis.ampflower;
 
 import android.annotation.SuppressLint;
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +12,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -70,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SongsViewModel songsViewModel;
     private PlaylistsViewModel playlistsViewModel;
     private SettingsViewModel settingsViewModel;
-    private SharedPreferences.Editor prefsEditor;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -317,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d("saveSettings","About to save settings");
         Gson gson=new Gson();
         String serializedPreferences=gson.toJson(settings);
-        prefsEditor=sharedPreferences.edit();
+        SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
         prefsEditor.putString("settings",serializedPreferences);
         prefsEditor.commit();
     }
@@ -358,6 +354,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         albumsViewModel=new ViewModelProvider(this).get(AlbumsViewModel.class);
         artistsViewModel=new ViewModelProvider(this).get(ArtistsViewModel.class);
         playlistsViewModel=new ViewModelProvider(this).get(PlaylistsViewModel.class);
+        songsViewModel=new ViewModelProvider(this).get(SongsViewModel.class);
     }
     private void configureDataModels()
     {

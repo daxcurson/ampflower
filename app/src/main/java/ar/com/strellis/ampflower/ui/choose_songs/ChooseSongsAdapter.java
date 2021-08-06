@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +41,7 @@ public class ChooseSongsAdapter extends RecyclerView.Adapter<ChooseSongsViewHold
         SelectableSong song= Objects.requireNonNull(songsViewModel.getSongsInView().getValue()).get(position);
         holder.getSongTitle().setText(song.getSong().getName());
         holder.getArtistName().setText(song.getSong().getArtist().getName());
+        Picasso.get().load(song.getSong().getArt()).into(holder.getAlbumImage());
         holder.getIsChecked().setChecked(song.isSelected());
     }
 
@@ -47,8 +50,17 @@ public class ChooseSongsAdapter extends RecyclerView.Adapter<ChooseSongsViewHold
         return this.songsViewModel.getSongsInView().getValue();
     }
 
+    /**
+     * Receives songs to display in the Choose Songs view. Clears the currently-displayed list
+     * and adds the items received.
+     * @param songs
+     */
     public void submitList(AlbumWithSongs songs) {
-        List<SelectableSong> songsToAdd = songs.getSongs().stream().map(song -> new SelectableSong(song, false)).collect(Collectors.toCollection(LinkedList::new));
+        List<SelectableSong> songsToAdd = songs.getSongs().stream()
+                .map(song -> new SelectableSong(song, false))
+                .collect(Collectors.toCollection(LinkedList::new));
+        // When we receive new songs, we'll delete the ones that are already present.
+        Objects.requireNonNull(this.songsViewModel.getSongsInView().getValue()).clear();
         Objects.requireNonNull(this.songsViewModel.getSongsInView().getValue()).addAll(songsToAdd);
         notifyDataSetChanged();
     }

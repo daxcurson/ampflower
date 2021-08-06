@@ -16,7 +16,6 @@
         android:layout_marginBottom="10dp"
         android:layout_marginStart="12dp"
         android:layout_marginTop="10dp"
-        android:background="#222"
         android:scaleType="centerCrop"
         android:contentDescription="@string/album_art" />
 
@@ -39,7 +38,6 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:text="@string/title"
-            android:textColor="#FFF"
             android:textSize="14sp" />
 
         <TextView
@@ -50,7 +48,6 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:text="@string/artist"
-            android:textColor="#EEE"
             android:textSize="11sp"
             tools:ignore="SmallSp" />
     </LinearLayout>

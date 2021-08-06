@@ -45,6 +45,10 @@ public class SongsViewModel extends ViewModel
     {
         this.songsRepository=s;
     }
+    public SongsRepository getSongsRepository()
+    {
+        return this.songsRepository;
+    }
     public void setSearchableItem(Searchable songs)
     {
         Log.d("SongsViewModel","This is setSearchableItem");

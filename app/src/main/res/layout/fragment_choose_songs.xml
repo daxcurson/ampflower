@@ -45,8 +45,8 @@
             android:textColor="#FFFFFF"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/clear_selected_songs_text"
+        <ImageButton
+            android:id="@+id/play_selected_songs_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -54,9 +54,11 @@
             android:paddingStart="3dp"
             android:paddingEnd="16dp"
             android:text="@string/clear"
+            app:srcCompat="@drawable/ic_play_arrow_white"
             android:textColor="#BCBCBC"
             android:textSize="17sp"
-            tools:ignore="RelativeOverlap" />
+            tools:ignore="RelativeOverlap"
+            android:contentDescription="@string/play_selected" />
 
     </RelativeLayout>
 

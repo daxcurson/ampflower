@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,10 +23,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
-import ar.com.strellis.ampflower.data.repository.SongsRepository;
 import ar.com.strellis.ampflower.databinding.FragmentChooseSongsBinding;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
@@ -35,6 +36,7 @@ public class ChooseSongsFragment extends Fragment {
     private FragmentChooseSongsBinding binding;
     private SongsViewModel songsViewModel;
     private int numberSelected = 0;
+    private ChooseSongsAdapter chooseSongsAdapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -49,8 +51,12 @@ public class ChooseSongsFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_choose_songs, menu);
+        // I want to hide the cloud here, to make room for the Select All
+        MenuItem menuItem=menu.findItem(R.id.action_server_status);
+        menuItem.setVisible(false);
         // Get the SearchView and set the searchable configuration
-        RecyclerView albumsRecycler=requireActivity().findViewById(R.id.albums_recycler);
+        RecyclerView songsRecycler=requireActivity().findViewById(R.id.add_to_playlist_recycler);
         SearchManager searchManager = (SearchManager) requireActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // Assumes current activity is the searchable activity
@@ -67,7 +73,7 @@ public class ChooseSongsFragment extends Fragment {
                 songsViewModel.setQuery(newText);
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("ChooseSongsFragment","The recycler for songs is forced to update, new text: "+newText);
-                albumsRecycler.getAdapter().notifyDataSetChanged();
+                songsRecycler.getAdapter().notifyDataSetChanged();
                 return false;
             }
         });
@@ -79,7 +85,7 @@ public class ChooseSongsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         TextView numberSelectedSongs = view.findViewById(R.id.number_selected_songs);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        ChooseSongsAdapter chooseSongsAdapter = new ChooseSongsAdapter(songsViewModel);
+        chooseSongsAdapter = new ChooseSongsAdapter(songsViewModel);
         songsViewModel.setSongsInView(new LinkedList<>());
         binding.addToPlaylistRecycler.setLayoutManager(layoutManager);
         binding.addToPlaylistRecycler.setNestedScrollingEnabled(true);
@@ -114,11 +120,17 @@ public class ChooseSongsFragment extends Fragment {
                 return false;
             }
         });
+        binding.playSelectedSongsText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("ChooseSongsFragment","I'm asked to play the selected songs!");
+            }
+        });
         // Observe the change in selectedSongs, and when that is changed, I'll observe
         // the changes in getSongsByAlbum. Sounds cumbersome, let's hope this works.
         songsViewModel.getSearchableItem().observe(getViewLifecycleOwner(),
                 selectedEntity -> {
-                    Log.d("DEBUG", "I have to get an album's songs!");
+                    Log.d("ChooseSongsFragment", "I have to get an album's songs!");
                     songsViewModel.getSongsRepository().getSongsByAlbum(selectedEntity.getId())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(chooseSongsAdapter::submitList);
@@ -134,5 +146,33 @@ public class ChooseSongsFragment extends Fragment {
                 chooseSongsAdapter.submitList(songs);
             });*/
                 });
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+        if(id==R.id.action_select_all)
+        {
+            Log.d("ChooseSongsFragment","Clicked on action_select_all: "+id);
+            // Select all, by telling the SongsViewModel and forcing the recycler to refresh
+            List<SelectableSong> songs=songsViewModel.getSongsInView().getValue();
+            if(songs!=null)
+            {
+                for(SelectableSong s:songs)
+                {
+                    s.setSelected(!s.isSelected());
+                    if (s.isSelected()) {
+                        numberSelected++;
+                    } else {
+                        numberSelected--;
+                    }
+                }
+                songsViewModel.setSongsInView(songs);
+                chooseSongsAdapter.notifyDataSetChanged();
+                binding.numberSelectedSongs.setText(getString(R.string.songs_selected, numberSelected));
+            }
+        }
+        Log.d("ChooseSongsFragment","Clicked on item: "+id);
+        return true;
     }
 }

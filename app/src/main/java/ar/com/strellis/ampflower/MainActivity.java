@@ -1,8 +1,15 @@
 package ar.com.strellis.ampflower;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +51,9 @@ import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.networkutils.NetworkReceiver;
+import ar.com.strellis.ampflower.service.MediaPlayerService;
+import ar.com.strellis.ampflower.service.MediaServiceEventsListener;
+import ar.com.strellis.ampflower.service.PlayerPositionEvent;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.NetworkStatusViewModel;
@@ -55,7 +65,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MediaServiceEventsListener
+{
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -68,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private PlaylistsViewModel playlistsViewModel;
     private SettingsViewModel settingsViewModel;
     private SharedPreferences sharedPreferences;
+    private boolean boundToService=false;
+    private MediaPlayerService playerService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureNetworkStatusListener();
         configureSettingsObserver();
         configureServerStatusObserver();
+        bindMediaPlayerService();
     }
 
     @Override
@@ -477,5 +491,72 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void callHomeFragment()
     {
         navController.navigate(R.id.nav_home);
+    }
+    private final Handler handler=new Handler(Looper.getMainLooper())
+    {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch(msg.what)
+            {
+            }
+        }
+    };
+    private final ServiceConnection connection=new ServiceConnection()
+    {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MediaPlayerService.MediaPlayerServiceBinder binder=(MediaPlayerService.MediaPlayerServiceBinder) service;
+            playerService=binder.getService();
+            // Now I'll ask the player service to send me events.
+            playerService.addEventListener(MainActivity.this);
+            boundToService=true;
+            int msg=0;
+            handler.sendEmptyMessage(msg);
+            Log.d("DEBUG","Connected to the service");
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            boundToService=false;
+            playerService.removeEventListener(MainActivity.this);
+            playerService=null;
+            Log.d("DEBUG","Disconnected from the service");
+        }
+
+        @Override
+        public void onBindingDied(ComponentName name) {
+            Log.d("DEBUG","Binding died, component name: "+name.getClassName());
+        }
+
+        @Override
+        public void onNullBinding(ComponentName name) {
+            Log.d("DEBUG","Null binding, component name:"+name.getClassName());
+        }
+    };
+    private void bindMediaPlayerService()
+    {
+        if(!boundToService)
+            bindService(MediaPlayerService.newIntent(this),connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void setBuffering(boolean status) {
+
+    }
+
+    @Override
+    public void setPlaying() {
+
+    }
+
+    @Override
+    public void setPaused() {
+
+    }
+
+    @Override
+    public void updateProgress(PlayerPositionEvent position) {
+
     }
 }

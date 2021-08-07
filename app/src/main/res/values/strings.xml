@@ -55,4 +55,6 @@
     <string name="songs_selected">%d Songs selected</string>
     <string name="select_all">Select All</string>
     <string name="play_selected">Play Selected</string>
+    <string name="channel_name">AmpflowerChannel</string>
+    <string name="channel_desc">Ampflower Media Player</string>
 </resources>

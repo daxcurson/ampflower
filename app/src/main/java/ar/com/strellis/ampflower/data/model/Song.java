@@ -6,11 +6,13 @@ import androidx.room.PrimaryKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity(tableName = "songs")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Song {
+public class Song implements Serializable
+{
 
     public Song()
     {

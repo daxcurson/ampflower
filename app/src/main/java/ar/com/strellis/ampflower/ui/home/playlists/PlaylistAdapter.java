@@ -58,7 +58,7 @@ public class PlaylistAdapter extends PagedListAdapter<Playlist, RecyclerView.Vie
         @Override
         public boolean areItemsTheSame(@NonNull Playlist oldItem, @NonNull Playlist newItem) {
             Log.d("DEBUG", "Callback comparing item " + oldItem.getId() + " with item " + newItem.getId());
-            return oldItem.getId().equals(newItem.getId()) && oldItem.getPlaylistName().equals(newItem.getPlaylistName());
+            return oldItem.getId()==newItem.getId() && oldItem.getPlaylistName().equals(newItem.getPlaylistName());
         }
 
         @Override

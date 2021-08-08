@@ -6,9 +6,11 @@ import androidx.room.PrimaryKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serializable;
+
 @Entity(tableName = "genres")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Genre
+public class Genre implements Serializable
 {
     @PrimaryKey
     @NonNull

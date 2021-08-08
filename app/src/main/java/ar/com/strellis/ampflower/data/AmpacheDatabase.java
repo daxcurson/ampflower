@@ -27,7 +27,7 @@ import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.Song;
 
-@Database(entities = {Song.class, Album.class, Artist.class, Playlist.class, AlbumSong.class}, version = 8,exportSchema = false)
+@Database(entities = {Song.class, Album.class, Artist.class, Playlist.class, AlbumSong.class}, version = 9,exportSchema = false)
 @TypeConverters({AmpacheDataConverters.class})
 public abstract class AmpacheDatabase extends RoomDatabase {
     public abstract AlbumDao albumDao();

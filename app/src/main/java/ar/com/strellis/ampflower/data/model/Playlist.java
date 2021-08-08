@@ -5,14 +5,17 @@ import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName="playlists")
-public class Playlist {
+public class Playlist implements Searchable, Serializable
+{
     private String playlistName;
 
     public Playlist()
     {
         // Nothing. Needed to instantiate the playlist from Json when connecting to the Ampacheservice
-        id="";
+        id=0;
     }
 
     public String getPlaylistName() {
@@ -25,16 +28,16 @@ public class Playlist {
 
     @NonNull
     @PrimaryKey
-    private String id;
+    private int id;
     private String name;
     private String owner;
     private int items;
     private String type;
     private String art;
-    public String getId() {
+    public int getId() {
         return id;
     }
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
     public String getName() {
@@ -75,7 +78,7 @@ public class Playlist {
         if(obj instanceof Playlist)
         {
             Playlist otherPlaylist=(Playlist)obj;
-            return otherPlaylist.id.equals(id) && otherPlaylist.playlistName.equals(playlistName);
+            return otherPlaylist.id==id && otherPlaylist.playlistName.equals(playlistName);
         }
         else
             return false;

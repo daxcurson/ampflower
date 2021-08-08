@@ -1,5 +1,6 @@
 package ar.com.strellis.ampflower.service;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -19,14 +20,15 @@ import android.util.Log;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LifecycleService;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -40,11 +42,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.BuildConfig;
 import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.R;
-import wseemann.media.FFmpegMediaMetadataRetriever;
+import ar.com.strellis.ampflower.data.model.Song;
 
 public class MediaPlayerService extends LifecycleService
 {
@@ -66,20 +69,16 @@ public class MediaPlayerService extends LifecycleService
     private static final String PLAYBACK_CHANNEL_ID="ampflower_channel";
     private static final int PLAYBACK_NOTIFICATION_ID=1;
     private static final String MEDIA_SESSION_TAG="sed_audio";
-    private static final String ARG_URI="uri_string";
     private final List<MediaServiceEventsListener> listeners;
     private Handler handler;
     private Runnable updateAction;
-    public ExoPlayer getExoPlayer()
-    {
-        return exoPlayer;
-    }
+
     public static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".action.STOP";
     public static final String ACTION_PLAY = BuildConfig.APPLICATION_ID + ".action.PLAY";
     public static final String ACTION_PREVIOUS = BuildConfig.APPLICATION_ID + ".action.PREVIOUS";
     public static final String ACTION_NEXT = BuildConfig.APPLICATION_ID + ".action.NEXT";
     public static final String ACTION_TOGGLE = BuildConfig.APPLICATION_ID + ".action.TOGGLE_PLAYPAUSE";
-
+    public static final String ACTION_SELECT_SONGS = BuildConfig.APPLICATION_ID+".action.SELECT_SONGS";
 
     public MediaPlayerService()
     {
@@ -97,16 +96,14 @@ public class MediaPlayerService extends LifecycleService
                 .build();
         exoPlayer.setAudioAttributes(audioAttributes,true);
         exoPlayer.addListener(new PlayerEventListener());
-        playerNotificationManager=PlayerNotificationManager.createWithNotificationChannel(
+        playerNotificationManager=new PlayerNotificationManager.Builder(
                 getApplicationContext(),
-                PLAYBACK_CHANNEL_ID,
-                R.string.channel_name,
-                R.string.channel_desc,
                 PLAYBACK_NOTIFICATION_ID,
+                PLAYBACK_CHANNEL_ID,
                 /*
-                  This is an adapter to report the contents of the media that is currently being played,
-                  so that the notification has it.
-                 */
+                This is an adapter to report the contents of the media that is currently being played,
+                so that the notification has it.
+                */
                 new PlayerNotificationManager.MediaDescriptionAdapter()
                 {
                     @NotNull
@@ -118,12 +115,13 @@ public class MediaPlayerService extends LifecycleService
                             return "No media playing";
                     }
 
+                    @SuppressLint("UnspecifiedImmutableFlag")
                     @Nullable
                     @Override
                     /*
-                      Opens the application activity when the notification is clicked.
-                      @param Player player
-                     */
+                    Opens the application activity when the notification is clicked.
+                    @param Player player
+                    */
                     public PendingIntent createCurrentContentIntent(@NotNull Player player) {
                         Log.d("MediaPlayerService","I am asked to show the activity");
                         return PendingIntent.getBroadcast(getApplicationContext(),
@@ -136,6 +134,14 @@ public class MediaPlayerService extends LifecycleService
                     @Override
                     public CharSequence getCurrentContentText(@NotNull Player player) {
                         Log.d("MediaPlayerService","getCurrentContentText");
+                        if(player.getCurrentMediaItem() != null) {
+                            player.getCurrentMediaItem();
+
+                        }
+                        String album= Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.albumTitle).toString();
+                        String artist=Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.artist).toString();
+                        return album+" by "+artist;
+                        /*
                         try {
                             FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
                             if(player.getCurrentMediaItem()!=null && player.getCurrentMediaItem().playbackProperties!=null) {
@@ -154,18 +160,21 @@ public class MediaPlayerService extends LifecycleService
                             Log.d("MediaPlayerService","Error downloading metadata in getCurrentContentText");
                         }
                         return "Temporarily unavailable";
+
+                         */
                     }
 
                     @Nullable
                     @Override
                     /*
                     This could be used to return the album art, maybe?
-                     */
+                    */
                     public Bitmap getCurrentLargeIcon(@NotNull Player player, @NotNull PlayerNotificationManager.BitmapCallback callback) {
                         Log.d("MediaPlayerService","getCurrentLargeIcon");
                         return null;
                     }
-                },
+                })
+                .setNotificationListener(
                 new PlayerNotificationManager.NotificationListener() {
                     @Override
                     public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
@@ -187,8 +196,11 @@ public class MediaPlayerService extends LifecycleService
                             stopForeground(false);
                         }
                     }
-                }
-        );
+                })
+                .setChannelNameResourceId(R.string.channel_name)
+                .setChannelDescriptionResourceId(R.string.channel_desc)
+                .build();
+        playerNotificationManager.setPriority(NotificationCompat.PRIORITY_DEFAULT);
         playerNotificationManager.setUseStopAction(true);
         playerNotificationManager.setPlayer(exoPlayer);
         mediaSession=new MediaSessionCompat(getApplicationContext(),MEDIA_SESSION_TAG);
@@ -201,6 +213,7 @@ public class MediaPlayerService extends LifecycleService
             public MediaDescriptionCompat getMediaDescription(@NotNull Player player, int windowIndex) {
                 Bitmap bitmap = getBitmapFromVectorDrawable(getApplicationContext(), R.drawable.bs_play_2);
                 Bundle extras = new Bundle();
+                /*
                 FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
                 String uri= Objects.requireNonNull(Objects.requireNonNull(player.getCurrentMediaItem()).playbackProperties).uri.toString();
                 Log.d("MediaPlayerService","Media URL="+uri);
@@ -215,7 +228,10 @@ public class MediaPlayerService extends LifecycleService
                 catch(IllegalArgumentException e)
                 {
                     Log.d("MediaPlayerService","Error when retrieving metadata");
-                }
+                }*/
+                String album= Objects.requireNonNull(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.albumTitle).toString();
+                String artist= Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.artist).toString();
+
                 extras.putParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,bitmap);
                 extras.putParcelable(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON,bitmap);
                 extras.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist);
@@ -270,10 +286,57 @@ public class MediaPlayerService extends LifecycleService
     }
     private void handleIntent(Intent intent)
     {
-        Uri uri=intent.getParcelableExtra(ARG_URI);
-        // It seems that I would receive a command to play a song here?
-        // I would also receive the name, to display in the notification box. How clever!
-        play(uri);
+        String action=intent.getAction();
+        if(action!=null)
+        {
+            switch (action)
+            {
+                case ACTION_STOP:
+                    break;
+                case ACTION_PLAY:
+                    break;
+                case ACTION_NEXT:
+                    break;
+                case ACTION_PREVIOUS:
+                    break;
+                case ACTION_TOGGLE:
+                    break;
+                case ACTION_SELECT_SONGS:
+                    // Recover the list from the Intent
+                    List<Song> songs = (List<Song>) intent.getSerializableExtra("LIST");
+                    selectSongsIntoPlaylist(songs);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * When I receive this message, I must put the songs I find selected
+     * in the SongsViewModel into the playlist.
+     */
+    private void selectSongsIntoPlaylist(List<Song> songs)
+    {
+        Log.d("MediaPlayerService","I received songs!!");
+        // I'll just shove these songs into the playlist.
+        List<MediaItem> items=convertSongsToMedia(songs);
+        playList(items);
+    }
+    public List<MediaItem> convertSongsToMedia(List<Song> songs)
+    {
+        // The ExoPlayer accepts MediaItems, and I have songs. I'll create a map() to convert between formats.
+        return songs.stream().map(song ->
+                {
+                    MediaMetadata metadata=new MediaMetadata.Builder()
+                            .setTitle(song.getTitle())
+                            .setArtist(song.getArtist().getName())
+                            .setAlbumArtist(song.getArtist().getName())
+                            .setAlbumTitle(song.getAlbum().getName())
+                            .build();
+                    return new MediaItem.Builder().setUri(song.getUrl())
+                            .setMediaMetadata(metadata)
+                            .build();
+                }
+        ).collect(Collectors.toList());
     }
     public void play(Uri uri)
     {
@@ -292,12 +355,14 @@ public class MediaPlayerService extends LifecycleService
     }
     public void pause()
     {
+        Log.d("MediaPlayerService","Pausing the player service");
         exoPlayer.setPlayWhenReady(false);
     }
     private Bitmap getBitmapFromVectorDrawable(Context context, @DrawableRes int drawableId)
     {
         Drawable contextCompat= ContextCompat.getDrawable(context, drawableId);
 
+        assert contextCompat != null;
         Drawable drawable = DrawableCompat.wrap(contextCompat).mutate();
 
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
@@ -352,8 +417,10 @@ public class MediaPlayerService extends LifecycleService
             // Now that the event has been sent, schedule the next update.
             handler.postDelayed(updateAction,nextUpdateTime);
         }
-        else if(playbackstate!=Player.STATE_ENDED && playbackstate!=Player.STATE_IDLE)
+        else if(exoPlayer!=null && playbackstate==Player.STATE_BUFFERING)
         {
+            Log.d("MediaPlayerService","Player in state: "+playbackstate);
+            Log.d("MediaPlayerService","The player is buffering, sending progress update");
             for(MediaServiceEventsListener l:listeners)
                 l.updateProgress(event);
             handler.postDelayed(updateAction,1000);

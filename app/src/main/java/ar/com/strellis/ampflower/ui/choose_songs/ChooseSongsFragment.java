@@ -3,6 +3,7 @@ package ar.com.strellis.ampflower.ui.choose_songs;
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,12 +23,15 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
+import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.databinding.FragmentChooseSongsBinding;
+import ar.com.strellis.ampflower.service.MediaPlayerService;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -124,6 +128,14 @@ public class ChooseSongsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d("ChooseSongsFragment","I'm asked to play the selected songs!");
+                // Let's pack an intent and send it to the service, with the list of songs
+                Intent intent=new Intent(requireActivity(), MediaPlayerService.class);
+                intent.setAction(MediaPlayerService.ACTION_SELECT_SONGS);
+                List<Song> selectedSongs=songsViewModel.getSelectedSongs();
+                Bundle bundle=new Bundle();
+                bundle.putSerializable("LIST", (Serializable) selectedSongs);
+                intent.putExtras(bundle);
+                requireActivity().startService(intent);
             }
         });
         // Observe the change in selectedSongs, and when that is changed, I'll observe

@@ -5,9 +5,12 @@ import androidx.room.PrimaryKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serializable;
+
 @Entity(tableName="tags")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Tag {
+public class Tag implements Serializable
+{
     @PrimaryKey
     private int id;
     private String name;

@@ -90,6 +90,7 @@ public class SongsViewModel extends ViewModel
                 {
                     MediaMetadata metadata=new MediaMetadata.Builder()
                             .setTitle(song.getTitle())
+                            .setArtist(song.getArtist().getName())
                             .build();
                     return new MediaItem.Builder().setUri(song.getUrl())
                             .setMediaMetadata(metadata)

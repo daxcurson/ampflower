@@ -26,11 +26,9 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
         int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN) {
             // do something
-            if(MediaPlayerService.getInstance() != null) {
-                Intent intent_pause = new Intent(context, MediaPlayerService.class);
-                intent_pause.setAction(MediaPlayerService.ACTION_TOGGLE);
-                context.startService(intent_pause);
-            }
+            Intent intent_pause = new Intent(context, MediaPlayerService.class);
+            intent_pause.setAction(MediaPlayerService.ACTION_TOGGLE);
+            context.startService(intent_pause);
         }
         abortBroadcast();
     }

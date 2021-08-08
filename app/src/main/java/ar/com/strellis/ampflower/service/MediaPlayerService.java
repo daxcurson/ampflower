@@ -89,6 +89,7 @@ public class MediaPlayerService extends LifecycleService
     public void onCreate()
     {
         super.onCreate();
+        Log.d("MediaPlayerService","Launching the media player service");
         exoPlayer=new SimpleExoPlayer.Builder(getApplicationContext()).build();
         AudioAttributes audioAttributes=new AudioAttributes.Builder()
                 .setUsage(C.USAGE_MEDIA)

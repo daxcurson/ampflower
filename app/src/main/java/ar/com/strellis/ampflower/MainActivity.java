@@ -6,10 +6,7 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -231,29 +228,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     auth = AmpacheUtil.getAmpacheAuth(password);
                     Call<LoginResponse> call = ampacheService.handshake(auth.getAuthToSend(), user, auth.getTimestamp());
-                    /*
-                    if(call==null)
-                    {
-                        Log.d("loginToAmpache.onFailure","Failed to log in: call is null");
-                        serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
-                    }
-                    else {
-                        Response<LoginResponse> response = call.execute();
-                        if (response.isSuccessful()) {
-                            if (response.body() != null) {
-                                int duration = Toast.LENGTH_LONG;
-                                Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
-                                toast.show();
-                                // We're online, update all the status.
-                                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
-                                serverStatusViewModel.setLoginResponse(response.body());
-                                Log.d("MainActivity.loginToAmpache", "We're in");
-                            } else {
-                                Log.d("loginToAmpache.onFailure", "Failed to log in: body is null");
-                                serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
-                            }
-                        }
-                    }*/
 
                     call.enqueue(new Callback<LoginResponse>() {
                         @Override
@@ -492,16 +466,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         navController.navigate(R.id.nav_home);
     }
-    private final Handler handler=new Handler(Looper.getMainLooper())
-    {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            switch(msg.what)
-            {
-            }
-        }
-    };
+
     private final ServiceConnection connection=new ServiceConnection()
     {
 
@@ -512,8 +477,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Now I'll ask the player service to send me events.
             playerService.addEventListener(MainActivity.this);
             boundToService=true;
-            int msg=0;
-            handler.sendEmptyMessage(msg);
             Log.d("DEBUG","Connected to the service");
         }
         @Override
@@ -542,21 +505,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void setBuffering(boolean status) {
-
+        Log.d("MainActivity","Received a buffering message");
     }
 
     @Override
     public void setPlaying() {
-
+        Log.d("MainActivity","Received a playing message");
     }
 
     @Override
     public void setPaused() {
-
+        Log.d("MainActivity","Received a Paused message");
     }
 
     @Override
     public void updateProgress(PlayerPositionEvent position) {
-
+        Log.d("MainActivity","Received a progress update");
     }
 }

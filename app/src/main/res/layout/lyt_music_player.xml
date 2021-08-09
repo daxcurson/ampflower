@@ -176,12 +176,20 @@
                     android:text="@string/_0_00"
                     android:textColor="#ffffff" />
 
+                <com.google.android.exoplayer2.ui.DefaultTimeBar
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/seek_bar_song"
+                    style="@style/AppThemeTwo"
+                    android:layout_alignParentBottom="true"/>
+                <!--
                 <androidx.appcompat.widget.AppCompatSeekBar
                     android:id="@+id/seek_bar_song"
                     style="@style/AppThemeTwo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true" />
+                    -->
 
             </RelativeLayout>
 

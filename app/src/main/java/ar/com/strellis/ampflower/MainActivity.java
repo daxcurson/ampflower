@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -503,6 +504,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             bindService(MediaPlayerService.newIntent(this),connection, Context.BIND_AUTO_CREATE);
     }
 
+    private class State
+    {
+        private String name;
+        public State(String name)
+        {
+            this.name=name;
+        }
+        public void setName(String name)
+        {
+            this.name=name;
+        }
+        public String getName()
+        {
+            return this.name;
+        }
+    }
+    private class Playing extends State
+    {
+        public Playing()
+        {
+            super("PLAYING");
+        }
+    }
+    private class Stopped extends State
+    {
+        public Stopped()
+        {
+            super("STOPPED");
+        }
+    }
+    private class Buffering extends State
+    {
+        public Buffering()
+        {
+            super("BUFFERING");
+        }
+    }
+    private State state;
+    private Playing playing=new Playing();
+    private Stopped stopped=new Stopped();
+    private Buffering buffering=new Buffering();
     @Override
     public void setBuffering(boolean status) {
         Log.d("MainActivity","Received a buffering message");
@@ -511,6 +553,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void setPlaying() {
         Log.d("MainActivity","Received a playing message");
+        binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(this,R.drawable.ic_pause_white));
+        binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(this,R.drawable.ic_pause_white));
     }
 
     @Override
@@ -521,7 +565,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void updateProgress(PlayerPositionEvent position) {
         Log.d("MainActivity","Received a progress update, position: "+position.getPosition()+", duration: "+position.getDuration());
-        binding.layoutMusicPlayer.seekBarSong.setMax((int)position.getDuration());
-        binding.layoutMusicPlayer.seekBarSong.setProgress((int) position.getPosition());
+        binding.layoutMusicPlayer.seekBarSong.setDuration(position.getDuration());//.setMax((int)position.getDuration());
+        binding.layoutMusicPlayer.seekBarSong.setPosition(position.getPosition());//.setProgress((int) position.getPosition());
+        binding.layoutMusicPlayer.seekBarSong.setBufferedPosition(position.getBufferedPosition());
+        // Update the text boxes with the time values
+        long minutesDuration=(position.getDuration()/1000)/60;
+        long secondsDuration=(position.getDuration()/1000)%60;
+        long minutesPosition=(position.getPosition()/1000)/60;
+        long secondsPosition=(position.getPosition()/1000)%60;
+        binding.layoutMusicPlayer.txtTotalDuration.setText(getString(R.string.duration,minutesDuration,secondsDuration));
+        binding.layoutMusicPlayer.txtSongDuration.setText(getString(R.string.currentTime,minutesPosition,secondsPosition));
     }
 }

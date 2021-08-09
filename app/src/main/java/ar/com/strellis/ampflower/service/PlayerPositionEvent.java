@@ -24,7 +24,7 @@ public class PlayerPositionEvent {
     {
         this.duration=duration;
     }
-    public Long getDuration() {
+    public long getDuration() {
         return duration;
     }
 }

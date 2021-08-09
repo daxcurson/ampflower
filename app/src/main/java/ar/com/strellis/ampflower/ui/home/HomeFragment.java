@@ -29,14 +29,12 @@ import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-    private AlbumsViewModel albumsViewModel;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        albumsViewModel=new ViewModelProvider(requireActivity()).get(AlbumsViewModel.class);
         return root;
     }
 

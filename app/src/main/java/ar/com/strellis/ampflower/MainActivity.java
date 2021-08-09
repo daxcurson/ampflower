@@ -520,6 +520,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void updateProgress(PlayerPositionEvent position) {
-        Log.d("MainActivity","Received a progress update");
+        Log.d("MainActivity","Received a progress update, position: "+position.getPosition()+", duration: "+position.getDuration());
+        binding.layoutMusicPlayer.seekBarSong.setMax((int)position.getDuration());
+        binding.layoutMusicPlayer.seekBarSong.setProgress((int) position.getPosition());
     }
 }

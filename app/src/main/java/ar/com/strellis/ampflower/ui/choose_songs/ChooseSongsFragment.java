@@ -1,6 +1,7 @@
 package ar.com.strellis.ampflower.ui.choose_songs;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -158,6 +160,11 @@ public class ChooseSongsFragment extends Fragment {
                 chooseSongsAdapter.submitList(songs);
             });*/
                 });
+        hideKeyboardFrom(requireContext(),view);
+    }
+    public static void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -21,7 +21,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, Artist> {
-    private static final String TAG = NetAlbumsPageKeyedDataSource.class.getSimpleName();
+    private static final String TAG = NetArtistsPageKeyedDataSource.class.getSimpleName();
     private final AmpacheService ampacheService;
     private final MutableLiveData<NetworkState> networkState;
     private final ReplaySubject<Artist> artistsObservable;

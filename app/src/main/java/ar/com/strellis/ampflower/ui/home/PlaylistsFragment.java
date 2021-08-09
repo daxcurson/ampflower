@@ -41,7 +41,7 @@ public class PlaylistsFragment extends Fragment {
         playlistsRecycler.setLayoutManager(layoutManager);
         playlistsRecycler.setNestedScrollingEnabled(true);
         adapter=new PlaylistAdapter();
-        playlistsViewModel.getPlaylists().observe(getViewLifecycleOwner(), artists -> adapter.submitList(artists));
+        playlistsViewModel.getPlaylists().observe(getViewLifecycleOwner(), playlists -> adapter.submitList(playlists));
         playlistsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         playlistsRecycler.setAdapter(adapter);
     }

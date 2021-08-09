@@ -46,7 +46,7 @@ public class NetPlaylistsPageKeyedDataSource extends PageKeyedDataSource<String,
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<String> params, @NonNull final LoadInitialCallback<String, Playlist> callback) {
-        Log.i(TAG, "Loading Initial Range, Count " + params.requestedLoadSize);
+        Log.i(TAG, "Loading Initial Range of playlists, Count " + params.requestedLoadSize);
 
         int limit=params.requestedLoadSize;
         networkState.postValue(NetworkState.LOADING);
@@ -66,7 +66,7 @@ public class NetPlaylistsPageKeyedDataSource extends PageKeyedDataSource<String,
                     results.forEach(playlistsObservable::onNext);
                     Log.d(TAG,"Done loading playlists");
                 } else {
-                    Log.e("API CALL", response.message());
+                    Log.e(TAG, "The response is not successful: "+response.message());
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));
                 }
             }
@@ -79,6 +79,7 @@ public class NetPlaylistsPageKeyedDataSource extends PageKeyedDataSource<String,
                 } else {
                     errorMessage = t.getMessage();
                 }
+                Log.e(TAG,"Error while reading playlists: "+errorMessage);
                 networkState.postValue(new NetworkState(NetworkState.Status.FAILED, errorMessage));
                 callback.onResult(new ArrayList<>(), null, "1");
             }

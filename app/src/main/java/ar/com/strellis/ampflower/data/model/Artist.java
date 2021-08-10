@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity(tableName = "artists")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Artist implements Searchable, Serializable
+public class Artist extends ModelEntity implements Searchable, Serializable
 {
 
     public Artist()

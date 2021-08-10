@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 import java.io.Serializable;
 
 @Entity(tableName="playlists")
-public class Playlist implements Serializable
+public class Playlist extends ModelEntity implements Serializable
 {
     private String playlistName;
 

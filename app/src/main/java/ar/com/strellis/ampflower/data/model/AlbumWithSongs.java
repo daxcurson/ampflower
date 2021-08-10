@@ -33,4 +33,8 @@ public class AlbumWithSongs extends EntityWithSongs {
     public void setAlbum(Album album) {
         this.album = album;
     }
+    public String getName()
+    {
+        return album.getName();
+    }
 }

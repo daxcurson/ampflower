@@ -83,21 +83,6 @@ public class SongsViewModel extends ViewModel
     {
         this.currentPlaylist.setValue(newPlaylist);
     }
-    public List<MediaItem> convertSongsToMedia(List<Song> songs)
-    {
-        // The ExoPlayer accepts MediaItems, and I have songs. I'll create a map() to convert between formats.
-        return songs.stream().map(song ->
-                {
-                    MediaMetadata metadata=new MediaMetadata.Builder()
-                            .setTitle(song.getTitle())
-                            .setArtist(song.getArtist().getName())
-                            .build();
-                    return new MediaItem.Builder().setUri(song.getUrl())
-                            .setMediaMetadata(metadata)
-                            .build();
-                }
-        ).collect(Collectors.toList());
-    }
     public List<Song> getSelectedSongs() {
         return Objects.requireNonNull(songsInView.getValue()).stream()
                 .filter(SelectableSong::isSelected)

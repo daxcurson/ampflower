@@ -75,6 +75,7 @@ public class MediaPlayerService extends LifecycleService
 
     public static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".action.STOP";
     public static final String ACTION_PLAY = BuildConfig.APPLICATION_ID + ".action.PLAY";
+    public static final String ACTION_PAUSE = BuildConfig.APPLICATION_ID + ".action.PAUSE";
     public static final String ACTION_PREVIOUS = BuildConfig.APPLICATION_ID + ".action.PREVIOUS";
     public static final String ACTION_NEXT = BuildConfig.APPLICATION_ID + ".action.NEXT";
     public static final String ACTION_TOGGLE = BuildConfig.APPLICATION_ID + ".action.TOGGLE_PLAYPAUSE";
@@ -292,14 +293,25 @@ public class MediaPlayerService extends LifecycleService
             switch (action)
             {
                 case ACTION_STOP:
+                    exoPlayer.stop();
                     break;
                 case ACTION_PLAY:
+                    exoPlayer.play();
+                    break;
+                case ACTION_PAUSE:
+                    exoPlayer.pause();
                     break;
                 case ACTION_NEXT:
+                    exoPlayer.next();
                     break;
                 case ACTION_PREVIOUS:
+                    exoPlayer.previous();
                     break;
                 case ACTION_TOGGLE:
+                    if(exoPlayer.isPlaying())
+                        exoPlayer.pause();
+                    else
+                        exoPlayer.play();
                     break;
                 case ACTION_SELECT_SONGS:
                     // Recover the list from the Intent
@@ -331,6 +343,7 @@ public class MediaPlayerService extends LifecycleService
                             .setArtist(song.getArtist().getName())
                             .setAlbumArtist(song.getArtist().getName())
                             .setAlbumTitle(song.getAlbum().getName())
+                            .setArtworkUri(Uri.parse(song.getArt()))
                             .build();
                     return new MediaItem.Builder().setUri(song.getUrl())
                             .setMediaMetadata(metadata)
@@ -390,7 +403,7 @@ public class MediaPlayerService extends LifecycleService
     private void dispatchPlayingEvent()
     {
         for(MediaServiceEventsListener l:listeners)
-            l.setPlaying();
+            l.setPlaying(exoPlayer.getCurrentMediaItem());
     }
     private void dispatchPausedEvent()
     {

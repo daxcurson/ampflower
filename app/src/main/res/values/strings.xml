@@ -59,4 +59,5 @@
     <string name="channel_desc">Ampflower Media Player</string>
     <string name="duration">%02d:%02d</string>
     <string name="currentTime">%02d:%02d</string>
+    <string name="msg_no_media">No media</string>
 </resources>

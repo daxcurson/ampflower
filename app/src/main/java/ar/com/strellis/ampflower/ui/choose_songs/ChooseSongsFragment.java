@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -138,6 +140,9 @@ public class ChooseSongsFragment extends Fragment {
                 bundle.putSerializable("LIST", (Serializable) selectedSongs);
                 intent.putExtras(bundle);
                 requireActivity().startService(intent);
+                // Return to home.
+                NavController navController = Navigation.findNavController(requireActivity(), ChooseSongsFragment.this.getId());
+                navController.navigateUp();
             }
         });
         // Observe the change in selectedSongs, and when that is changed, I'll observe

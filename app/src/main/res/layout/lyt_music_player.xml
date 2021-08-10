@@ -321,7 +321,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/txt_radio_name"
+                    android:id="@+id/txt_song_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
@@ -344,7 +344,7 @@
                     android:marqueeRepeatLimit="marquee_forever"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
-                    android:text="@string/msg_loading"
+                    android:text="@string/msg_no_media"
                     android:textSize="@dimen/text_sub_title_size" />
 
             </LinearLayout>

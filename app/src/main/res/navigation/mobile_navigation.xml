@@ -9,7 +9,14 @@
         android:id="@+id/nav_home"
         android:name="ar.com.strellis.ampflower.ui.home.HomeFragment"
         android:label="@string/ampflower"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_nav_home_to_nav_server_status"
+            app:destination="@id/nav_server_status" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_choose_songs"
+            app:destination="@id/nav_choose_songs" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_library"
@@ -33,5 +40,9 @@
         android:id="@+id/nav_choose_songs"
         android:name="ar.com.strellis.ampflower.ui.choose_songs.ChooseSongsFragment"
         android:label="@string/choose_songs"
-        tools:layout="@layout/fragment_choose_songs" />
+        tools:layout="@layout/fragment_choose_songs" >
+        <action
+            android:id="@+id/action_nav_choose_songs_to_nav_home"
+            app:destination="@id/nav_home" />
+    </fragment>
 </navigation>

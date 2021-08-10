@@ -3,6 +3,7 @@ package ar.com.strellis.ampflower;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,7 +11,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,9 +27,10 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -95,7 +96,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureNetworkStatusListener();
         configureSettingsObserver();
         configureServerStatusObserver();
+        configureButtons();
         bindMediaPlayerService();
+        this.state=stopped;
     }
 
     @Override
@@ -391,13 +394,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void configureNavigation()
     {
         setSupportActionBar(binding.toolbar);
-        binding.layoutMusicPlayer.fabPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
         navigationView.setNavigationItemSelectedListener(this);
@@ -420,6 +416,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationUI.setupActionBarWithNavController(this, navController, drawerLayout);
         NavigationUI.setupWithNavController(binding.toolbar, navController, appBarConfiguration);
 
+    }
+
+    /**
+     * Sets the observers for the buttons.
+     */
+    private void configureButtons()
+    {
+        binding.layoutMusicPlayer.fabPlay.setOnClickListener(view -> {
+            Intent intent=getMediaPlayerServiceIntent();
+            intent.setAction(MediaPlayerService.ACTION_TOGGLE);
+            startService(intent);
+        });
+        binding.layoutMusicPlayer.imgPlayerPlay.setOnClickListener(view ->{
+            Intent intent=getMediaPlayerServiceIntent();
+            intent.setAction(MediaPlayerService.ACTION_TOGGLE);
+            startService(intent);
+        });
+        binding.layoutMusicPlayer.imgPlayerNext.setOnClickListener(view ->{
+            Intent intent=getMediaPlayerServiceIntent();
+            intent.setAction(MediaPlayerService.ACTION_NEXT);
+            startService(intent);
+        });
+        binding.layoutMusicPlayer.imgPlayerPrevious.setOnClickListener(view->{
+            Intent intent=getMediaPlayerServiceIntent();
+            intent.setAction(MediaPlayerService.ACTION_PREVIOUS);
+            startService(intent);
+        });
+        binding.layoutMusicPlayer.imgNextExpand.setOnClickListener(view->{
+            Intent intent=getMediaPlayerServiceIntent();
+            intent.setAction(MediaPlayerService.ACTION_NEXT);
+            startService(intent);
+        });
+        binding.layoutMusicPlayer.imgPreviousExpand.setOnClickListener(view->{
+            Intent intent=getMediaPlayerServiceIntent();
+            intent.setAction(MediaPlayerService.ACTION_PREVIOUS);
+            startService(intent);
+        });
+    }
+    private Intent getMediaPlayerServiceIntent()
+    {
+        return new Intent(this,MediaPlayerService.class);
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -504,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             bindService(MediaPlayerService.newIntent(this),connection, Context.BIND_AUTO_CREATE);
     }
 
-    private class State
+    private abstract static class State
     {
         private String name;
         public State(String name)
@@ -519,12 +556,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             return this.name;
         }
+        public abstract void play(MediaItem item);
+        public abstract void pause();
     }
     private class Playing extends State
     {
         public Playing()
         {
             super("PLAYING");
+        }
+
+        @Override
+        public void play(MediaItem item) {
+            state=playing;
+        }
+
+        @Override
+        public void pause() {
+            binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_play_arrow_white));
+            binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_play_arrow_white));
+            state=stopped;
         }
     }
     private class Stopped extends State
@@ -533,33 +584,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             super("STOPPED");
         }
-    }
-    private class Buffering extends State
-    {
-        public Buffering()
+        @Override
+        public void play(MediaItem item)
         {
-            super("BUFFERING");
+            binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
+            binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
+            binding.layoutMusicPlayer.txtSongName.setText(item.mediaMetadata.title);
+            binding.layoutMusicPlayer.txtMetadata.setText(item.mediaMetadata.artist);
+            Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverLarge);
+            binding.layoutMusicPlayer.imgCollapse.setImageBitmap(binding.layoutMusicPlayer.imgCoverLarge.getDrawingCache());
+            state=playing;
+        }
+        @Override
+        public void pause()
+        {
+            state=stopped;
         }
     }
     private State state;
-    private Playing playing=new Playing();
-    private Stopped stopped=new Stopped();
-    private Buffering buffering=new Buffering();
+    private final Playing playing=new Playing();
+    private final Stopped stopped=new Stopped();
     @Override
     public void setBuffering(boolean status) {
         Log.d("MainActivity","Received a buffering message");
     }
 
     @Override
-    public void setPlaying() {
+    public void setPlaying(MediaItem item) {
         Log.d("MainActivity","Received a playing message");
-        binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(this,R.drawable.ic_pause_white));
-        binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(this,R.drawable.ic_pause_white));
+        state.play(item);
     }
 
     @Override
     public void setPaused() {
         Log.d("MainActivity","Received a Paused message");
+        state.pause();
     }
 
     @Override

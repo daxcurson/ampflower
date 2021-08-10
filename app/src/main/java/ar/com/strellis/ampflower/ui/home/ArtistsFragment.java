@@ -15,19 +15,26 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 import ar.com.strellis.ampflower.R;
+import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentArtistsBinding;
 import ar.com.strellis.ampflower.ui.home.artists.ArtistAdapter;
+import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
+import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 
 public class ArtistsFragment extends Fragment {
     private FragmentArtistsBinding binding;
     private ArtistsViewModel artistsViewModel;
+    private SongsViewModel songsViewModel;
     private ArtistAdapter adapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -37,6 +44,7 @@ public class ArtistsFragment extends Fragment {
         binding = FragmentArtistsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         artistsViewModel=new ViewModelProvider(requireActivity()).get(ArtistsViewModel.class);
+        songsViewModel=new ViewModelProvider(requireActivity()).get(SongsViewModel.class);
         setHasOptionsMenu(true);
         return root;
     }
@@ -52,6 +60,27 @@ public class ArtistsFragment extends Fragment {
         artistsViewModel.getArtists().observe(getViewLifecycleOwner(), artists -> adapter.submitList(artists));
         artistsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         artistsRecycler.setAdapter(adapter);
+        artistsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.artistsRecycler)
+        {
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+
+            @Override
+            public boolean onClick(RecyclerView parent, View view, int position, long id) {
+                Searchable entity= Objects.requireNonNull(artistsViewModel.getArtists().getValue()).get(position);
+                songsViewModel.setSearchableItem(entity);
+                Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
+                return false;
+            }
+
+            @Override
+            public boolean onLongClick(RecyclerView parent, View view, int position, long id) {
+                return false;
+            }
+        });
     }
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {

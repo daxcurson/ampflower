@@ -12,11 +12,20 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
+import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractorAlbums;
+import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractorArtists;
+import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractorPlaylists;
 import ar.com.strellis.ampflower.data.datasource.memory.SongsMemoryInteractor;
 import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractor;
 import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractor;
+import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractorAlbums;
+import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractorArtists;
+import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractorPlaylists;
+import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
+import ar.com.strellis.ampflower.data.model.ArtistWithSongs;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
+import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.Observable;
@@ -26,15 +35,27 @@ import retrofit2.HttpException;
 public class SongsRepository
 {
     private Disposable dataProviderDisposable;
-    private final SongsMemoryInteractor songsMemoryInteractor;
-    private final SongsDatabaseInteractor songsDatabaseInteractor;
-    private final SongsNetworkInteractor songsNetworkInteractor;
+    private final SongsMemoryInteractor<AlbumWithSongs> songsMemoryInteractorAlbums;
+    private final SongsDatabaseInteractorAlbums songsDatabaseInteractorAlbums;
+    private final SongsNetworkInteractorAlbums songsNetworkInteractorAlbums;
+    private final SongsMemoryInteractor<ArtistWithSongs> songsMemoryInteractorArtists;
+    private final SongsDatabaseInteractorArtists songsDatabaseInteractorArtists;
+    private final SongsNetworkInteractorArtists songsNetworkInteractorArtists;
+    private final SongsMemoryInteractor<PlaylistWithSongs> songsMemoryInteractorPlaylists;
+    private final SongsDatabaseInteractorPlaylists songsDatabaseInteractorPlaylists;
+    private final SongsNetworkInteractorPlaylists songsNetworkInteractorPlaylists;
     public SongsRepository(Context context,AmpacheService ampacheService, LiveData<LoginResponse> settings)
     {
-        songsMemoryInteractor=new SongsMemoryInteractor();
+        songsMemoryInteractorAlbums=new SongsMemoryInteractor<>();
         AmpacheDatabase appDatabase=AmpacheDatabase.getDatabase(context);
-        songsDatabaseInteractor=new SongsDatabaseInteractor(appDatabase,songsMemoryInteractor);
-        songsNetworkInteractor=new SongsNetworkInteractor(settings,ampacheService,songsDatabaseInteractor,songsMemoryInteractor);
+        songsDatabaseInteractorAlbums=new SongsDatabaseInteractorAlbums(appDatabase,songsMemoryInteractorAlbums);
+        songsNetworkInteractorAlbums=new SongsNetworkInteractorAlbums(settings,ampacheService,songsDatabaseInteractorAlbums,songsMemoryInteractorAlbums);
+        songsMemoryInteractorArtists=new SongsMemoryInteractor<>();
+        songsDatabaseInteractorArtists=new SongsDatabaseInteractorArtists(appDatabase,songsMemoryInteractorArtists);
+        songsNetworkInteractorArtists=new SongsNetworkInteractorArtists(settings,ampacheService,songsDatabaseInteractorArtists,songsMemoryInteractorArtists);
+        songsMemoryInteractorPlaylists=new SongsMemoryInteractor<>();
+        songsDatabaseInteractorPlaylists=new SongsDatabaseInteractorPlaylists(appDatabase,songsMemoryInteractorPlaylists);
+        songsNetworkInteractorPlaylists=new SongsNetworkInteractorPlaylists(settings,ampacheService,songsDatabaseInteractorPlaylists,songsMemoryInteractorPlaylists);
     }
 
     /**
@@ -77,9 +98,9 @@ public class SongsRepository
     @SuppressLint("CheckResult")
     public Observable<AlbumWithSongs> getSongsByAlbum(int album_id)
     {
-        Observable<AlbumWithSongs> memoryObservable=songsMemoryInteractor.getSongs().toObservable();
-        Observable<AlbumWithSongs> databaseObservable=songsDatabaseInteractor.getSongs(album_id).toObservable();
-        Observable<AlbumWithSongs> networkObservable=songsNetworkInteractor.getSongsByAlbum(album_id).toObservable();
+        Observable<AlbumWithSongs> memoryObservable=songsMemoryInteractorAlbums.getSongs().toObservable();
+        Observable<AlbumWithSongs> databaseObservable=songsDatabaseInteractorAlbums.getSongs(String.valueOf(album_id)).toObservable();
+        Observable<AlbumWithSongs> networkObservable=songsNetworkInteractorAlbums.getSongs(String.valueOf(album_id)).toObservable();
         if(!isNetworkInProgress())
         {
             Log.d("SongsRepository","Network is not in progress, go ahead and check the observable");
@@ -95,38 +116,52 @@ public class SongsRepository
                         }
                     },this::handleNonHttpException);
         }
-        return songsMemoryInteractor.getSongsObservable();
-        /*
-        Observable<List<Song>> songs=ampacheService.album_songs(settings.getAuth(),String.valueOf(album_id),0,Integer.MAX_VALUE);
-        songs.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                songsObserved -> {
-                    if(!songsObserved.isEmpty())
-                    {
-                        Log.d("SongsRepository.getSongsByAlbum","I received songs from the network: "+songsObserved.size()+" songs");
-                        appDatabase.songDao().insertAllSongs(songsObserved);
-                        // Now for each song, create a relationship and store it
-                        // in the table.
-                        List<AlbumSong> songsToInsert=new LinkedList<>();
-                        for(Song s:songsObserved)
+        return songsMemoryInteractorAlbums.getSongsObservable();
+    }
+    @SuppressLint("CheckResult")
+    public Observable<ArtistWithSongs> getSongsByArtist(int artist_id)
+    {
+        Observable<ArtistWithSongs> memoryObservable=songsMemoryInteractorArtists.getSongs().toObservable();
+        Observable<ArtistWithSongs> databaseObservable=songsDatabaseInteractorArtists.getSongs(String.valueOf(artist_id)).toObservable();
+        Observable<ArtistWithSongs> networkObservable=songsNetworkInteractorArtists.getSongs(String.valueOf(artist_id)).toObservable();
+        if(!isNetworkInProgress())
+        {
+            Log.d("SongsRepository","Network is not in progress, go ahead and check the observable");
+            // I'll request the 3 observables and keep the entry that is returned first.
+            dataProviderDisposable=Observable
+                    .concat(memoryObservable,databaseObservable,networkObservable)
+                    //.firstElement()
+                    .subscribe((data)->{
+                        Log.d("SongsRepository", "Concatenated the 3 Observables, received data for artist "+data.getArtist().getId());
+                        for(Song s:data.getSongs())
                         {
-                            AlbumSong albumSong=new AlbumSong();
-                            albumSong.setAlbumId(album_id);
-                            albumSong.setSongId(s.getId());
-                            Log.d("SongsRepository.getSongsByAlbum","Storing AlbumSong entity for this song: "+s.getName());
-                            songsToInsert.add(albumSong);
+                            Log.d("SongsRepository","Received this song: "+s.getName());
                         }
-                        appDatabase.albumSongDao().insertAll(songsToInsert);
-                    }
-                    else
-                    {
-                        Log.d("SongsRepository","No songs retrieved for the album "+album_id);
-                    }
-                }, throwable -> Log.i("SongsRepository", Objects.requireNonNull(throwable.getMessage()))
-        );
-        Log.d("SongsRepository.getSongsByAlbum","Returning songs from the database for the album_id "+album_id);
-        return appDatabase.albumDao().listAlbumSongs(album_id);
-         */
+                    },this::handleNonHttpException);
+        }
+        return songsMemoryInteractorArtists.getSongsObservable();
+    }
+    @SuppressLint("CheckResult")
+    public Observable<PlaylistWithSongs> getSongsByPlaylist(String playlistId)
+    {
+        Observable<PlaylistWithSongs> memoryObservable=songsMemoryInteractorPlaylists.getSongs().toObservable();
+        Observable<PlaylistWithSongs> databaseObservable=songsDatabaseInteractorPlaylists.getSongs(String.valueOf(playlistId)).toObservable();
+        Observable<PlaylistWithSongs> networkObservable=songsNetworkInteractorPlaylists.getSongs(String.valueOf(playlistId)).toObservable();
+        if(!isNetworkInProgress())
+        {
+            Log.d("SongsRepository","Network is not in progress, go ahead and check the observable");
+            // I'll request the 3 observables and keep the entry that is returned first.
+            dataProviderDisposable=Observable
+                    .concat(memoryObservable,databaseObservable,networkObservable)
+                    //.firstElement()
+                    .subscribe((data)->{
+                        Log.d("SongsRepository", "Concatenated the 3 Observables, received data for playlist "+data.getPlaylist().getId());
+                        for(Song s:data.getSongs())
+                        {
+                            Log.d("SongsRepository","Received this song: "+s.getName());
+                        }
+                    },this::handleNonHttpException);
+        }
+        return songsMemoryInteractorPlaylists.getSongsObservable();
     }
 }

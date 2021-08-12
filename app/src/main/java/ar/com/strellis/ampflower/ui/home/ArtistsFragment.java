@@ -16,6 +16,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 import ar.com.strellis.ampflower.R;
+import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentArtistsBinding;
 import ar.com.strellis.ampflower.ui.home.artists.ArtistAdapter;
@@ -52,15 +54,14 @@ public class ArtistsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        RecyclerView artistsRecycler = view.findViewById(R.id.artists_recycler);
         LinearLayoutManager layoutManager=new LinearLayoutManager(getContext());
-        artistsRecycler.setLayoutManager(layoutManager);
-        artistsRecycler.setNestedScrollingEnabled(true);
+        binding.artistsRecycler.setLayoutManager(layoutManager);
+        binding.artistsRecycler.setItemAnimator(new DefaultItemAnimator());
         adapter=new ArtistAdapter();
         artistsViewModel.getArtists().observe(getViewLifecycleOwner(), artists -> adapter.submitList(artists));
         artistsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
-        artistsRecycler.setAdapter(adapter);
-        artistsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.artistsRecycler)
+        binding.artistsRecycler.setAdapter(adapter);
+        binding.artistsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.artistsRecycler)
         {
 
             @Override
@@ -70,7 +71,7 @@ public class ArtistsFragment extends Fragment {
 
             @Override
             public boolean onClick(RecyclerView parent, View view, int position, long id) {
-                Searchable entity= Objects.requireNonNull(artistsViewModel.getArtists().getValue()).get(position);
+                Artist entity= Objects.requireNonNull(artistsViewModel.getArtists().getValue()).get(position);
                 songsViewModel.setSearchableItem(entity);
                 Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
                 return false;

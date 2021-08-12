@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity(tableName = "artists")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Artist extends ModelEntity implements Searchable, Serializable
+public class Artist extends ModelEntity implements Searchable<Integer>, Serializable
 {
 
     public Artist()
@@ -28,7 +28,7 @@ public class Artist extends ModelEntity implements Searchable, Serializable
     }
 
     @PrimaryKey
-    private int id;
+    private Integer id;
     private String name;
     private int albums;
     private int songs;
@@ -41,10 +41,10 @@ public class Artist extends ModelEntity implements Searchable, Serializable
     private String summary;
     private int yearformed;
     private String placeformed;
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     public int getAlbums() {
@@ -118,7 +118,7 @@ public class Artist extends ModelEntity implements Searchable, Serializable
         if(obj instanceof Artist)
         {
             Artist other=(Artist)obj;
-            return this.getId() == other.getId()
+            return this.getId().equals(other.getId())
                     && this.getName().equals(other.getName());
         }
         else

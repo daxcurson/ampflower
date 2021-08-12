@@ -32,6 +32,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ar.com.strellis.ampflower.R;
+import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.model.Artist;
+import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.databinding.FragmentChooseSongsBinding;
@@ -149,10 +152,26 @@ public class ChooseSongsFragment extends Fragment {
         // the changes in getSongsByAlbum. Sounds cumbersome, let's hope this works.
         songsViewModel.getSearchableItem().observe(getViewLifecycleOwner(),
                 selectedEntity -> {
-                    Log.d("ChooseSongsFragment", "I have to get an album's songs!");
-                    songsViewModel.getSongsRepository().getSongsByAlbum(selectedEntity.getId())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(chooseSongsAdapter::submitList);
+            if(selectedEntity instanceof Album) {
+                Log.d("ChooseSongsFragment", "I have to get an album's songs!");
+                songsViewModel.getSongsRepository().getSongsByAlbum((Integer) selectedEntity.getId())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(chooseSongsAdapter::submitList);
+            }
+            if(selectedEntity instanceof Artist)
+            {
+                Log.d("ChooseSongsFragment", "I have to get an artist's songs!");
+                songsViewModel.getSongsRepository().getSongsByArtist((Integer) selectedEntity.getId())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(chooseSongsAdapter::submitList);
+            }
+            if(selectedEntity instanceof Playlist)
+            {
+                Log.d("ChooseSongsFragment", "I have to get a playlist's songs!");
+                songsViewModel.getSongsRepository().getSongsByPlaylist((String) selectedEntity.getId())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(chooseSongsAdapter::submitList);
+            }
                     // now it's time to call the Repository.
             /*
             songsViewModel.getSongsByAlbum().observe(getViewLifecycleOwner(), songs -> {
@@ -172,7 +191,7 @@ public class ChooseSongsFragment extends Fragment {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);
         int id = item.getItemId();
         if(id==R.id.action_select_all)

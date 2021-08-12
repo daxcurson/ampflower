@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 import java.io.Serializable;
 
 @Entity(tableName="playlists")
-public class Playlist extends ModelEntity implements Serializable
+public class Playlist extends ModelEntity implements Searchable<String>,Serializable
 {
     private String playlistName;
 
@@ -34,10 +34,15 @@ public class Playlist extends ModelEntity implements Serializable
     private int items;
     private String type;
     private String art;
+    private String preciserating;
+    private String rating;
+    private String averagerating;
+    private Integer flag;
+    @NonNull
     public String getId() {
         return id;
     }
-    public void setId(String id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
     public String getName() {
@@ -71,6 +76,38 @@ public class Playlist extends ModelEntity implements Serializable
     public void setArt(String art)
     {
         this.art=art;
+    }
+    public String getPreciserating()
+    {
+        return preciserating;
+    }
+    public void setPreciserating(String preciserating)
+    {
+        this.preciserating=preciserating;
+    }
+    public String getRating()
+    {
+        return rating;
+    }
+    public void setRating(String rating)
+    {
+        this.rating=rating;
+    }
+    public String getAveragerating()
+    {
+        return this.averagerating;
+    }
+    public void setAveragerating(String averagerating)
+    {
+        this.averagerating=averagerating;
+    }
+    public Integer getFlag()
+    {
+        return flag;
+    }
+    public void setFlag(Integer flag)
+    {
+        this.flag=flag;
     }
 
     @Override

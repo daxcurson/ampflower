@@ -16,7 +16,9 @@ import java.util.concurrent.Executors;
 import ar.com.strellis.ampflower.data.dao.AlbumDao;
 import ar.com.strellis.ampflower.data.dao.AlbumSongDao;
 import ar.com.strellis.ampflower.data.dao.ArtistDao;
+import ar.com.strellis.ampflower.data.dao.ArtistSongDao;
 import ar.com.strellis.ampflower.data.dao.PlaylistDao;
+import ar.com.strellis.ampflower.data.dao.PlaylistSongDao;
 import ar.com.strellis.ampflower.data.dao.SongDao;
 import ar.com.strellis.ampflower.data.datasource.db.DBAlbumsDataSourceFactory;
 import ar.com.strellis.ampflower.data.datasource.db.DBArtistsDataSourceFactory;
@@ -24,10 +26,12 @@ import ar.com.strellis.ampflower.data.datasource.db.DBPlaylistsDataSourceFactory
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumSong;
 import ar.com.strellis.ampflower.data.model.Artist;
+import ar.com.strellis.ampflower.data.model.ArtistSong;
 import ar.com.strellis.ampflower.data.model.Playlist;
+import ar.com.strellis.ampflower.data.model.PlaylistSong;
 import ar.com.strellis.ampflower.data.model.Song;
 
-@Database(entities = {Song.class, Album.class, Artist.class, Playlist.class, AlbumSong.class}, version = 10,exportSchema = false)
+@Database(entities = {Song.class, Album.class, Artist.class, Playlist.class, AlbumSong.class, ArtistSong.class, PlaylistSong.class}, version = 13,exportSchema = false)
 @TypeConverters({AmpacheDataConverters.class})
 public abstract class AmpacheDatabase extends RoomDatabase {
     public abstract AlbumDao albumDao();
@@ -35,6 +39,8 @@ public abstract class AmpacheDatabase extends RoomDatabase {
     public abstract PlaylistDao playlistDao();
     public abstract SongDao songDao();
     public abstract AlbumSongDao albumSongDao();
+    public abstract ArtistSongDao artistSongDao();
+    public abstract PlaylistSongDao playlistSongDao();
     private static final Object sLock = new Object();
 
     private static volatile AmpacheDatabase INSTANCE;

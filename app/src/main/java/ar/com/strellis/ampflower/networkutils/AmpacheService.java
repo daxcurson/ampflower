@@ -74,14 +74,14 @@ public interface AmpacheService
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=playlist_songs")
-    Call<List<Song>> playlist_songs(
+    Single<List<Song>> playlist_songs(
             @Query("auth") String auth,
             @Query("filter") String playlist_id,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=artist_songs")
-    Call<List<Song>> artist_songs(
+    Single<List<Song>> artist_songs(
             @Query("auth") String auth,
             @Query("filter") String artist_id,
             @Query("offset") Integer offset,

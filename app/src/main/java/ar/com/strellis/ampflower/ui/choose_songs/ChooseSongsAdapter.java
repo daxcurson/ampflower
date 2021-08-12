@@ -1,6 +1,7 @@
 package ar.com.strellis.ampflower.ui.choose_songs;
 
 import android.content.Context;
+import android.content.Entity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,9 @@ import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
+import ar.com.strellis.ampflower.data.model.ArtistWithSongs;
+import ar.com.strellis.ampflower.data.model.EntityWithSongs;
+import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 
@@ -55,7 +59,7 @@ public class ChooseSongsAdapter extends RecyclerView.Adapter<ChooseSongsViewHold
      * and adds the items received.
      * @param songs
      */
-    public void submitList(AlbumWithSongs songs) {
+    public void submitList(EntityWithSongs songs) {
         List<SelectableSong> songsToAdd = songs.getSongs().stream()
                 .map(song -> new SelectableSong(song, false))
                 .collect(Collectors.toCollection(LinkedList::new));

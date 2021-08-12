@@ -5,11 +5,15 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
 import java.util.List;
 
+import ar.com.strellis.ampflower.data.model.ArtistWithSongs;
 import ar.com.strellis.ampflower.data.model.Playlist;
+import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
+import io.reactivex.Maybe;
 
 @Dao
 public interface PlaylistDao {
@@ -25,4 +29,7 @@ public interface PlaylistDao {
     void deleteAll();
     @Query("SELECT * FROM playlists")
     List<Playlist> listAllPlaylists();
+    @Transaction
+    @Query("select * from playlists where id=:playlistId")
+    Maybe<PlaylistWithSongs> listPlaylistSongsObservable(String playlistId);
 }

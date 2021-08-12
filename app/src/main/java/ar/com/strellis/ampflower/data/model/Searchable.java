@@ -1,5 +1,5 @@
 package ar.com.strellis.ampflower.data.model;
 
-public interface Searchable {
-    int getId();
+public interface Searchable<T> {
+    T getId();
 }

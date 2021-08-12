@@ -19,9 +19,15 @@ import ar.com.strellis.ampflower.data.model.Playlist;
 
 public class PlaylistAdapter extends PagedListAdapter<Playlist, RecyclerView.ViewHolder> {
     private NetworkState networkState;
+    private Context myContext;
 
     public PlaylistAdapter() {
         super(PlaylistAdapter.callback_diff);
+    }
+    public PlaylistAdapter(Context context)
+    {
+        super(PlaylistAdapter.callback_diff);
+        this.myContext=context;
     }
 
     @NonNull
@@ -45,7 +51,7 @@ public class PlaylistAdapter extends PagedListAdapter<Playlist, RecyclerView.Vie
             PlaylistViewHolder playlistViewHolder = (PlaylistViewHolder) holder;
             Playlist playlist= getItem(position);
             playlistViewHolder.getPlaylistName().setText(Objects.requireNonNull(playlist).getName());
-            playlistViewHolder.getSongsQuantity().setText(String.valueOf(playlist.getItems()));
+            playlistViewHolder.getSongsQuantity().setText(myContext.getString(R.string.songsQuantity,playlist.getItems()));
             // Now, attempt to download the image.
             //Picasso.get().load(album.getArt()).into(playlistViewHolder.getPlaylistImage());
         }

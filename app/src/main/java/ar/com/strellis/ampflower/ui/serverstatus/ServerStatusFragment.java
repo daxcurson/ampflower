@@ -48,7 +48,10 @@ public class ServerStatusFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         serverStatusViewModel=new ViewModelProvider(requireActivity()).get(ServerStatusViewModel.class);
         settingsViewModel=new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
-        settings=settingsViewModel.getAmpacheSettings().getValue();
+        //settings=settingsViewModel.getAmpacheSettings().getValue();
+        // It turns out, that the settingsViewModel stores settings only when they are going to be saved. For any other uses,
+        // the serverStatusViewModel should be used.
+        settings=serverStatusViewModel.getAmpacheSettings().getValue();
         if(settings!=null) {
             loadTextBoxesFromSettings(settings);
         }

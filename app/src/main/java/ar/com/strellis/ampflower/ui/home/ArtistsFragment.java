@@ -57,7 +57,7 @@ public class ArtistsFragment extends Fragment {
         LinearLayoutManager layoutManager=new LinearLayoutManager(getContext());
         binding.artistsRecycler.setLayoutManager(layoutManager);
         binding.artistsRecycler.setItemAnimator(new DefaultItemAnimator());
-        adapter=new ArtistAdapter();
+        adapter=new ArtistAdapter(getContext());
         artistsViewModel.getArtists().observe(getViewLifecycleOwner(), artists -> adapter.submitList(artists));
         artistsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.artistsRecycler.setAdapter(adapter);

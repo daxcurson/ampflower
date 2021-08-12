@@ -50,7 +50,7 @@ public class PlaylistsFragment extends Fragment {
         LinearLayoutManager layoutManager=new LinearLayoutManager(getContext());
         binding.playlistsRecycler.setLayoutManager(layoutManager);
         binding.playlistsRecycler.setItemAnimator(new DefaultItemAnimator());
-        adapter=new PlaylistAdapter();
+        adapter=new PlaylistAdapter(getContext());
         playlistsViewModel.getPlaylists().observe(getViewLifecycleOwner(), playlists -> adapter.submitList(playlists));
         playlistsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.playlistsRecycler.setAdapter(adapter);

@@ -22,9 +22,15 @@ import ar.com.strellis.ampflower.data.model.NetworkState;
 public class ArtistAdapter extends PagedListAdapter<Artist, RecyclerView.ViewHolder>
 {
     private NetworkState networkState;
+    private Context myContext;
     public ArtistAdapter()
     {
         super(ArtistAdapter.callback_diff);
+    }
+    public ArtistAdapter(Context context)
+    {
+        super(ArtistAdapter.callback_diff);
+        this.myContext=context;
     }
     @NonNull
     @Override
@@ -51,7 +57,7 @@ public class ArtistAdapter extends PagedListAdapter<Artist, RecyclerView.ViewHol
             ArtistViewHolder artistViewHolder=(ArtistViewHolder)holder;
             Artist artist=getItem(position);
             artistViewHolder.getArtistName().setText(Objects.requireNonNull(artist).getName());
-            artistViewHolder.getSongsQuantity().setText(String.valueOf(Objects.requireNonNull(artist).getSongs()));
+            artistViewHolder.getSongsQuantity().setText(myContext.getString(R.string.songsQuantity,artist.getSongs()));
             // Now, attempt to download the image.
             Picasso.get().load(artist.getArt()).into(artistViewHolder.getArtistFace());
         }

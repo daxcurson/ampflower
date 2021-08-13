@@ -61,4 +61,5 @@
     <string name="currentTime">%02d:%02d</string>
     <string name="songsQuantity">%d songs</string>
     <string name="msg_no_media">No media</string>
+    <string name="view_playlist">View Playlist</string>
 </resources>

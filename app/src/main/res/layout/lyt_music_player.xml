@@ -125,7 +125,7 @@
                         custom:foregroundColor="@color/white" />
 
                     <TextView
-                        android:id="@+id/txt_radio_name_expand"
+                        android:id="@+id/txt_song_name_expand"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -135,7 +135,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/txt_metadata_expand"
+                        android:id="@+id/txt_song_metadata_expand"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"

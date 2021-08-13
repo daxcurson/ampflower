@@ -23,7 +23,7 @@ public class SongsViewModel extends ViewModel
     private SongsRepository songsRepository;
     private final MutableLiveData<Searchable> searchableItem;
     private final MutableLiveData<List<SelectableSong>> songsInView;
-    private final MutableLiveData<List<MediaItem>> currentPlaylist;
+    private final MutableLiveData<List<Song>> currentPlaylist;
     private final MutableLiveData<String> query;
     public SongsViewModel()
     {
@@ -67,7 +67,7 @@ public class SongsViewModel extends ViewModel
         Log.d("SongsViewModel","Getting songs from the Repo!");
         return songsRepository.getSongsByAlbum(album_id);
     }*/
-    public LiveData<List<MediaItem>> getCurrentPlaylist()
+    public LiveData<List<Song>> getCurrentPlaylist()
     {
         return currentPlaylist;
     }
@@ -79,7 +79,7 @@ public class SongsViewModel extends ViewModel
     {
         this.songsInView.setValue(songs);
     }
-    public void setCurrentPlaylist(List<MediaItem> newPlaylist)
+    public void setCurrentPlaylist(List<Song> newPlaylist)
     {
         this.currentPlaylist.setValue(newPlaylist);
     }

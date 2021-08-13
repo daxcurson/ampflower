@@ -143,6 +143,7 @@ public class ChooseSongsFragment extends Fragment {
                 bundle.putSerializable("LIST", (Serializable) selectedSongs);
                 intent.putExtras(bundle);
                 requireActivity().startService(intent);
+                songsViewModel.setCurrentPlaylist(selectedSongs);
                 // Return to home.
                 NavController navController = Navigation.findNavController(requireActivity(), ChooseSongsFragment.this.getId());
                 navController.navigateUp();

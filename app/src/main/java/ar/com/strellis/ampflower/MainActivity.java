@@ -60,6 +60,7 @@ import ar.com.strellis.ampflower.viewmodel.PlaylistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
+import ar.com.strellis.utils.SlidingUpPanelLayout;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -453,6 +454,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.setAction(MediaPlayerService.ACTION_PREVIOUS);
             startService(intent);
         });
+        binding.layoutMusicPlayer.imgPlaylist.setOnClickListener(view->{
+            // This shows the playlist fragment. But first I need to collapse the player.
+            binding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            // Now, navigate to the new view.
+            Navigation.findNavController(view).navigate(R.id.nav_view_playlist);
+        });
     }
     private Intent getMediaPlayerServiceIntent()
     {
@@ -591,6 +598,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
             binding.layoutMusicPlayer.txtSongName.setText(item.mediaMetadata.title);
             binding.layoutMusicPlayer.txtMetadata.setText(item.mediaMetadata.artist);
+            binding.layoutMusicPlayer.txtSongNameExpand.setText(item.mediaMetadata.title);
+            binding.layoutMusicPlayer.txtSongMetadataExpand.setText(item.mediaMetadata.artist);
             Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverLarge);
             binding.layoutMusicPlayer.imgCollapse.setImageBitmap(binding.layoutMusicPlayer.imgCoverLarge.getDrawingCache());
             state=playing;

@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             assert serverStatus != null;
             if(!serverStatus.equals(ServerStatus.CONNECTING) && !serverStatus.equals(ServerStatus.LOGIN_DENIED) && !serverStatus.equals(ServerStatus.ONLINE))
             {
-                Log.d("configureSettingsLoader","The server is not connectiong, we are not denied and not online and we loaded settings, trying to connect");
+                Log.d("configureSettingsLoader","The server is not connecting, we are not denied and not online and we loaded settings, trying to connect");
                 loginToAmpache();
             }
             else
@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 assert serverStatus != null;
                 if(!serverStatus.equals(ServerStatus.CONNECTING) && !serverStatus.equals(ServerStatus.LOGIN_DENIED) && !serverStatus.equals(ServerStatus.ONLINE))
                 {
-                    Log.d("configureNetworkStatusListener","The server is not connectiong, we are not denied and not online, trying to connect");
+                    Log.d("configureNetworkStatusListener","The server is not connecting, we are not denied and not online, trying to connect");
                     loginToAmpache();
                 }
                 else
@@ -520,7 +520,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             MediaPlayerService.MediaPlayerServiceBinder binder=(MediaPlayerService.MediaPlayerServiceBinder) service;
             playerService=binder.getService();
             // Now I'll ask the player service to send me events.
-            playerService.addEventListener(MainActivity.this);
+            if(!boundToService)
+                playerService.addEventListener(MainActivity.this);
             boundToService=true;
             Log.d("DEBUG","Connected to the service");
         }
@@ -542,6 +543,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("DEBUG","Null binding, component name:"+name.getClassName());
         }
     };
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // I need to remove myself as listener to the service!
+        playerService.removeEventListener(this);
+        Log.d("MainActivity","I'm destroyed");
+    }
     private void bindMediaPlayerService()
     {
         if(!boundToService)
@@ -576,21 +584,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void play(MediaItem item) {
             Log.d("Playing","Received a Play message, looping into playing");
-            binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
-            binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
-            binding.layoutMusicPlayer.txtSongName.setText(item.mediaMetadata.title);
-            binding.layoutMusicPlayer.txtMetadata.setText(item.mediaMetadata.artist);
-            binding.layoutMusicPlayer.txtSongNameExpand.setText(item.mediaMetadata.title);
-            binding.layoutMusicPlayer.txtSongMetadataExpand.setText(item.mediaMetadata.artist);
-            Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverLarge);
-            binding.layoutMusicPlayer.imgCollapse.setImageBitmap(binding.layoutMusicPlayer.imgCoverLarge.getDrawingCache());
+            updateUiWithMediaItem(item);
+            updateUiToPlayState();
             state=playing;
         }
 
         @Override
         public void pause() {
-            binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_play_arrow_white));
-            binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_play_arrow_white));
+            updateUiToPausedState();
             state=stopped;
         }
     }
@@ -604,21 +605,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void play(MediaItem item)
         {
             Log.d("Stopped","Received a Play message, changing to Play");
-            binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
-            binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
-            binding.layoutMusicPlayer.txtSongName.setText(item.mediaMetadata.title);
-            binding.layoutMusicPlayer.txtMetadata.setText(item.mediaMetadata.artist);
-            binding.layoutMusicPlayer.txtSongNameExpand.setText(item.mediaMetadata.title);
-            binding.layoutMusicPlayer.txtSongMetadataExpand.setText(item.mediaMetadata.artist);
-            Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverLarge);
-            binding.layoutMusicPlayer.imgCollapse.setImageBitmap(binding.layoutMusicPlayer.imgCoverLarge.getDrawingCache());
+            updateUiWithMediaItem(item);
+            updateUiToPlayState();
             state=playing;
         }
         @Override
         public void pause()
         {
+            updateUiToPausedState();
             state=stopped;
         }
+    }
+
+    /**
+     * Changes the shapes of the controls to represent the state of playing music
+     */
+    private void updateUiToPlayState()
+    {
+        binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
+        binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
+    }
+
+    /**
+     * Changes the shapes of the controls to represent the state of being paused
+     */
+    private void updateUiToPausedState()
+    {
+        binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_play_arrow_white));
+        binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_play_arrow_white));
+    }
+
+    /**
+     * Updates the images and texts with the contents of the metadata of the media item
+     * @param item the item being played
+     */
+    private void updateUiWithMediaItem(MediaItem item)
+    {
+        binding.layoutMusicPlayer.txtSongName.setText(item.mediaMetadata.title);
+        binding.layoutMusicPlayer.txtMetadata.setText(item.mediaMetadata.artist);
+        binding.layoutMusicPlayer.txtSongNameExpand.setText(item.mediaMetadata.title);
+        binding.layoutMusicPlayer.txtSongMetadataExpand.setText(item.mediaMetadata.artist);
+        Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverLarge);
+        binding.layoutMusicPlayer.imgCollapse.setImageBitmap(binding.layoutMusicPlayer.imgCoverLarge.getDrawingCache());
     }
     private State state;
     private final Playing playing=new Playing();
@@ -659,5 +687,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else
             Log.d("MainActivity","Received a progress update, position: "+position.getPosition()+", duration: "+position.getDuration()+", avoiding updating the progress");
+    }
+
+    @Override
+    public void songChanged(MediaItem item, int positionInPlaylist) {
+        Log.d("MainActivity","Received a SongChanged message, updating UI");
+        updateUiWithMediaItem(item);
+        // and now, the all-important notification about the media item number being played.
+        songsViewModel.setCurrentItemInPlaylist(positionInPlaylist);
     }
 }

@@ -7,4 +7,5 @@ public interface MediaServiceEventsListener {
     void setPlaying(MediaItem mediaItem,int positionInPlaylist);
     void setPaused();
     void updateProgress(PlayerPositionEvent position);
+    void songChanged(MediaItem mediaItem,int positionInPlaylist);
 }

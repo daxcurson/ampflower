@@ -245,8 +245,6 @@ public class MediaPlayerService extends LifecycleService
                 if(player.getCurrentMediaItem()!=null)
                     title = player.getCurrentMediaItem().mediaMetadata.title;
                 Log.d("MediaPlayerService","Playing "+title);
-                // This is sent also when a new song in the playlist starts. I want to notify my listeners about this.
-                dispatchPlayingEvent();
                 return new MediaDescriptionCompat.Builder()
                         .setIconBitmap(bitmap)
                         .setTitle(title)
@@ -443,11 +441,20 @@ public class MediaPlayerService extends LifecycleService
         for(MediaServiceEventsListener l:listeners)
             l.setPaused();
     }
+    private void dispatchSongChangedEvent(MediaItem item,int position)
+    {
+        for(MediaServiceEventsListener l:listeners)
+            l.songChanged(item,position);
+    }
     private void dispatchProgressUpdateEvent()
     {
         // We'll dispatch this event only if it is necessary.
         int playbackstate=exoPlayer==null ? Player.STATE_IDLE : exoPlayer.getPlaybackState();
         assert exoPlayer != null;
+        // Remove scheduled updates.
+        // It turns out, that the very code of the ExoPlayer removes this progress update
+        // before adding a new one with the postDelayed!!!!
+        handler.removeCallbacks(updateAction);
         long position=exoPlayer.getCurrentPosition();
         long nextUpdateTime=1000-position%1000;
         PlayerPositionEvent event = new PlayerPositionEvent();
@@ -526,6 +533,12 @@ public class MediaPlayerService extends LifecycleService
             }
             else
                 dispatchPausedEvent();
+        }
+
+        @Override
+        public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+            // The song being played changed. Inform the listeners.
+            dispatchSongChangedEvent(mediaItem,exoPlayer.getCurrentWindowIndex());
         }
 
         @Override

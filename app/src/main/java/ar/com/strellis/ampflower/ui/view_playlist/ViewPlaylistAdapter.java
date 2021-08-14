@@ -49,10 +49,15 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
             Picasso.get().load(song.getSong().getArt()).into(holder.getAlbumImage());
             // Now, if the item is being played, the item must be in bold.
             if(songsViewModel.getCurrentItemInPlaylist().getValue()!=null &&
-                    songsViewModel.getCurrentItemInPlaylist().getValue()!=0 &&
+                    songsViewModel.getCurrentItemInPlaylist().getValue()>=0 &&
                     songsViewModel.getCurrentItemInPlaylist().getValue()==position)
             {
                 holder.getSongTitle().setTypeface(holder.getSongTitle().getTypeface(), Typeface.BOLD_ITALIC);
+            }
+            else
+            {
+                // Plain state it is.
+                holder.getSongTitle().setTypeface(holder.getSongTitle().getTypeface(), Typeface.NORMAL);
             }
         }
     }

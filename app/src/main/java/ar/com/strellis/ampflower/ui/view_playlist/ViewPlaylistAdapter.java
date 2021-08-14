@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.EntityWithSongs;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
-import ar.com.strellis.ampflower.ui.choose_songs.ChooseSongsViewHolder;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 
 public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHolder>
@@ -39,7 +38,7 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewPlaylistViewHolder holder, int position) {
-        SelectableSong song= Objects.requireNonNull(songsViewModel.getSongsInView().getValue()).get(position);
+        SelectableSong song= Objects.requireNonNull(songsViewModel.getCurrentPlaylist().getValue()).get(position);
         holder.getSongTitle().setText(song.getSong().getName());
         holder.getArtistName().setText(song.getSong().getArtist().getName());
         Picasso.get().load(song.getSong().getArt()).into(holder.getAlbumImage());

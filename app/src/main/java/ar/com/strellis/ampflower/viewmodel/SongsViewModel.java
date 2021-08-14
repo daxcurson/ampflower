@@ -6,9 +6,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.MediaMetadata;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -23,7 +20,7 @@ public class SongsViewModel extends ViewModel
     private SongsRepository songsRepository;
     private final MutableLiveData<Searchable> searchableItem;
     private final MutableLiveData<List<SelectableSong>> songsInView;
-    private final MutableLiveData<List<Song>> currentPlaylist;
+    private final MutableLiveData<List<SelectableSong>> currentPlaylist;
     private final MutableLiveData<String> query;
     public SongsViewModel()
     {
@@ -67,7 +64,7 @@ public class SongsViewModel extends ViewModel
         Log.d("SongsViewModel","Getting songs from the Repo!");
         return songsRepository.getSongsByAlbum(album_id);
     }*/
-    public LiveData<List<Song>> getCurrentPlaylist()
+    public LiveData<List<SelectableSong>> getCurrentPlaylist()
     {
         return currentPlaylist;
     }
@@ -79,7 +76,7 @@ public class SongsViewModel extends ViewModel
     {
         this.songsInView.setValue(songs);
     }
-    public void setCurrentPlaylist(List<Song> newPlaylist)
+    public void setCurrentPlaylist(List<SelectableSong> newPlaylist)
     {
         this.currentPlaylist.setValue(newPlaylist);
     }

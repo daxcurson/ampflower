@@ -9,17 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.Objects;
-
-import ar.com.strellis.ampflower.R;
-import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentViewPlaylistBinding;
-import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapter;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 

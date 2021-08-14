@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Album;
@@ -78,13 +79,14 @@ public class ChooseSongsFragment extends Fragment {
                 return false;
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public boolean onQueryTextChange(String newText) {
                 // update the albums model with the search string
                 songsViewModel.setQuery(newText);
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("ChooseSongsFragment","The recycler for songs is forced to update, new text: "+newText);
-                songsRecycler.getAdapter().notifyDataSetChanged();
+                Objects.requireNonNull(songsRecycler.getAdapter()).notifyDataSetChanged();
                 return false;
             }
         });
@@ -191,6 +193,7 @@ public class ChooseSongsFragment extends Fragment {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);

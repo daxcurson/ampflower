@@ -1,6 +1,8 @@
 package ar.com.strellis.ampflower.ui.view_playlist;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +47,13 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
             holder.getSongTitle().setText(song.getSong().getName());
             holder.getArtistName().setText(song.getSong().getArtist().getName());
             Picasso.get().load(song.getSong().getArt()).into(holder.getAlbumImage());
-            //holder.getIsChecked().setChecked(song.isSelected());
+            // Now, if the item is being played, the item must be in bold.
+            if(songsViewModel.getCurrentItemInPlaylist().getValue()!=null &&
+                    songsViewModel.getCurrentItemInPlaylist().getValue()!=0 &&
+                    songsViewModel.getCurrentItemInPlaylist().getValue()==position)
+            {
+                holder.getSongTitle().setTypeface(holder.getSongTitle().getTypeface(), Typeface.BOLD_ITALIC);
+            }
         }
     }
 
@@ -57,8 +65,9 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
     /**
      * Receives songs to display in the Choose Songs view. Clears the currently-displayed list
      * and adds the items received.
-     * @param songs
+     * @param songs The entity, e.g. the album, and its list of songs.
      */
+    @SuppressLint("NotifyDataSetChanged")
     public void submitList(EntityWithSongs songs) {
         List<SelectableSong> songsToAdd = songs.getSongs().stream()
                 .map(song -> new SelectableSong(song, false))

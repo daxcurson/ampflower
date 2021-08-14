@@ -80,6 +80,9 @@ public class MediaPlayerService extends LifecycleService
     public static final String ACTION_NEXT = BuildConfig.APPLICATION_ID + ".action.NEXT";
     public static final String ACTION_TOGGLE = BuildConfig.APPLICATION_ID + ".action.TOGGLE_PLAYPAUSE";
     public static final String ACTION_SELECT_SONGS = BuildConfig.APPLICATION_ID+".action.SELECT_SONGS";
+    public static final String ACTION_MOVE_ITEM = BuildConfig.APPLICATION_ID+".action.MOVE_ITEM";
+    public static final String ACTION_PLAY_ITEM = BuildConfig.APPLICATION_ID+".action.PLAY_ITEM";
+    public static final String ACTION_DELETE_ITEM = BuildConfig.APPLICATION_ID+".action.DELETE_ITEM";
 
     public MediaPlayerService()
     {
@@ -320,6 +323,19 @@ public class MediaPlayerService extends LifecycleService
                     List<Song> songs = (List<Song>) intent.getSerializableExtra("LIST");
                     selectSongsIntoPlaylist(songs);
                     break;
+                case ACTION_MOVE_ITEM:
+                    int fromPosition= (int) intent.getSerializableExtra("fromPosition");
+                    int toPosition=(int)intent.getSerializableExtra("toPosition");
+                    moveMediaItem(fromPosition,toPosition);
+                    break;
+                case ACTION_PLAY_ITEM:
+                    int position=(int)intent.getSerializableExtra("position");
+                    playItemInPosition(position);
+                    break;
+                case ACTION_DELETE_ITEM:
+                    int positionToDelete=(int)intent.getSerializableExtra("position");
+                    deleteItemInPosition(positionToDelete);
+                    break;
             }
         }
     }
@@ -368,10 +384,25 @@ public class MediaPlayerService extends LifecycleService
         exoPlayer.prepare();
         exoPlayer.setPlayWhenReady(true);
     }
+    public void playItemInPosition(int position)
+    {
+        // I have to tell the player to play this item
+        exoPlayer.seekTo(position,C.TIME_UNSET);
+    }
     public void pause()
     {
         Log.d("MediaPlayerService","Pausing the player service");
         exoPlayer.setPlayWhenReady(false);
+    }
+    public void moveMediaItem(int fromPosition,int toPosition)
+    {
+        Log.d("MediaPlayerService","Moving the item "+fromPosition+" to position "+toPosition);
+        exoPlayer.moveMediaItem(fromPosition,toPosition);
+    }
+    public void deleteItemInPosition(int position)
+    {
+        Log.d("MediaPlayerService","Deleting the item "+position+" from the playlist");
+        exoPlayer.removeMediaItem(position);
     }
     private Bitmap getBitmapFromVectorDrawable(Context context, @DrawableRes int drawableId)
     {
@@ -405,7 +436,7 @@ public class MediaPlayerService extends LifecycleService
     private void dispatchPlayingEvent()
     {
         for(MediaServiceEventsListener l:listeners)
-            l.setPlaying(exoPlayer.getCurrentMediaItem());
+            l.setPlaying(exoPlayer.getCurrentMediaItem(),exoPlayer.getCurrentWindowIndex());
     }
     private void dispatchPausedEvent()
     {

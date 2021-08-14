@@ -629,9 +629,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void setPlaying(MediaItem item) {
-        Log.d("MainActivity","Received a playing message");
+    public void setPlaying(MediaItem item,int positionInPlaylist) {
+        Log.d("MainActivity","Received a playing message, to play item "+positionInPlaylist);
         state.play(item);
+        songsViewModel.setCurrentItemInPlaylist(positionInPlaylist);
     }
 
     @Override

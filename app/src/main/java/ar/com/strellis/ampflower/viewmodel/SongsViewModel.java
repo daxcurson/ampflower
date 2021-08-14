@@ -21,12 +21,14 @@ public class SongsViewModel extends ViewModel
     private final MutableLiveData<Searchable> searchableItem;
     private final MutableLiveData<List<SelectableSong>> songsInView;
     private final MutableLiveData<List<SelectableSong>> currentPlaylist;
+    private final MutableLiveData<Integer> currentItemInPlaylist;
     private final MutableLiveData<String> query;
     public SongsViewModel()
     {
         super();
         searchableItem =new MutableLiveData<>();
         currentPlaylist=new MutableLiveData<>();
+        currentItemInPlaylist=new MutableLiveData<>();
         songsInView =new MutableLiveData<>();
         query=new MutableLiveData<>();
     }
@@ -67,6 +69,14 @@ public class SongsViewModel extends ViewModel
     public LiveData<List<SelectableSong>> getCurrentPlaylist()
     {
         return currentPlaylist;
+    }
+    public LiveData<Integer> getCurrentItemInPlaylist()
+    {
+        return currentItemInPlaylist;
+    }
+    public void setCurrentItemInPlaylist(int item)
+    {
+        currentItemInPlaylist.setValue(item);
     }
     public MutableLiveData<List<SelectableSong>> getSongsInView()
     {

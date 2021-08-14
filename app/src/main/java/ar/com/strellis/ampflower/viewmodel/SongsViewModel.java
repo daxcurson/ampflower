@@ -80,6 +80,10 @@ public class SongsViewModel extends ViewModel
     {
         this.currentPlaylist.setValue(newPlaylist);
     }
+    public List<SelectableSong> getSelectedSongsIntoPlaylist()
+    {
+        return songsInView.getValue();
+    }
     public List<Song> getSelectedSongs() {
         return Objects.requireNonNull(songsInView.getValue()).stream()
                 .filter(SelectableSong::isSelected)

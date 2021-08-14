@@ -2,6 +2,7 @@ package ar.com.strellis.ampflower.ui.view_playlist;
 
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,18 +16,18 @@ public class ViewPlaylistViewHolder extends RecyclerView.ViewHolder
     private final ImageView albumImage;
     private final TextView songTitle;
     private final TextView artistName;
-    private final CheckBox isChecked;
+    private final ImageButton draggable;
     public ViewPlaylistViewHolder(@NonNull View itemView) {
         super(itemView);
-        albumImage=itemView.findViewById(R.id.list_item_song_album_art);
-        songTitle=itemView.findViewById(R.id.list_item_song_title);
-        artistName=itemView.findViewById(R.id.list_item_song_album_artist);
-        isChecked=itemView.findViewById(R.id.list_item_song_is_selected_checkbox);
+        albumImage=itemView.findViewById(R.id.list_item_song_playlist_album_art);
+        songTitle=itemView.findViewById(R.id.list_item_song_playlist_title);
+        artistName=itemView.findViewById(R.id.list_item_song_playlist_album_artist);
+        draggable=itemView.findViewById(R.id.list_item_song_playlist_draggable);
     }
 
-    public CheckBox getIsChecked()
+    public ImageButton getDraggable()
     {
-        return isChecked;
+        return draggable;
     }
     public ImageView getAlbumImage() {
         return albumImage;

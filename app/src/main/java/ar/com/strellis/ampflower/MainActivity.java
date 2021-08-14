@@ -458,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // This shows the playlist fragment. But first I need to collapse the player.
             binding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             // Now, navigate to the new view.
-            Navigation.findNavController(view).navigate(R.id.nav_view_playlist);
+            navController.navigate(R.id.nav_view_playlist);
         });
     }
     private Intent getMediaPlayerServiceIntent()
@@ -575,6 +575,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void play(MediaItem item) {
+            Log.d("Playing","Received a Play message, looping into playing");
+            binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
+            binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
+            binding.layoutMusicPlayer.txtSongName.setText(item.mediaMetadata.title);
+            binding.layoutMusicPlayer.txtMetadata.setText(item.mediaMetadata.artist);
+            binding.layoutMusicPlayer.txtSongNameExpand.setText(item.mediaMetadata.title);
+            binding.layoutMusicPlayer.txtSongMetadataExpand.setText(item.mediaMetadata.artist);
+            Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverLarge);
+            binding.layoutMusicPlayer.imgCollapse.setImageBitmap(binding.layoutMusicPlayer.imgCoverLarge.getDrawingCache());
             state=playing;
         }
 
@@ -594,6 +603,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void play(MediaItem item)
         {
+            Log.d("Stopped","Received a Play message, changing to Play");
             binding.layoutMusicPlayer.imgPlayerPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
             binding.layoutMusicPlayer.fabPlay.setImageDrawable(AppCompatResources.getDrawable(MainActivity.this,R.drawable.ic_pause_white));
             binding.layoutMusicPlayer.txtSongName.setText(item.mediaMetadata.title);
@@ -632,16 +642,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void updateProgress(PlayerPositionEvent position) {
-        Log.d("MainActivity","Received a progress update, position: "+position.getPosition()+", duration: "+position.getDuration());
-        binding.layoutMusicPlayer.seekBarSong.setDuration(position.getDuration());//.setMax((int)position.getDuration());
-        binding.layoutMusicPlayer.seekBarSong.setPosition(position.getPosition());//.setProgress((int) position.getPosition());
-        binding.layoutMusicPlayer.seekBarSong.setBufferedPosition(position.getBufferedPosition());
-        // Update the text boxes with the time values
-        long minutesDuration=(position.getDuration()/1000)/60;
-        long secondsDuration=(position.getDuration()/1000)%60;
-        long minutesPosition=(position.getPosition()/1000)/60;
-        long secondsPosition=(position.getPosition()/1000)%60;
-        binding.layoutMusicPlayer.txtTotalDuration.setText(getString(R.string.duration,minutesDuration,secondsDuration));
-        binding.layoutMusicPlayer.txtSongDuration.setText(getString(R.string.currentTime,minutesPosition,secondsPosition));
+        if(position.getDuration()>=0)
+        {
+            Log.d("MainActivity", "Received a progress update, position: " + position.getPosition() + ", duration: " + position.getDuration());
+            binding.layoutMusicPlayer.seekBarSong.setDuration(position.getDuration());//.setMax((int)position.getDuration());
+            binding.layoutMusicPlayer.seekBarSong.setPosition(position.getPosition());//.setProgress((int) position.getPosition());
+            binding.layoutMusicPlayer.seekBarSong.setBufferedPosition(position.getBufferedPosition());
+            // Update the text boxes with the time values
+            long minutesDuration=(position.getDuration()/1000)/60;
+            long secondsDuration=(position.getDuration()/1000)%60;
+            long minutesPosition=(position.getPosition()/1000)/60;
+            long secondsPosition=(position.getPosition()/1000)%60;
+            binding.layoutMusicPlayer.txtTotalDuration.setText(getString(R.string.duration,minutesDuration,secondsDuration));
+            binding.layoutMusicPlayer.txtSongDuration.setText(getString(R.string.currentTime,minutesPosition,secondsPosition));
+        }
+        else
+            Log.d("MainActivity","Received a progress update, position: "+position.getPosition()+", duration: "+position.getDuration()+", avoiding updating the progress");
     }
 }

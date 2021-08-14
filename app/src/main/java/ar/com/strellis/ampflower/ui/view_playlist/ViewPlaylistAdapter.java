@@ -32,17 +32,21 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
     public ViewPlaylistViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context=parent.getContext();
         LayoutInflater inflater=LayoutInflater.from(context);
-        View songItemView=inflater.inflate(R.layout.list_item_song,parent,false);
+        View songItemView=inflater.inflate(R.layout.list_item_song_in_playlist,parent,false);
         return new ViewPlaylistViewHolder(songItemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewPlaylistViewHolder holder, int position) {
-        SelectableSong song= Objects.requireNonNull(songsViewModel.getCurrentPlaylist().getValue()).get(position);
-        holder.getSongTitle().setText(song.getSong().getName());
-        holder.getArtistName().setText(song.getSong().getArtist().getName());
-        Picasso.get().load(song.getSong().getArt()).into(holder.getAlbumImage());
-        holder.getIsChecked().setChecked(song.isSelected());
+        List<SelectableSong> songs=songsViewModel.getSongsInView().getValue();
+        if(songs!=null)
+        {
+            SelectableSong song = Objects.requireNonNull(songsViewModel.getCurrentPlaylist().getValue()).get(position);
+            holder.getSongTitle().setText(song.getSong().getName());
+            holder.getArtistName().setText(song.getSong().getArtist().getName());
+            Picasso.get().load(song.getSong().getArt()).into(holder.getAlbumImage());
+            //holder.getIsChecked().setChecked(song.isSelected());
+        }
     }
 
     public List<SelectableSong> getSongs()
@@ -66,6 +70,10 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
     }
     @Override
     public int getItemCount() {
-        return Objects.requireNonNull(songsViewModel.getSongsInView().getValue()).size();
+        List<SelectableSong> songs=songsViewModel.getSongsInView().getValue();
+        if(songs!=null)
+            return Objects.requireNonNull(songs).size();
+        else
+            return 0;
     }
 }

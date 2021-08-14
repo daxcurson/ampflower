@@ -62,4 +62,5 @@
     <string name="songsQuantity">%d songs</string>
     <string name="msg_no_media">No media</string>
     <string name="view_playlist">View Playlist</string>
+    <string name="select_to_drag">Select to drag</string>
 </resources>

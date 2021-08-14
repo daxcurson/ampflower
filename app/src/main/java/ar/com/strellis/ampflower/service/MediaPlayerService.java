@@ -242,6 +242,8 @@ public class MediaPlayerService extends LifecycleService
                 if(player.getCurrentMediaItem()!=null)
                     title = player.getCurrentMediaItem().mediaMetadata.title;
                 Log.d("MediaPlayerService","Playing "+title);
+                // This is sent also when a new song in the playlist starts. I want to notify my listeners about this.
+                dispatchPlayingEvent();
                 return new MediaDescriptionCompat.Builder()
                         .setIconBitmap(bitmap)
                         .setTitle(title)

@@ -83,8 +83,18 @@ public class ViewPlaylistFragment extends Fragment
         itemTouchHelper.attachToRecyclerView(binding.viewPlaylistRecycler);
         songsViewModel.getCurrentItemInPlaylist().observe(getViewLifecycleOwner(),item->
         {
-            // Tell the playlist recycler.
-            Objects.requireNonNull(binding.viewPlaylistRecycler.getAdapter()).notifyDataSetChanged();
+            // Tell the playlist recycler: the current item changed, the new item changed
+            if(songsViewModel.getCurrentItemInPlaylist().getValue()!=null) {
+                int oldItem = songsViewModel.getOldItemInPlaylist();
+                Log.d("ViewPlaylistFragment","Current item "+oldItem+" updated");
+                Objects.requireNonNull(binding.viewPlaylistRecycler.getAdapter()).notifyItemChanged(oldItem);
+                Log.d("ViewPlaylistFragment", "The item " + item + " changed!");
+                Objects.requireNonNull(binding.viewPlaylistRecycler.getAdapter()).notifyItemChanged(item);
+            }
+            else
+            {
+                Log.d("ViewPlaylistFragment","Nothing to do, the current item is null");
+            }
         });
         binding.viewPlaylistRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.viewPlaylistRecycler)
         {

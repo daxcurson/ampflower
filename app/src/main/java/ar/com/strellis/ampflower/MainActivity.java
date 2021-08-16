@@ -56,6 +56,7 @@ import ar.com.strellis.ampflower.service.PlayerPositionEvent;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.NetworkStatusViewModel;
+import ar.com.strellis.ampflower.viewmodel.PlayerViewModel;
 import ar.com.strellis.ampflower.viewmodel.PlaylistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SongsViewModel songsViewModel;
     private PlaylistsViewModel playlistsViewModel;
     private SettingsViewModel settingsViewModel;
+    private PlayerViewModel playerViewModel;
     private SharedPreferences sharedPreferences;
     private boolean boundToService=false;
     private MediaPlayerService playerService;
@@ -99,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureServerStatusObserver();
         configureButtons();
         bindMediaPlayerService();
-        this.state=stopped;
     }
 
     @Override
@@ -152,6 +153,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         // We'll configure the initial state, which is, server unavailable.
         serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
+        // setting stopped mode
+        if(playerViewModel.getPlayerState().getValue()!=null)
+        {
+            Log.d("MainActivity","I have a previous state");
+            State state = playerViewModel.getPlayerState().getValue();
+            if(state.name.equals("PLAYING"))
+            {
+                Log.d("MainActivity","The state is playing, media item: "+ Objects.requireNonNull(playerViewModel.getMediaItem().getValue()).mediaMetadata.title);
+                updateUiWithMediaItem(Objects.requireNonNull(playerViewModel.getMediaItem().getValue()));
+                updateUiToPlayState();
+                this.state=playing;
+            }
+        }
+        else
+        {
+            state=stopped;
+            playerViewModel.setPlayerState(stopped);
+        }
     }
 
     /**
@@ -348,6 +367,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         artistsViewModel=new ViewModelProvider(this).get(ArtistsViewModel.class);
         playlistsViewModel=new ViewModelProvider(this).get(PlaylistsViewModel.class);
         songsViewModel=new ViewModelProvider(this).get(SongsViewModel.class);
+        playerViewModel=new ViewModelProvider(this).get(PlayerViewModel.class);
     }
     private void configureDataModels()
     {
@@ -556,7 +576,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             bindService(MediaPlayerService.newIntent(this),connection, Context.BIND_AUTO_CREATE);
     }
 
-    private abstract static class State
+    public abstract static class State
     {
         private String name;
         public State(String name)
@@ -574,7 +594,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public abstract void play(MediaItem item);
         public abstract void pause();
     }
-    private class Playing extends State
+    public class Playing extends State
     {
         public Playing()
         {
@@ -587,15 +607,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             updateUiWithMediaItem(item);
             updateUiToPlayState();
             state=playing;
+            playerViewModel.setPlayerState(playing);
+            playerViewModel.setMediaItem(item);
         }
 
         @Override
         public void pause() {
             updateUiToPausedState();
             state=stopped;
+            playerViewModel.setPlayerState(stopped);
         }
     }
-    private class Stopped extends State
+    public class Stopped extends State
     {
         public Stopped()
         {
@@ -608,12 +631,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             updateUiWithMediaItem(item);
             updateUiToPlayState();
             state=playing;
+            playerViewModel.setPlayerState(playing);
+            playerViewModel.setMediaItem(item);
         }
         @Override
         public void pause()
         {
             updateUiToPausedState();
             state=stopped;
+            playerViewModel.setPlayerState(stopped);
         }
     }
 
@@ -660,7 +686,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void setPlaying(MediaItem item,int positionInPlaylist) {
         Log.d("MainActivity","Received a playing message, to play item "+positionInPlaylist);
         state.play(item);
-        songsViewModel.setCurrentItemInPlaylist(positionInPlaylist);
     }
 
     @Override

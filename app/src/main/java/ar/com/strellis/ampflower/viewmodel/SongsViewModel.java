@@ -21,6 +21,7 @@ public class SongsViewModel extends ViewModel
     private final MutableLiveData<Searchable> searchableItem;
     private final MutableLiveData<List<SelectableSong>> songsInView;
     private final MutableLiveData<List<SelectableSong>> currentPlaylist;
+    private int oldItemInPlaylist;
     private final MutableLiveData<Integer> currentItemInPlaylist;
     private final MutableLiveData<String> query;
     public SongsViewModel()
@@ -31,6 +32,7 @@ public class SongsViewModel extends ViewModel
         currentItemInPlaylist=new MutableLiveData<>();
         songsInView =new MutableLiveData<>();
         query=new MutableLiveData<>();
+        oldItemInPlaylist=0;
     }
     public LiveData<String> getQuery()
     {
@@ -76,7 +78,21 @@ public class SongsViewModel extends ViewModel
     }
     public void setCurrentItemInPlaylist(int item)
     {
+        if(currentItemInPlaylist.getValue()!=null)
+        {
+            oldItemInPlaylist = currentItemInPlaylist.getValue();
+            Log.d("SongsViewModel","Old value "+oldItemInPlaylist);
+        }
+        Log.d("SongsViewModel","New value: "+item);
         currentItemInPlaylist.setValue(item);
+    }
+    public void setOldItemInPlaylist(int oldItemInPlaylist)
+    {
+        this.oldItemInPlaylist=oldItemInPlaylist;
+    }
+    public int getOldItemInPlaylist()
+    {
+        return oldItemInPlaylist;
     }
     public MutableLiveData<List<SelectableSong>> getSongsInView()
     {

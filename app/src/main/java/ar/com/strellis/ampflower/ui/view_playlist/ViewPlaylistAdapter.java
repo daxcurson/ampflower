@@ -2,12 +2,13 @@ package ar.com.strellis.ampflower.ui.view_playlist;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -44,21 +45,22 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
         if(songs!=null)
         {
             SelectableSong song = Objects.requireNonNull(songsViewModel.getCurrentPlaylist().getValue()).get(position);
-            holder.getSongTitle().setText(song.getSong().getName());
+            holder.getSongTitle().setText(position+" "+song.getSong().getName());
             holder.getArtistName().setText(song.getSong().getArtist().getName());
             Picasso.get().load(song.getSong().getArt()).into(holder.getAlbumImage());
             // Now, if the item is being played, the item must be in bold.
-            if(songsViewModel.getCurrentItemInPlaylist().getValue()!=null &&
+            /*if(songsViewModel.getCurrentItemInPlaylist().getValue()!=null &&
                     songsViewModel.getCurrentItemInPlaylist().getValue()>=0 &&
                     songsViewModel.getCurrentItemInPlaylist().getValue()==position)
             {
+                Log.d("ViewPlaylistAdapter","The song at position "+position+" needs to be bolded");
                 holder.getSongTitle().setTypeface(holder.getSongTitle().getTypeface(), Typeface.BOLD_ITALIC);
             }
             else
             {
                 // Plain state it is.
                 holder.getSongTitle().setTypeface(holder.getSongTitle().getTypeface(), Typeface.NORMAL);
-            }
+            }*/
         }
     }
 
@@ -90,4 +92,19 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
         else
             return 0;
     }
+
+    public static DiffUtil.ItemCallback<SelectableSong> callback_diff = new DiffUtil.ItemCallback<SelectableSong>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull SelectableSong oldItem, @NonNull SelectableSong newItem) {
+            Log.d("DEBUG", "Callback comparing item " + oldItem.getSong().getId() + " with item " + newItem.getSong().getId());
+            return oldItem.getSong().getId()==newItem.getSong().getId() && oldItem.getSong().getName().equals(newItem.getSong().getName());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull SelectableSong oldItem, @NonNull SelectableSong newItem) {
+            Log.d("DEBUG", "Callback comparing content of item " + oldItem.getSong().getId() + " with item " + newItem.getSong().getId());
+            return oldItem.getSong().equals(newItem.getSong());
+        }
+
+    };
 }

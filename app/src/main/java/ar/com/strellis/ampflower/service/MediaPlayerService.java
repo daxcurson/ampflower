@@ -233,18 +233,24 @@ public class MediaPlayerService extends LifecycleService
                 {
                     Log.d("MediaPlayerService","Error when retrieving metadata");
                 }*/
-                String album= Objects.requireNonNull(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.albumTitle).toString();
-                String artist= Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.artist).toString();
+                // The system looks for information about the item windowIndex in the playlist.
+                // So let's give them that.
+                CharSequence title = "No media playing";
+                MediaItem currentItem=player.getCurrentMediaItem();
+                CharSequence currentTitle = "No media playing";
+                if(currentItem!=null)
+                    currentTitle=player.getCurrentMediaItem().mediaMetadata.title;
+                MediaItem wantedItem=player.getMediaItemAt(windowIndex);
+                String album = Objects.requireNonNull(Objects.requireNonNull(wantedItem).mediaMetadata.albumTitle).toString();
+                String artist = Objects.requireNonNull(wantedItem.mediaMetadata.artist).toString();
 
-                extras.putParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,bitmap);
-                extras.putParcelable(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON,bitmap);
+                extras.putParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+                extras.putParcelable(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, bitmap);
                 extras.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist);
-                extras.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,album);
+                extras.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album);
                 // Here we would send the title of the song.
-                CharSequence title="No media playing";
-                if(player.getCurrentMediaItem()!=null)
-                    title = player.getCurrentMediaItem().mediaMetadata.title;
-                Log.d("MediaPlayerService","Playing "+title);
+                title = wantedItem.mediaMetadata.title;
+                Log.d("MediaPlayerService", "Playing " + currentTitle + ", sending information about item " + windowIndex + ": "+title);
                 return new MediaDescriptionCompat.Builder()
                         .setIconBitmap(bitmap)
                         .setTitle(title)
@@ -344,7 +350,7 @@ public class MediaPlayerService extends LifecycleService
      */
     private void selectSongsIntoPlaylist(List<Song> songs)
     {
-        Log.d("MediaPlayerService","I received songs!!");
+        Log.d("MediaPlayerService","I received "+songs.size()+" songs!!");
         // I'll just shove these songs into the playlist.
         List<MediaItem> items=convertSongsToMedia(songs);
         playList(items);
@@ -443,6 +449,7 @@ public class MediaPlayerService extends LifecycleService
     }
     private void dispatchSongChangedEvent(MediaItem item,int position)
     {
+        Log.d("MediaPlayerService","Now playing song "+exoPlayer.getCurrentWindowIndex()+", position "+position);
         for(MediaServiceEventsListener l:listeners)
             l.songChanged(item,position);
     }

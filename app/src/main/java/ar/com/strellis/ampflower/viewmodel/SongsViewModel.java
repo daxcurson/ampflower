@@ -108,7 +108,9 @@ public class SongsViewModel extends ViewModel
     }
     public List<SelectableSong> getSelectedSongsIntoPlaylist()
     {
-        return songsInView.getValue();
+        return Objects.requireNonNull(songsInView.getValue()).stream()
+                .filter(SelectableSong::isSelected)
+                .collect(Collectors.toList());
     }
     public List<Song> getSelectedSongs() {
         return Objects.requireNonNull(songsInView.getValue()).stream()

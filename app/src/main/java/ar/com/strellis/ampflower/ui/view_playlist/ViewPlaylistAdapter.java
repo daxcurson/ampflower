@@ -70,12 +70,12 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
 
     public List<SelectableSong> getSongs()
     {
-        return this.songsViewModel.getSongsInView().getValue();
+        return this.songsViewModel.getCurrentPlaylist().getValue();
     }
 
     @Override
     public int getItemCount() {
-        List<SelectableSong> songs=songsViewModel.getSongsInView().getValue();
+        List<SelectableSong> songs=songsViewModel.getCurrentPlaylist().getValue();
         if(songs!=null)
             return Objects.requireNonNull(songs).size();
         else

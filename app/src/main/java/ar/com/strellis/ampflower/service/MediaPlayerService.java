@@ -360,12 +360,16 @@ public class MediaPlayerService extends LifecycleService
         // The ExoPlayer accepts MediaItems, and I have songs. I'll create a map() to convert between formats.
         return songs.stream().map(song ->
                 {
+                    Bundle extras=new Bundle();
+                    extras.putSerializable("ARTIST_ID",song.getArtist().getId());
                     MediaMetadata metadata=new MediaMetadata.Builder()
                             .setTitle(song.getTitle())
                             .setArtist(song.getArtist().getName())
                             .setAlbumArtist(song.getArtist().getName())
                             .setAlbumTitle(song.getAlbum().getName())
                             .setArtworkUri(Uri.parse(song.getArt()))
+                            .setDisplayTitle(song.getTitle())
+                            .setExtras(extras)
                             .build();
                     return new MediaItem.Builder().setUri(song.getUrl())
                             .setMediaMetadata(metadata)

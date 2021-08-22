@@ -672,7 +672,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         binding.layoutMusicPlayer.txtSongNameExpand.setText(item.mediaMetadata.title);
         binding.layoutMusicPlayer.txtSongMetadataExpand.setText(item.mediaMetadata.artist);
         Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverLarge);
-        binding.layoutMusicPlayer.imgCollapse.setImageBitmap(binding.layoutMusicPlayer.imgCoverLarge.getDrawingCache());
+        Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverSmall);
+        Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgMusicBackground);
+        Bundle extras=item.mediaMetadata.extras;
+        if(extras!=null && extras.getString("ARTIST_ID")!=null) {
+            String artistArt = extras.getString("ARTIST_ID");
+        }
     }
     private State state;
     private final Playing playing=new Playing();

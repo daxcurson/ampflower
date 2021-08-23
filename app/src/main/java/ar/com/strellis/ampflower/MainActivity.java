@@ -165,6 +165,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 updateUiToPlayState();
                 this.state=playing;
             }
+            else
+            {
+                this.state=stopped;
+                playerViewModel.setPlayerState(stopped);
+            }
         }
         else
         {
@@ -675,8 +680,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverSmall);
         Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgMusicBackground);
         Bundle extras=item.mediaMetadata.extras;
-        if(extras!=null && extras.getString("ARTIST_ID")!=null) {
-            String artistArt = extras.getString("ARTIST_ID");
+        if(extras!=null) {
+            int artistArt = extras.getInt("ARTIST_ID");
         }
     }
     private State state;

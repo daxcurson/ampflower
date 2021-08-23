@@ -181,6 +181,8 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/seek_bar_song"
                     style="@style/AppThemeTwo"
+                    app:scrubber_color="@color/colorPlayButton"
+                    app:played_color="@color/colorPlayButton"
                     android:layout_alignParentBottom="true"/>
                 <!--
                 <androidx.appcompat.widget.AppCompatSeekBar

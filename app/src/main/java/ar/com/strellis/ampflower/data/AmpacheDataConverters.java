@@ -22,7 +22,7 @@ public class AmpacheDataConverters
     @TypeConverter
     public static int fromArtist(Artist artist)
     {
-        if(artist==null) {
+        if(artist==null || artist.getId()==null) {
             return 0;
         }
         return artist.getId();

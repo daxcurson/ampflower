@@ -18,6 +18,7 @@ import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
+import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import io.reactivex.schedulers.Schedulers;
 
 public class ArtistsRepository {
@@ -27,6 +28,7 @@ public class ArtistsRepository {
     final private AmpacheDatabase database;
     private MediatorLiveData<PagedList<Artist>> liveDataMerger;
     private LoginResponse loginResponse;
+    private final AmpacheSettings ampacheSettings;
 
     @SuppressLint("CheckResult")
     public ArtistsRepository(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner)
@@ -36,6 +38,8 @@ public class ArtistsRepository {
         // we need to show only what we find in the database.
         network=null;
         liveDataMerger=null;
+        this.ampacheSettings=settings;
+        this.loginResponse=loginResponse;
         // So, we check here if the ampache details are configured.
         if(settings.getAmpacheUrl()!=null
                 && !settings.getAmpacheUrl().equals("")
@@ -100,5 +104,10 @@ public class ArtistsRepository {
     public void setLoginResponse(LoginResponse loginResponse)
     {
         this.loginResponse=loginResponse;
+    }
+    public String getImageUrl(int artistId)
+    {
+        // builds an URL of an image to be used by Picasso
+        return AmpacheUtil.getImageUrl(artistId,"artist",ampacheSettings,loginResponse);
     }
 }

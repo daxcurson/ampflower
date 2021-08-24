@@ -35,6 +35,10 @@ public class ArtistsViewModel extends ViewModel
     {
         this.artistsRepository=artistsRepository;
     }
+    public ArtistsRepository getArtistsRepository()
+    {
+        return this.artistsRepository;
+    }
     public LiveData<NetworkState> getNetworkState() {
         if(this.artistsRepository==null)
             return new MutableLiveData<>();

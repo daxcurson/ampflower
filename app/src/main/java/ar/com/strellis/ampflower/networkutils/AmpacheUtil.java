@@ -69,6 +69,22 @@ public class AmpacheUtil
                 .build();
         return retrofit.create(AmpacheService.class);
     }
+
+    /**
+     * Creates an URL to download an image using the get_art method
+     * @param id the id of the entity
+     * @param kind what entity I want the art for - artist, album, song
+     * @param ampacheSettings The settings of the ampache server
+     * @return a string of the url to retrieve the image.
+     */
+    public static String getImageUrl(int id,String kind,AmpacheSettings ampacheSettings,LoginResponse loginResponse)
+    {
+        // With the ampache settings, I build a URL
+        String url= ampacheSettings.getAmpacheUrl();
+        if(!url.endsWith("/"))
+            url+="/";
+        return url+"server/json.server.php?action=get_art&auth="+loginResponse.getAuth()+"&type="+kind+"&id="+id;
+    }
     public static synchronized void loginToAmpache(ServerStatusViewModel serverStatusViewModel,AmpacheSettings settings, LoginCallback callback)
     {
         Log.d("AmpacheUtil.loginToAmpache","Attempting to log in");

@@ -678,10 +678,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         binding.layoutMusicPlayer.txtSongMetadataExpand.setText(item.mediaMetadata.artist);
         Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverLarge);
         Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgCoverSmall);
-        Picasso.get().load(item.mediaMetadata.artworkUri).into(binding.layoutMusicPlayer.imgMusicBackground);
+        // It seems that I can get the art of albums, artists, songs, if I know
+        // the URL for it... let's try!
         Bundle extras=item.mediaMetadata.extras;
         if(extras!=null) {
-            int artistArt = extras.getInt("ARTIST_ID");
+            int artistId = extras.getInt("ARTIST_ID");
+            String url=artistsViewModel.getArtistsRepository().getImageUrl(artistId);
+            Log.d("MainActivity","Loading artist art: "+url);
+            Picasso.get().load(url).into(binding.layoutMusicPlayer.imgMusicBackground);
         }
     }
     private State state;

@@ -22,4 +22,12 @@ If you want to contribute, check out the code and submit a pull request, I'll be
 
 ## Example Screenshots
 
-Coming soon, stay tuned!
+<table>
+<tr><td><img src="https://github.com/daxcurson/ampflower/blob/main/app/docs/album-list.jpg" width="270" height="570"></td>
+<td><img src="https://github.com/daxcurson/ampflower/blob/main/app/docs/album-search.jpg" width="270" height="570"></td>
+<td><img src="https://github.com/daxcurson/ampflower/blob/main/app/docs/server-configuration.jpg" width="270" height="570"></td></tr>
+<tr><td><img src="https://github.com/daxcurson/ampflower/blob/main/app/docs/music-player.jpg" width="270" height="570"></td>
+<td><img src="https://github.com/daxcurson/ampflower/blob/main/app/docs/music-player2.jpg" width="270" height="570"></td>
+<td><img src="https://github.com/daxcurson/ampflower/blob/main/app/docs/playlist-view.jpg" width="270" height="570"></td>
+</tr>
+</table>

@@ -66,7 +66,9 @@ public class AlbumsRepository {
             // save the movies into db
             dataSourceFactory.getAlbums().
                     observeOn(Schedulers.io()).
-                    subscribe(album -> database.albumDao().insertAlbum(album));
+                    subscribe(album -> database.albumDao().insertAlbum(album),error->{
+                        Log.d("AlbumsRepository","Error inserting into the database: "+error.getMessage());
+                    });
         }
         else
         {

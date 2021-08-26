@@ -1,5 +1,6 @@
 package ar.com.strellis.ampflower.ui.home;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -7,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,7 +29,6 @@ import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentAlbumsBinding;
 import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapter;
-import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapterRx;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
@@ -95,7 +94,6 @@ public class AlbumsFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         // Get the SearchView and set the searchable configuration
-        RecyclerView albumsRecycler=requireActivity().findViewById(R.id.albums_recycler);
         SearchManager searchManager = (SearchManager) requireActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // Assumes current activity is the searchable activity
@@ -106,13 +104,14 @@ public class AlbumsFragment extends Fragment {
                 return false;
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public boolean onQueryTextChange(String newText) {
                 // update the albums model with the search string
                 albumsViewModel.setQuery(newText);
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("AlbumsFragment","The recycler for albums is forced to update, new text: "+newText);
-                albumsRecycler.getAdapter().notifyDataSetChanged();
+                Objects.requireNonNull(binding.albumsRecycler.getAdapter()).notifyDataSetChanged();
                 return false;
             }
         });

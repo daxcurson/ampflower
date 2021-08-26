@@ -55,6 +55,7 @@ import ar.com.strellis.ampflower.service.MediaServiceEventsListener;
 import ar.com.strellis.ampflower.service.PlayerPositionEvent;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
+import ar.com.strellis.ampflower.viewmodel.FavoritesViewModel;
 import ar.com.strellis.ampflower.viewmodel.NetworkStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.PlayerViewModel;
 import ar.com.strellis.ampflower.viewmodel.PlaylistsViewModel;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private PlaylistsViewModel playlistsViewModel;
     private SettingsViewModel settingsViewModel;
     private PlayerViewModel playerViewModel;
+    private FavoritesViewModel favoritesViewModel;
     private SharedPreferences sharedPreferences;
     private boolean boundToService=false;
     private MediaPlayerService playerService;
@@ -373,6 +375,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         playlistsViewModel=new ViewModelProvider(this).get(PlaylistsViewModel.class);
         songsViewModel=new ViewModelProvider(this).get(SongsViewModel.class);
         playerViewModel=new ViewModelProvider(this).get(PlayerViewModel.class);
+        favoritesViewModel=new ViewModelProvider(this).get(FavoritesViewModel.class);
     }
     private void configureDataModels()
     {
@@ -380,6 +383,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureArtistsViewModel();
         configurePlaylistsViewModel();
         configureSongsViewModel();
+        configureFavoritesViewModel();
     }
     private void configureAlbumsViewModel()
     {
@@ -416,6 +420,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LiveData<LoginResponse> loginResponse=serverStatusViewModel.getLoginResponse();
         SongsRepository songsRepository=new SongsRepository(this,service,loginResponse);
         songsViewModel.setSongsRepository(songsRepository);
+    }
+    private void configureFavoritesViewModel()
+    {
     }
     private void configureNavigation()
     {

@@ -16,12 +16,9 @@ import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractorAlbum
 import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractorArtists;
 import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractorPlaylists;
 import ar.com.strellis.ampflower.data.datasource.memory.SongsMemoryInteractor;
-import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractor;
-import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractor;
 import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractorAlbums;
 import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractorArtists;
 import ar.com.strellis.ampflower.data.datasource.network.SongsNetworkInteractorPlaylists;
-import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import ar.com.strellis.ampflower.data.model.ArtistWithSongs;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
@@ -83,7 +80,6 @@ public class SongsRepository
 
         } else {
             Log.d("SongsRepository","New exception of some kind: "+throwable);
-            throw new RuntimeException(throwable);
         }
     }
 
@@ -112,7 +108,7 @@ public class SongsRepository
                         Log.d("SongsRepository", "Concatenated the 3 Observables, received data for album "+data.getAlbum().getId());
                         for(Song s:data.getSongs())
                         {
-                            Log.d("SongsRepository","Received this song: "+s.getName());
+                            Log.d("SongsRepository","Received this song: "+s.getName()+", flag: "+s.getFlag()+", mode: "+s.getMode()+", playlisttrack: "+s.getPlaylisttrack());
                         }
                     },this::handleNonHttpException);
         }

@@ -250,7 +250,7 @@ public class MediaPlayerService extends LifecycleService
                 extras.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album);
                 // Here we would send the title of the song.
                 title = wantedItem.mediaMetadata.title;
-                Log.d("MediaPlayerService", "Playing " + currentTitle + ", sending information about item " + windowIndex + ": "+title);
+                Log.d("MediaPlayerService", "Playing " + currentTitle + ", sending information about item " + windowIndex + ": "+title+" by "+artist+" in album "+album);
                 return new MediaDescriptionCompat.Builder()
                         .setIconBitmap(bitmap)
                         .setTitle(title)

@@ -6,7 +6,10 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
+import ar.com.strellis.ampflower.ui.home.albums.AlbumsFragment;
+import ar.com.strellis.ampflower.ui.home.artists.ArtistsFragment;
 import ar.com.strellis.ampflower.ui.home.favorites.FavoritesFragment;
+import ar.com.strellis.ampflower.ui.home.playlists.PlaylistsFragment;
 
 public class HomeViewStateAdapter extends FragmentStateAdapter {
 

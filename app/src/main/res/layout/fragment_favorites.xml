@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.home.favorites.FavoritesFragment">
+    android:id="@+id/lyt_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/lyt_margin_bottom">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context=".ui.home.favorites.FavoritesFragment">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -12,24 +22,48 @@
             tools:ignore="MissingConstraints">
 
             <LinearLayout
-                android:id="@+id/lyt_featured"
+                android:id="@+id/lyt_random_albums"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="70dp"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="10dp"
-                    android:text="@string/newest_albums"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                <LinearLayout
+                    android:id="@+id/lyt_random_albums_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="10dp"
+                    android:paddingBottom="5dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/random_albums"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/more_random_albums"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/more"
+                        android:src="@drawable/ic_arrow_next" />
+
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewFeatured"
+                    android:id="@+id/recyclerViewRandomAlbums"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -41,13 +75,13 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/lyt_category"
+                android:id="@+id/lyt_top_rated_artists"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/view_all_categories"
+                    android:id="@+id/lyt_top_rated_artists_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?android:attr/selectableItemBackground"
@@ -68,7 +102,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/most_frequent_artists"
+                            android:text="@string/top_rated_artists"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
                             android:textSize="18sp"
                             android:textStyle="bold" />
@@ -78,13 +112,13 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_arrow_next"
-                        android:contentDescription="@string/more" />
+                        android:contentDescription="@string/more"
+                        android:src="@drawable/ic_arrow_next" />
 
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewCategory"
+                    android:id="@+id/recyclerViewTopRatedArtists"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -96,13 +130,13 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/lyt_recent"
+                android:id="@+id/lyt_trending_albums"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/view_all_radios"
+                    android:id="@+id/lyt_trending_albums_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?android:attr/selectableItemBackground"
@@ -123,7 +157,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/recently_played"
+                            android:text="@string/trending_albums"
                             android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
                             android:textSize="18sp"
                             android:textStyle="bold" />
@@ -133,13 +167,13 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_arrow_next"
-                        android:contentDescription="@string/more" />
+                        android:contentDescription="@string/more"
+                        android:src="@drawable/ic_arrow_next" />
 
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewRecent"
+                    android:id="@+id/recyclerViewTrendingAlbums"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -151,7 +185,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/lyt_random"
+                android:id="@+id/lyt_recently_played_songs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -169,7 +203,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/random_albums"
+                        android:text="@string/recently_played_songs"
                         android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -177,7 +211,7 @@
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewRandom"
+                    android:id="@+id/recyclerViewRecentlyPlayedSongs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -190,4 +224,5 @@
 
         </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</RelativeLayout>

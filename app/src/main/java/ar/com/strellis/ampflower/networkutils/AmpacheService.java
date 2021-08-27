@@ -92,10 +92,23 @@ public interface AmpacheService
             @Query("auth") String auth,
             @Query("username") String username
     );
-    @GET("server/json.server.php?action=stats")
-    Single<List<Album>> stats(
+    @GET("server/json.server.php?action=stats&type=album")
+    Single<List<Album>> album_stats(
             @Query("auth") String auth,
-            @Query("type") String type,
+            @Query("filter") String filter,
+            @Query("offset") Integer offset,
+            @Query("limit") Integer limit
+    );
+    @GET("server/json.server.php?action=stats&type=artist")
+    Single<List<Artist>> artist_stats(
+            @Query("auth") String auth,
+            @Query("filter") String filter,
+            @Query("offset") Integer offset,
+            @Query("limit") Integer limit
+    );
+    @GET("server/json.server.php?action=stats&type=song")
+    Single<List<Song>> song_stats(
+            @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit

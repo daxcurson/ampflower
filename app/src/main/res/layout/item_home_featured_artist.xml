@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/lyt_parent"
-    android:layout_width="match_parent"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground"
     android:foreground="?selectableItemBackground"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content">
 
         <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/item_home_featured_img_album"
+            android:id="@+id/item_home_featured_img_artist"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
@@ -39,26 +39,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/item_home_featured_album_title"
+                android:id="@+id/item_home_top_artist_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="@string/album_title"
+                android:text="@string/artist"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
                 android:textSize="@dimen/text_title_size"
                 android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/item_home_featured_album_artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textSize="@dimen/text_sub_title_size" />
 
         </LinearLayout>
 

@@ -7,19 +7,19 @@ import androidx.paging.rxjava2.RxPagingSource;
 
 import java.util.List;
 
-import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.SearchType;
+import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
-public class AlbumsPagingSourceRx extends RxPagingSource<Integer, Album> {
+public class SongsPagingSourceRx extends RxPagingSource<Integer, Song> {
     public static final int PAGE_SIZE=4;
     private final AmpacheService ampacheService;
     private LoginResponse loginResponse;
     private final SearchType searchType;
-    public AlbumsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType)
+    public SongsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType)
     {
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;
@@ -31,24 +31,24 @@ public class AlbumsPagingSourceRx extends RxPagingSource<Integer, Album> {
     }
     @NonNull
     @Override
-    public Single<LoadResult<Integer, Album>> loadSingle(@NonNull LoadParams<Integer> loadParams) {
+    public Single<LoadResult<Integer, Song>> loadSingle(@NonNull LoadParams<Integer> loadParams) {
         int page=loadParams.getKey()!=null? loadParams.getKey() : 0;
         int offset=page*PAGE_SIZE;
-        return ampacheService.album_stats(loginResponse.getAuth(),searchType.getSearchType(),offset,PAGE_SIZE)
+        return ampacheService.song_stats(loginResponse.getAuth(),searchType.getSearchType(),offset,PAGE_SIZE)
                 .subscribeOn(Schedulers.io())
-                .map(albums->toLoadResult(albums,page))
+                .map(songs->toLoadResult(songs,page))
                 .onErrorReturn(LoadResult.Error::new);
     }
 
-    private LoadResult<Integer,Album> toLoadResult(List<Album> albums,int page)
+    private LoadResult<Integer,Song> toLoadResult(List<Song> songs, int page)
     {
         Integer maxPage=page<=2 ? page+1 : null;
-        return new LoadResult.Page<>(albums,page==0?null:page-1,maxPage);
+        return new LoadResult.Page<>(songs,page==0?null:page-1,maxPage);
     }
 
     @Nullable
     @Override
-    public Integer getRefreshKey(@NonNull PagingState<Integer, Album> pagingState) {
+    public Integer getRefreshKey(@NonNull PagingState<Integer, Song> pagingState) {
         return pagingState.getAnchorPosition();
     }
 }

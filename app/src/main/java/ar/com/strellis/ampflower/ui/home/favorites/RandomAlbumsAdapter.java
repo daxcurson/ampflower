@@ -33,7 +33,7 @@ public class RandomAlbumsAdapter extends PagingDataAdapter<Album,RandomAlbumsAda
     public RandomAlbumsAdapter.AlbumViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context=parent.getContext();
         LayoutInflater inflater=LayoutInflater.from(context);
-        View itemView=inflater.inflate(R.layout.item_home_featured,parent,false);
+        View itemView=inflater.inflate(R.layout.item_home_featured_album,parent,false);
         return new RandomAlbumsAdapter.AlbumViewHolder(itemView);
     }
 

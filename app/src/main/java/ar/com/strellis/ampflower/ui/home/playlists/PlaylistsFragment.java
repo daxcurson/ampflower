@@ -1,4 +1,4 @@
-package ar.com.strellis.ampflower.ui.home;
+package ar.com.strellis.ampflower.ui.home.playlists;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

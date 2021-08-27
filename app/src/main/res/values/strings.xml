@@ -70,4 +70,7 @@
     <string name="random_albums">Random albums</string>
     <string name="more">More</string>
     <string name="overflow">Overflow</string>
+    <string name="top_rated_artists">Top-rated Artists</string>
+    <string name="trending_albums">Trending Albums</string>
+    <string name="recently_played_songs">Recently-played songs</string>
 </resources>

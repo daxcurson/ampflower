@@ -2,12 +2,12 @@ package ar.com.strellis.ampflower.data.datasource.network;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava2.RxPagingSource;
 
 import java.util.List;
 
-import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.SearchType;
@@ -19,12 +19,14 @@ public class ArtistsPagingSourceRx extends RxPagingSource<Integer, Artist> {
     public static final int PAGE_SIZE=4;
     private final AmpacheService ampacheService;
     private LoginResponse loginResponse;
-    private SearchType searchType;
-    public ArtistsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType)
+    private final SearchType searchType;
+    private MutableLiveData<Boolean> loading;
+    public ArtistsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType,MutableLiveData<Boolean> loading)
     {
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;
         this.searchType=searchType;
+        this.loading=loading;
     }
     public void setLoginResponse(LoginResponse loginResponse)
     {
@@ -35,10 +37,14 @@ public class ArtistsPagingSourceRx extends RxPagingSource<Integer, Artist> {
     public Single<LoadResult<Integer, Artist>> loadSingle(@NonNull LoadParams<Integer> loadParams) {
         int page=loadParams.getKey()!=null? loadParams.getKey() : 0;
         int offset=page*PAGE_SIZE;
+        loading.setValue(true);
         return ampacheService.artist_stats(loginResponse.getAuth(),searchType.getSearchType(),offset,PAGE_SIZE)
                 .subscribeOn(Schedulers.io())
                 .map(artists->toLoadResult(artists,page))
-                .onErrorReturn(LoadResult.Error::new);
+                .onErrorReturn(LoadResult.Error::new)
+                .doOnSuccess(integerArtistLoadResult -> {
+                    loading.postValue(false);
+                });
     }
 
     private LoadResult<Integer,Artist> toLoadResult(List<Artist> artists, int page)

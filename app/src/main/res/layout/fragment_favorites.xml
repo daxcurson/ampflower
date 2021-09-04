@@ -62,7 +62,7 @@
 
                 </LinearLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
+                <com.github.guilhe.views.PlaceHolderRecyclerView
                     android:id="@+id/recyclerViewRandomAlbums"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -117,7 +117,7 @@
 
                 </LinearLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
+                <com.github.guilhe.views.PlaceHolderRecyclerView
                     android:id="@+id/recyclerViewTopRatedArtists"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -172,7 +172,7 @@
 
                 </LinearLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
+                <com.github.guilhe.views.PlaceHolderRecyclerView
                     android:id="@+id/recyclerViewTrendingAlbums"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -2,6 +2,7 @@ package ar.com.strellis.ampflower.data.datasource.network;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava2.RxPagingSource;
 
@@ -19,11 +20,13 @@ public class AlbumsPagingSourceRx extends RxPagingSource<Integer, Album> {
     private final AmpacheService ampacheService;
     private LoginResponse loginResponse;
     private final SearchType searchType;
-    public AlbumsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType)
+    private MutableLiveData<Boolean> loading;
+    public AlbumsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType,MutableLiveData<Boolean> loading)
     {
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;
         this.searchType=searchType;
+        this.loading=loading;
     }
     public void setLoginResponse(LoginResponse loginResponse)
     {
@@ -34,10 +37,12 @@ public class AlbumsPagingSourceRx extends RxPagingSource<Integer, Album> {
     public Single<LoadResult<Integer, Album>> loadSingle(@NonNull LoadParams<Integer> loadParams) {
         int page=loadParams.getKey()!=null? loadParams.getKey() : 0;
         int offset=page*PAGE_SIZE;
+        loading.setValue(true);
         return ampacheService.album_stats(loginResponse.getAuth(),searchType.getSearchType(),offset,PAGE_SIZE)
                 .subscribeOn(Schedulers.io())
                 .map(albums->toLoadResult(albums,page))
-                .onErrorReturn(LoadResult.Error::new);
+                .onErrorReturn(LoadResult.Error::new)
+                .doOnSuccess(integerAlbumLoadResult -> loading.postValue(false));
     }
 
     private LoadResult<Integer,Album> toLoadResult(List<Album> albums,int page)

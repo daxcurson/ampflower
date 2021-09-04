@@ -11,10 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import ar.com.strellis.ampflower.Config;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.databinding.FragmentFavoritesBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
@@ -42,20 +40,40 @@ public class FavoritesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        StaggeredGridLayoutManager gridLayoutManager=new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
-        StaggeredGridLayoutManager gridLayoutManager2=new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
-        binding.recyclerViewRandomAlbums.setLayoutManager(gridLayoutManager);
-        binding.recyclerViewRandomAlbums.addItemDecoration(new GridSpace(2,20,true));
-        binding.recyclerViewRandomAlbums.setItemAnimator(new DefaultItemAnimator());
-
-        binding.recyclerViewTopRatedArtists.setLayoutManager(gridLayoutManager2);
-        binding.recyclerViewTopRatedArtists.addItemDecoration(new GridSpace(2,20,true));
-        binding.recyclerViewTopRatedArtists.setItemAnimator(new DefaultItemAnimator());
-
         RandomAlbumsAdapter randomAlbumsAdapter=new RandomAlbumsAdapter();
         TopArtistsAdapter topArtistsAdapter=new TopArtistsAdapter();
+        TrendingAlbumsAdapter trendingAlbumsAdapter=new TrendingAlbumsAdapter();
+        StaggeredGridLayoutManager gridLayoutManager=new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        StaggeredGridLayoutManager gridLayoutManager2=new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        StaggeredGridLayoutManager gridLayoutManager3=new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        binding.recyclerViewRandomAlbums.setLayoutManager(gridLayoutManager);
+        binding.recyclerViewRandomAlbums.addItemDecoration(new GridSpace(1,20,true));
+        binding.recyclerViewRandomAlbums.setItemAnimator(new DefaultItemAnimator());
+        binding.recyclerViewTopRatedArtists.setLayoutManager(gridLayoutManager2);
+        binding.recyclerViewTopRatedArtists.addItemDecoration(new GridSpace(1,20,true));
+        binding.recyclerViewTopRatedArtists.setItemAnimator(new DefaultItemAnimator());
+        binding.recyclerViewTrendingAlbums.setLayoutManager(gridLayoutManager3);
+        binding.recyclerViewTrendingAlbums.addItemDecoration(new GridSpace(1,20,true));
+        binding.recyclerViewTrendingAlbums.setItemAnimator(new DefaultItemAnimator());
+
+        favoritesViewModel.loadingRandomAlbums.observe(getViewLifecycleOwner(),loading->{
+            binding.recyclerViewRandomAlbums.toggleHoldersAdapter(loading);
+        });
+        favoritesViewModel.loadingTopRatedArtists.observe(getViewLifecycleOwner(),loading->{
+            binding.recyclerViewTopRatedArtists.toggleHoldersAdapter(loading);
+        });
+        favoritesViewModel.loadingTrendingAlbums.observe(getViewLifecycleOwner(),loading->{
+            binding.recyclerViewTrendingAlbums.toggleHoldersAdapter(loading);
+        });
         binding.recyclerViewRandomAlbums.setAdapter(randomAlbumsAdapter);
+        binding.recyclerViewRandomAlbums.holdersAdapter=new AlbumsPlaceHolderAdapter();
+        //binding.recyclerViewRandomAlbums.setHoldersItemDecoration(new GridSpace(2,20,true));
         binding.recyclerViewTopRatedArtists.setAdapter(topArtistsAdapter);
+        binding.recyclerViewTopRatedArtists.holdersAdapter=new AlbumsPlaceHolderAdapter();
+        //binding.recyclerViewTopRatedArtists.setHoldersItemDecoration(new GridSpace(2,20,true));
+        binding.recyclerViewTrendingAlbums.setAdapter(trendingAlbumsAdapter);
+        binding.recyclerViewTrendingAlbums.holdersAdapter=new AlbumsPlaceHolderAdapter();
+        //binding.recyclerViewTrendingAlbums.setHoldersItemDecoration(new GridSpace(2,20,true));
         AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
         serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
             Log.d("FavoritesFragment","Settings are not null, configuring");
@@ -69,6 +87,9 @@ public class FavoritesFragment extends Fragment {
             });
             Disposable s2=favoritesViewModel.pagedTopRatedArtists.subscribe(artistPagingData -> {
                 topArtistsAdapter.submitData(getLifecycle(),artistPagingData);
+            });
+            Disposable s3=favoritesViewModel.pagedTrendingAlbums.subscribe(albumPagingData->{
+                trendingAlbumsAdapter.submitData(getLifecycle(),albumPagingData);
             });
         });
 

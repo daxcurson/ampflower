@@ -1,5 +1,6 @@
 package ar.com.strellis.ampflower.viewmodel;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelKt;
 import androidx.paging.Pager;
@@ -22,16 +23,22 @@ import kotlinx.coroutines.CoroutineScope;
 public class FavoritesViewModel extends ViewModel
 {
     public Flowable<PagingData<Album>> pagedRandomAlbums;
+    public MutableLiveData<Boolean> loadingRandomAlbums;
     public Flowable<PagingData<Artist>> pagedTopRatedArtists;
+    public MutableLiveData<Boolean> loadingTopRatedArtists;
     public Flowable<PagingData<Album>> pagedTrendingAlbums;
+    public MutableLiveData<Boolean> loadingTrendingAlbums;
     public Flowable<PagingData<Song>> pagedRecentlyPlayedSongs;
 
     public FavoritesViewModel()
     {
+        loadingRandomAlbums=new MutableLiveData<>();
+        loadingTopRatedArtists=new MutableLiveData<>();
+        loadingTrendingAlbums=new MutableLiveData<>();
     }
     public void init(AmpacheService service, LoginResponse loginResponse)
     {
-        AlbumsPagingSourceRx randomAlbumsPagingSource=new AlbumsPagingSourceRx(service,loginResponse, SearchType.RANDOM);
+        AlbumsPagingSourceRx randomAlbumsPagingSource=new AlbumsPagingSourceRx(service,loginResponse, SearchType.RANDOM,this.loadingRandomAlbums);
         Pager<Integer,Album> pager=new Pager<>(
                 new PagingConfig(AlbumsPagingSourceRx.PAGE_SIZE,
                         AlbumsPagingSourceRx.PAGE_SIZE
@@ -41,8 +48,9 @@ public class FavoritesViewModel extends ViewModel
         pagedRandomAlbums= PagingRx.getFlowable(pager);
         CoroutineScope coroutineScope= ViewModelKt.getViewModelScope(this);
         PagingRx.cachedIn(pagedRandomAlbums,coroutineScope);
+        loadingRandomAlbums.setValue(false);
 
-        ArtistsPagingSourceRx topRatedArtistsPagingSource=new ArtistsPagingSourceRx(service,loginResponse,SearchType.HIGHEST);
+        ArtistsPagingSourceRx topRatedArtistsPagingSource=new ArtistsPagingSourceRx(service,loginResponse,SearchType.HIGHEST,this.loadingTopRatedArtists);
         Pager<Integer,Artist> pagerArtists=new Pager<>(
                 new PagingConfig(ArtistsPagingSourceRx.PAGE_SIZE,
                         ArtistsPagingSourceRx.PAGE_SIZE
@@ -52,8 +60,9 @@ public class FavoritesViewModel extends ViewModel
         pagedTopRatedArtists=PagingRx.getFlowable(pagerArtists);
         CoroutineScope coroutineScopeArtists=ViewModelKt.getViewModelScope(this);
         PagingRx.cachedIn(pagedTopRatedArtists,coroutineScopeArtists);
+        loadingTopRatedArtists.setValue(false);
 
-        AlbumsPagingSourceRx trendingAlbumsPagingSource=new AlbumsPagingSourceRx(service,loginResponse,SearchType.FREQUENT);
+        AlbumsPagingSourceRx trendingAlbumsPagingSource=new AlbumsPagingSourceRx(service,loginResponse,SearchType.FREQUENT,this.loadingTrendingAlbums);
         Pager<Integer,Album> pagerTrendingAlbums=new Pager<>(
                 new PagingConfig(AlbumsPagingSourceRx.PAGE_SIZE,
                         AlbumsPagingSourceRx.PAGE_SIZE

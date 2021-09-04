@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class GridSpace extends RecyclerView.ItemDecoration
 {
-    private int spanCount;
-    private int spacing;
-    private boolean includeEdge;
+    private final int spanCount;
+    private final int spacing;
+    private final boolean includeEdge;
 
     public GridSpace(int spanCount,int spacing,boolean includeEdge)
     {

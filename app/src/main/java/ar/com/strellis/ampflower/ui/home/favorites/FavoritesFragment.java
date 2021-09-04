@@ -56,15 +56,9 @@ public class FavoritesFragment extends Fragment {
         binding.recyclerViewTrendingAlbums.addItemDecoration(new GridSpace(1,20,true));
         binding.recyclerViewTrendingAlbums.setItemAnimator(new DefaultItemAnimator());
 
-        favoritesViewModel.loadingRandomAlbums.observe(getViewLifecycleOwner(),loading->{
-            binding.recyclerViewRandomAlbums.toggleHoldersAdapter(loading);
-        });
-        favoritesViewModel.loadingTopRatedArtists.observe(getViewLifecycleOwner(),loading->{
-            binding.recyclerViewTopRatedArtists.toggleHoldersAdapter(loading);
-        });
-        favoritesViewModel.loadingTrendingAlbums.observe(getViewLifecycleOwner(),loading->{
-            binding.recyclerViewTrendingAlbums.toggleHoldersAdapter(loading);
-        });
+        favoritesViewModel.loadingRandomAlbums.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewRandomAlbums.toggleHoldersAdapter(loading));
+        favoritesViewModel.loadingTopRatedArtists.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewTopRatedArtists.toggleHoldersAdapter(loading));
+        favoritesViewModel.loadingTrendingAlbums.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewTrendingAlbums.toggleHoldersAdapter(loading));
         binding.recyclerViewRandomAlbums.setAdapter(randomAlbumsAdapter);
         binding.recyclerViewRandomAlbums.holdersAdapter=new AlbumsPlaceHolderAdapter();
         //binding.recyclerViewRandomAlbums.setHoldersItemDecoration(new GridSpace(2,20,true));
@@ -81,16 +75,9 @@ public class FavoritesFragment extends Fragment {
             assert settings != null;
             AmpacheService service= AmpacheUtil.getService(settings);
             favoritesViewModel.init(service,receivedLogin);
-            Disposable s=favoritesViewModel.pagedRandomAlbums.subscribe(albumPagingData -> {
-                // submit new data to recyclerview adapter
-                randomAlbumsAdapter.submitData(getLifecycle(), albumPagingData);
-            });
-            Disposable s2=favoritesViewModel.pagedTopRatedArtists.subscribe(artistPagingData -> {
-                topArtistsAdapter.submitData(getLifecycle(),artistPagingData);
-            });
-            Disposable s3=favoritesViewModel.pagedTrendingAlbums.subscribe(albumPagingData->{
-                trendingAlbumsAdapter.submitData(getLifecycle(),albumPagingData);
-            });
+            Disposable s=favoritesViewModel.pagedRandomAlbums.subscribe(albumPagingData -> randomAlbumsAdapter.submitData(getLifecycle(), albumPagingData));
+            Disposable s2=favoritesViewModel.pagedTopRatedArtists.subscribe(artistPagingData -> topArtistsAdapter.submitData(getLifecycle(),artistPagingData));
+            Disposable s3=favoritesViewModel.pagedTrendingAlbums.subscribe(albumPagingData-> trendingAlbumsAdapter.submitData(getLifecycle(),albumPagingData));
         });
 
     }

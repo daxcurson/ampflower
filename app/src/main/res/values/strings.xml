@@ -73,4 +73,5 @@
     <string name="top_rated_artists">Top-rated Artists</string>
     <string name="trending_albums">Trending Albums</string>
     <string name="recently_played_songs">Recently-played songs</string>
+    <string name="launcher">Launcher</string>
 </resources>

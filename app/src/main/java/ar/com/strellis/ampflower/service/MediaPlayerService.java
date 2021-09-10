@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -83,6 +84,7 @@ public class MediaPlayerService extends LifecycleService
     public static final String ACTION_MOVE_ITEM = BuildConfig.APPLICATION_ID+".action.MOVE_ITEM";
     public static final String ACTION_PLAY_ITEM = BuildConfig.APPLICATION_ID+".action.PLAY_ITEM";
     public static final String ACTION_DELETE_ITEM = BuildConfig.APPLICATION_ID+".action.DELETE_ITEM";
+    public static final String ACTION_SEEK = BuildConfig.APPLICATION_ID+".action.SEEK";
 
     public MediaPlayerService()
     {
@@ -340,10 +342,17 @@ public class MediaPlayerService extends LifecycleService
                     int positionToDelete=(int)intent.getSerializableExtra("position");
                     deleteItemInPosition(positionToDelete);
                     break;
+                case ACTION_SEEK:
+                    long seekPosition=(long)intent.getSerializableExtra("position");
+                    seekCurrentlyPlayingItem(seekPosition);
             }
         }
     }
 
+    private void seekCurrentlyPlayingItem(long seekPosition)
+    {
+        exoPlayer.seekTo(seekPosition);
+    }
     /**
      * When I receive this message, I must put the songs I find selected
      * in the SongsViewModel into the playlist.
@@ -528,7 +537,7 @@ public class MediaPlayerService extends LifecycleService
         }
 
         @Override
-        public void onPlayerError(@NotNull ExoPlaybackException error) {
+        public void onPlayerError(PlaybackException error) {
             Log.d("DEBUG","The Player reported an error: "+error.getMessage());
         }
 

@@ -28,6 +28,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.ui.TimeBar;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -491,6 +492,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             binding.slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             // Now, navigate to the new view.
             navController.navigate(R.id.nav_view_playlist);
+        });
+        binding.layoutMusicPlayer.seekBarSong.addListener(new TimeBar.OnScrubListener() {
+            @Override
+            public void onScrubStart(TimeBar timeBar, long position) {
+                // Not interested in this, yet
+            }
+
+            @Override
+            public void onScrubMove(TimeBar timeBar, long position) {
+                // Not interested in this.
+            }
+
+            @Override
+            public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
+                // Interested in this. I'm going to ask it for its position and send a message to the
+                // MediaPlayerService to change its position
+                Log.d("MainActivity","Seeking to position "+position);
+                Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
+                intent.setAction(MediaPlayerService.ACTION_SEEK);
+                Bundle bundle=new Bundle();
+                bundle.putSerializable("position",position);
+                intent.putExtras(bundle);
+                startService(intent);
+            }
         });
     }
     private Intent getMediaPlayerServiceIntent()

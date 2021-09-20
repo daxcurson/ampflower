@@ -1,9 +1,11 @@
 package ar.com.strellis.ampflower;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -607,11 +610,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         playerService.removeEventListener(this);
         Log.d("MainActivity","I'm destroyed");
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver,new IntentFilter(BuildConfig.APPLICATION_ID+".action.RENEW_LOGINRESPONSE"));
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver);
+        super.onPause();
+    }
+
     private void bindMediaPlayerService()
     {
         if(!boundToService)
             bindService(MediaPlayerService.newIntent(this),connection, Context.BIND_AUTO_CREATE);
     }
+    private final BroadcastReceiver messageReceiver=new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("BroadcastReceiver.onReceive","Received a request to renew the login response");
+            loginToAmpache();
+            // Restart the player, maybe?
+        }
+    };
 
     public abstract static class State
     {

@@ -105,36 +105,60 @@ public class MediaPlayerService extends LifecycleService
         playerNotificationManager=new PlayerNotificationManager.Builder(
                 getApplicationContext(),
                 PLAYBACK_NOTIFICATION_ID,
-                PLAYBACK_CHANNEL_ID,
-                /*
-                This is an adapter to report the contents of the media that is currently being played,
-                so that the notification has it.
-                */
-                new PlayerNotificationManager.MediaDescriptionAdapter()
-                {
-                    @NotNull
-                    @Override
-                    public CharSequence getCurrentContentTitle(@NotNull Player player) {
-                        if(player.getCurrentMediaItem()!=null)
-                            return Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.title);
-                        else
-                            return "No media playing";
-                    }
+                PLAYBACK_CHANNEL_ID)
+                .setNotificationListener(
+                        new PlayerNotificationManager.NotificationListener() {
+                            @Override
+                            public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
+                                Log.d("PlayerNotificationManager.NotificationListener.onNotificationCancelled", "Cancelled by user? " + dismissedByUser + ", notification id: " + notificationId);
+                                stopSelf();
+                            }
 
-                    @SuppressLint("UnspecifiedImmutableFlag")
-                    @Nullable
-                    @Override
-                    /*
-                    Opens the application activity when the notification is clicked.
-                    @param Player player
-                    */
-                    public PendingIntent createCurrentContentIntent(@NotNull Player player) {
-                        Log.d("MediaPlayerService","I am asked to show the activity");
-                        return PendingIntent.getBroadcast(getApplicationContext(),
-                                0,
-                                new Intent(getApplicationContext(), MainActivity.class),
-                                PendingIntent.FLAG_UPDATE_CURRENT);
-                    }
+                            @Override
+                            public void onNotificationPosted(int notificationId, @NotNull Notification notification, boolean ongoing) {
+                                Log.d("PlayerNotificationManager.NotificationListener.onNotificationPosted", "Ongoing? " + ongoing + ", notification id: " + notificationId);
+                                if (ongoing) {
+                                    // Make sure the service will not be destroyed while playing media.
+                                    startForeground(notificationId, notification);
+                                } else {
+                                    // make notification cancellable
+                                    stopForeground(false);
+                                }
+                            }
+                        })
+                .setChannelNameResourceId(R.string.channel_name)
+                .setChannelDescriptionResourceId(R.string.channel_desc)
+                .setMediaDescriptionAdapter(
+                        /*
+                        This is an adapter to report the contents of the media that is currently being played,
+                        so that the notification has it.
+                        */
+                        new PlayerNotificationManager.MediaDescriptionAdapter() {
+                            @NotNull
+                            @Override
+                            public CharSequence getCurrentContentTitle(@NotNull Player player) {
+                                if (player.getCurrentMediaItem() != null)
+                                    return Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.title);
+                                else
+                                    return "No media playing";
+                            }
+
+                            @SuppressLint("UnspecifiedImmutableFlag")
+                            @Nullable
+                            @Override
+                            /*
+                            Opens the application activity when the notification is clicked.
+                            @param Player player
+                            */
+                            public PendingIntent createCurrentContentIntent(@NotNull Player player) {
+                                Log.d("MediaPlayerService", "I am asked to show the activity");
+                                Intent intent=new Intent(getApplicationContext(), MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                return PendingIntent.getActivity(getApplicationContext(),
+                                        0,
+                                        intent,
+                                        PendingIntent.FLAG_UPDATE_CURRENT);
+                            }
 
                     @NotNull
                     @Override
@@ -170,42 +194,17 @@ public class MediaPlayerService extends LifecycleService
                          */
                     }
 
-                    @Nullable
-                    @Override
-                    /*
-                    This could be used to return the album art, maybe?
-                    */
-                    public Bitmap getCurrentLargeIcon(@NotNull Player player, @NotNull PlayerNotificationManager.BitmapCallback callback) {
-                        Log.d("MediaPlayerService","getCurrentLargeIcon");
-                        return null;
-                    }
-                })
-                .setNotificationListener(
-                new PlayerNotificationManager.NotificationListener() {
-                    @Override
-                    public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
-                        Log.d("PlayerNotificationManager.NotificationListener.onNotificationCancelled","Cancelled by user? "+dismissedByUser+", notification id: "+notificationId);
-                        stopSelf();
-                    }
+                            @Nullable
+                            @Override
+                            /*
+                            This could be used to return the album art, maybe?
+                            */
+                            public Bitmap getCurrentLargeIcon(@NotNull Player player, @NotNull PlayerNotificationManager.BitmapCallback callback) {
+                                Log.d("MediaPlayerService", "getCurrentLargeIcon");
+                                return null;
+                            }
+                        }).build();
 
-                    @Override
-                    public void onNotificationPosted(int notificationId, @NotNull Notification notification, boolean ongoing) {
-                        Log.d("PlayerNotificationManager.NotificationListener.onNotificationPosted","Ongoing? "+ongoing+", notification id: "+notificationId);
-                        if(ongoing)
-                        {
-                            // Make sure the service will not be destroyed while playing media.
-                            startForeground(notificationId,notification);
-                        }
-                        else
-                        {
-                            // make notification cancellable
-                            stopForeground(false);
-                        }
-                    }
-                })
-                .setChannelNameResourceId(R.string.channel_name)
-                .setChannelDescriptionResourceId(R.string.channel_desc)
-                .build();
         playerNotificationManager.setPriority(NotificationCompat.PRIORITY_DEFAULT);
         playerNotificationManager.setUseStopAction(true);
         playerNotificationManager.setPlayer(exoPlayer);
@@ -219,22 +218,6 @@ public class MediaPlayerService extends LifecycleService
             public MediaDescriptionCompat getMediaDescription(@NotNull Player player, int windowIndex) {
                 Bitmap bitmap = getBitmapFromVectorDrawable(getApplicationContext(), R.drawable.bs_play_2);
                 Bundle extras = new Bundle();
-                /*
-                FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
-                String uri= Objects.requireNonNull(Objects.requireNonNull(player.getCurrentMediaItem()).playbackProperties).uri.toString();
-                Log.d("MediaPlayerService","Media URL="+uri);
-                String album="";
-                String artist="";
-                try {
-                    mmr.setDataSource(uri);
-                    album = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
-                    artist = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
-                    mmr.release();
-                }
-                catch(IllegalArgumentException e)
-                {
-                    Log.d("MediaPlayerService","Error when retrieving metadata");
-                }*/
                 // The system looks for information about the item windowIndex in the playlist.
                 // So let's give them that.
                 CharSequence title = "No media playing";
@@ -499,8 +482,15 @@ public class MediaPlayerService extends LifecycleService
             handler.postDelayed(updateAction,1000);
         }
     }
-    private class PlayerEventListener implements Player.Listener
-    {
+    /**
+     * Sends a message to the Activity to request the renewal of the LoginResponse, and maybe restart the player?
+     */
+    private void requestRenewLoginResponse() {
+        Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".action.RENEW_LOGINRESPONSE");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    private class PlayerEventListener implements Player.Listener {
         @Override
         public void onPlaybackStateChanged(int state) {
             String stringState="";
@@ -538,7 +528,14 @@ public class MediaPlayerService extends LifecycleService
 
         @Override
         public void onPlayerError(PlaybackException error) {
-            Log.d("DEBUG","The Player reported an error: "+error.getMessage());
+            Log.d("DEBUG", "The Player reported an error: " + error.getMessage() + " (" + error.errorCode + ")");
+            // If we get a source error, maybe the session cookie needs updating.
+            // This should send a message back to the activity to request a new LoginResponse.
+            switch (error.errorCode) {
+                case PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS:
+                    // There is an unexpected HTTP status, probably 403 because of the expired token.
+                    requestRenewLoginResponse();
+            }
         }
 
         @Override

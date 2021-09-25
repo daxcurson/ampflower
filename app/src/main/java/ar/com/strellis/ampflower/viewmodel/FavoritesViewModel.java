@@ -8,7 +8,7 @@ import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
 import androidx.paging.rxjava2.PagingRx;
 
-import ar.com.strellis.ampflower.data.datasource.network.AlbumsPagingSourceRx;
+import ar.com.strellis.ampflower.data.datasource.network.AlbumStatsPagingSourceRx;
 import ar.com.strellis.ampflower.data.datasource.network.ArtistsPagingSourceRx;
 import ar.com.strellis.ampflower.data.datasource.network.SongsPagingSourceRx;
 import ar.com.strellis.ampflower.data.model.Album;
@@ -38,10 +38,10 @@ public class FavoritesViewModel extends ViewModel
     }
     public void init(AmpacheService service, LoginResponse loginResponse)
     {
-        AlbumsPagingSourceRx randomAlbumsPagingSource=new AlbumsPagingSourceRx(service,loginResponse, SearchType.RANDOM,this.loadingRandomAlbums);
+        AlbumStatsPagingSourceRx randomAlbumsPagingSource=new AlbumStatsPagingSourceRx(service,loginResponse, SearchType.RANDOM,this.loadingRandomAlbums);
         Pager<Integer,Album> pager=new Pager<>(
-                new PagingConfig(AlbumsPagingSourceRx.PAGE_SIZE,
-                        AlbumsPagingSourceRx.PAGE_SIZE
+                new PagingConfig(AlbumStatsPagingSourceRx.PAGE_SIZE,
+                        AlbumStatsPagingSourceRx.PAGE_SIZE
                         ),
                 ()->randomAlbumsPagingSource
         );
@@ -62,10 +62,10 @@ public class FavoritesViewModel extends ViewModel
         PagingRx.cachedIn(pagedTopRatedArtists,coroutineScopeArtists);
         loadingTopRatedArtists.setValue(false);
 
-        AlbumsPagingSourceRx trendingAlbumsPagingSource=new AlbumsPagingSourceRx(service,loginResponse,SearchType.FREQUENT,this.loadingTrendingAlbums);
+        AlbumStatsPagingSourceRx trendingAlbumsPagingSource=new AlbumStatsPagingSourceRx(service,loginResponse,SearchType.FREQUENT,this.loadingTrendingAlbums);
         Pager<Integer,Album> pagerTrendingAlbums=new Pager<>(
-                new PagingConfig(AlbumsPagingSourceRx.PAGE_SIZE,
-                        AlbumsPagingSourceRx.PAGE_SIZE
+                new PagingConfig(AlbumStatsPagingSourceRx.PAGE_SIZE,
+                        AlbumStatsPagingSourceRx.PAGE_SIZE
                 ),
                 ()->trendingAlbumsPagingSource
         );

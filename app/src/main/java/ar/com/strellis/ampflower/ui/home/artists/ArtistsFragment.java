@@ -1,5 +1,6 @@
 package ar.com.strellis.ampflower.ui.home.artists;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -26,9 +27,7 @@ import java.util.Objects;
 
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Artist;
-import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentArtistsBinding;
-import ar.com.strellis.ampflower.ui.home.artists.ArtistAdapter;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
@@ -98,13 +97,14 @@ public class ArtistsFragment extends Fragment {
                 return false;
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public boolean onQueryTextChange(String newText) {
                 // update the albums model with the search string
                 artistsViewModel.setQuery(newText);
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("ArtistsFragment","The recycler for artists is forced to update, new text: "+newText);
-                artistsRecycler.getAdapter().notifyDataSetChanged();
+                Objects.requireNonNull(artistsRecycler.getAdapter()).notifyDataSetChanged();
                 return false;
             }
         });

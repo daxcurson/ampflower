@@ -24,9 +24,9 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
     private final int INITIAL_LOAD_SIZE=1;
     private final int NETWORK_PAGE_SIZE=20;
     private String query;
-    private AmpacheService ampacheService;
-    private AmpacheDatabase ampacheDatabase;
-    private AlbumDao albumDao;
+    private final AmpacheService ampacheService;
+    private final AmpacheDatabase ampacheDatabase;
+    private final AlbumDao albumDao;
     private LoginResponse loginResponse;
 
     public AlbumRemoteMediator(String query,AmpacheService ampacheService,AmpacheDatabase ampacheDatabase)
@@ -78,7 +78,7 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
                 .map((Function<List<Album>, MediatorResult>) response -> {
                     ampacheDatabase.runInTransaction(() -> {
                         if (loadType == LoadType.REFRESH) {
-                            albumDao.deleteByQuery(query);
+                            albumDao.deleteAll();
                         }
 
                         // Insert new users into database, which invalidates the current
@@ -86,7 +86,8 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
                         albumDao.insertAllAlbums(response);
                     });
 
-                    return new MediatorResult.Success(false);
+                    boolean endOfList=response.isEmpty();
+                    return new MediatorResult.Success(endOfList);
                 })
                 .onErrorResumeNext(e -> {
 

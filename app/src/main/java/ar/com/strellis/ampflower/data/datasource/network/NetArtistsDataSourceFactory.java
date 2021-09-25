@@ -17,7 +17,7 @@ public class NetArtistsDataSourceFactory extends DataSource.Factory<String, Arti
 
     private final MutableLiveData<NetArtistsPageKeyedDataSource> networkStatus;
     private NetArtistsPageKeyedDataSource artistsPageKeyedDataSource;
-    private LoginResponse loginResponse;
+    private final LoginResponse loginResponse;
 
     public NetArtistsDataSourceFactory(AmpacheService service, LoginResponse settings, LiveData<String> query, LifecycleOwner lifecycleOwner) {
         this.networkStatus = new MutableLiveData<>();

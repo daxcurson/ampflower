@@ -4,7 +4,6 @@ import java.util.List;
 
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumListResponse;
-import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.ArtistListResponse;
 import ar.com.strellis.ampflower.data.model.GoodbyeResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
@@ -96,21 +95,21 @@ public interface AmpacheService
             @Query("username") String username
     );
     @GET("server/json.server.php?action=stats&type=album")
-    Single<List<Album>> album_stats(
+    Single<AlbumListResponse> album_stats(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=stats&type=artist")
-    Single<List<Artist>> artist_stats(
+    Single<ArtistListResponse> artist_stats(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=stats&type=song")
-    Single<List<Song>> song_stats(
+    Single<SongListResponse> song_stats(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,

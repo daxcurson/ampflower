@@ -5,11 +5,10 @@ import androidx.annotation.Nullable;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava2.RxPagingSource;
 
-import java.util.List;
-
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.SearchType;
 import ar.com.strellis.ampflower.data.model.Song;
+import ar.com.strellis.ampflower.data.model.SongListResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -40,10 +39,10 @@ public class SongsPagingSourceRx extends RxPagingSource<Integer, Song> {
                 .onErrorReturn(LoadResult.Error::new);
     }
 
-    private LoadResult<Integer,Song> toLoadResult(List<Song> songs, int page)
+    private LoadResult<Integer,Song> toLoadResult(SongListResponse songs, int page)
     {
         Integer maxPage=page<=2 ? page+1 : null;
-        return new LoadResult.Page<>(songs,page==0?null:page-1,maxPage);
+        return new LoadResult.Page<>(songs.getSong(),page==0?null:page-1,maxPage);
     }
 
     @Nullable

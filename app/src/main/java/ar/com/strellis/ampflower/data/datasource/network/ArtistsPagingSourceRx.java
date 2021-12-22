@@ -6,9 +6,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava2.RxPagingSource;
 
-import java.util.List;
-
 import ar.com.strellis.ampflower.data.model.Artist;
+import ar.com.strellis.ampflower.data.model.ArtistListResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.SearchType;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
@@ -47,10 +46,10 @@ public class ArtistsPagingSourceRx extends RxPagingSource<Integer, Artist> {
                 });
     }
 
-    private LoadResult<Integer,Artist> toLoadResult(List<Artist> artists, int page)
+    private LoadResult<Integer,Artist> toLoadResult(ArtistListResponse artists, int page)
     {
         Integer maxPage=page<=2 ? page+1 : null;
-        return new LoadResult.Page<>(artists,page==0?null:page-1,maxPage);
+        return new LoadResult.Page<>(artists.getArtist(),page==0?null:page-1,maxPage);
     }
 
     @Nullable

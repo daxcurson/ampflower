@@ -30,8 +30,7 @@ public class Artist extends ModelEntity implements Searchable<Integer>, Serializ
     @PrimaryKey
     private Integer id;
     private String name;
-    private int albums;
-    private int songs;
+    private int songcount;
     private List<Tag> tag;
     private String art;
     private int flag;
@@ -47,17 +46,13 @@ public class Artist extends ModelEntity implements Searchable<Integer>, Serializ
     public void setId(Integer id) {
         this.id = id;
     }
-    public int getAlbums() {
-        return albums;
+    public void setSongcount(int songcount)
+    {
+        this.songcount=songcount;
     }
-    public void setAlbums(int albums) {
-        this.albums = albums;
-    }
-    public int getSongs() {
-        return songs;
-    }
-    public void setSongs(int songs) {
-        this.songs = songs;
+    public int getSongcount()
+    {
+        return this.songcount;
     }
     public List<Tag> getTag() {
         return tag;

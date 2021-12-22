@@ -10,12 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.data.model.Playlist;
+import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import io.reactivex.subjects.ReplaySubject;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,16 +51,16 @@ public class NetPlaylistsPageKeyedDataSource extends PageKeyedDataSource<String,
         networkState.postValue(NetworkState.LOADING);
         int offset=0;
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        Call<List<Playlist>> callBack = ampacheService.get_indexes_playlist(loginResponse.getAuth(),"",offset,limit);
-        callBack.enqueue(new Callback<List<Playlist>>() {
+        Call<PlaylistListResponse> callBack = ampacheService.get_indexes_playlist(loginResponse.getAuth(),"",offset,limit);
+        callBack.enqueue(new Callback<PlaylistListResponse>() {
             @Override
-            public void onResponse(@NonNull Call<List<Playlist>> call, @NonNull Response<List<Playlist>> response) {
+            public void onResponse(@NonNull Call<PlaylistListResponse> call, @NonNull Response<PlaylistListResponse> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer!");
                     assert response.body() != null;
-                    callback.onResult(response.body(), null, "1");
+                    callback.onResult(response.body().getPlaylist(), null, "1");
                     networkState.postValue(NetworkState.LOADED);
-                    List<Playlist> results=response.body();
+                    List<Playlist> results=response.body().getPlaylist();
                     Log.d(TAG,"There are "+results.size()+" playlists retrieved");
                     results.forEach(playlistsObservable::onNext);
                     Log.d(TAG,"Done loading playlists");
@@ -72,7 +71,7 @@ public class NetPlaylistsPageKeyedDataSource extends PageKeyedDataSource<String,
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Playlist>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<PlaylistListResponse> call, @NonNull Throwable t) {
                 String errorMessage;
                 if (t.getMessage() == null) {
                     errorMessage = "unknown error";
@@ -102,15 +101,15 @@ public class NetPlaylistsPageKeyedDataSource extends PageKeyedDataSource<String,
         int offset=(page.get())*params.requestedLoadSize;
         Log.d(TAG,"Page="+page.get()+", offset="+offset+", limit="+limit);
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        Call<List<Playlist>> callBack = ampacheService.get_indexes_playlist(loginResponse.getAuth(),"",offset,limit);
-        callBack.enqueue(new Callback<List<Playlist>>() {
+        Call<PlaylistListResponse> callBack = ampacheService.get_indexes_playlist(loginResponse.getAuth(),"",offset,limit);
+        callBack.enqueue(new Callback<PlaylistListResponse>() {
             @Override
-            public void onResponse(@NonNull Call<List<Playlist>> call, @NonNull Response<List<Playlist>> response) {
+            public void onResponse(@NonNull Call<PlaylistListResponse> call, @NonNull Response<PlaylistListResponse> response) {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
-                    callback.onResult(response.body(),Integer.toString(page.get()+1));
+                    callback.onResult(response.body().getPlaylist(),Integer.toString(page.get()+1));
                     networkState.postValue(NetworkState.LOADED);
-                    response.body().forEach(playlistsObservable::onNext);
+                    response.body().getPlaylist().forEach(playlistsObservable::onNext);
                 } else {
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));
                     Log.e("API CALL", response.message());
@@ -118,7 +117,7 @@ public class NetPlaylistsPageKeyedDataSource extends PageKeyedDataSource<String,
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Playlist>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<PlaylistListResponse> call, @NonNull Throwable t) {
                 String errorMessage;
                 if (t.getMessage() == null) {
                     errorMessage = "unknown error";

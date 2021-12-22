@@ -3,12 +3,15 @@ package ar.com.strellis.ampflower.networkutils;
 import java.util.List;
 
 import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.model.AlbumListResponse;
 import ar.com.strellis.ampflower.data.model.Artist;
+import ar.com.strellis.ampflower.data.model.ArtistListResponse;
 import ar.com.strellis.ampflower.data.model.GoodbyeResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.PingResponse;
-import ar.com.strellis.ampflower.data.model.Playlist;
+import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
 import ar.com.strellis.ampflower.data.model.Song;
+import ar.com.strellis.ampflower.data.model.SongListResponse;
 import ar.com.strellis.ampflower.data.model.UserResponse;
 import io.reactivex.Single;
 import retrofit2.Call;
@@ -39,14 +42,14 @@ public interface AmpacheService
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=get_indexes&type=artist")
-    Call<List<Artist>> get_indexes_artist(
+    Call<ArtistListResponse> get_indexes_artist(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=get_indexes&type=album")
-    Call<List<Album>> get_indexes_album(
+    Call<AlbumListResponse> get_indexes_album(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,
@@ -60,28 +63,28 @@ public interface AmpacheService
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=get_indexes&type=playlist")
-    Call<List<Playlist>> get_indexes_playlist(
+    Call<PlaylistListResponse> get_indexes_playlist(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=album_songs")
-    Single<List<Song>> album_songs(
+    Single<SongListResponse> album_songs(
             @Query("auth") String auth,
             @Query("filter") String album_id,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=playlist_songs")
-    Single<List<Song>> playlist_songs(
+    Single<SongListResponse> playlist_songs(
             @Query("auth") String auth,
             @Query("filter") String playlist_id,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=artist_songs")
-    Single<List<Song>> artist_songs(
+    Single<SongListResponse> artist_songs(
             @Query("auth") String auth,
             @Query("filter") String artist_id,
             @Query("offset") Integer offset,

@@ -18,11 +18,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.model.AlbumListResponse;
 import ar.com.strellis.ampflower.data.model.Artist;
+import ar.com.strellis.ampflower.data.model.ArtistListResponse;
 import ar.com.strellis.ampflower.data.model.GoodbyeResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.PingResponse;
 import ar.com.strellis.ampflower.data.model.Playlist;
+import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import okhttp3.OkHttpClient;
@@ -93,13 +96,14 @@ public class FunctionTest {
     @Test
     public void test03ListAlbums()
     {
-        Call<List<Album>> callForAlbums=ampache.get_indexes_album(loginResponse.getAuth(),"",null,null);
+        Call<AlbumListResponse> callForAlbums=ampache.get_indexes_album(loginResponse.getAuth(),"",null,null);
         try
         {
-            Response<List<Album>> albumsResponse=callForAlbums.execute();
+            Response<AlbumListResponse> albumsResponse=callForAlbums.execute();
             if(albumsResponse.isSuccessful())
             {
-                List<Album> albums=albumsResponse.body();
+                assert albumsResponse.body() != null;
+                List<Album> albums=albumsResponse.body().getAlbum();
                 if (albums == null) throw new AssertionError();
                 for (Album album : albums) {
                     System.out.println("Album retrieved: " + album.getName());
@@ -137,13 +141,14 @@ public class FunctionTest {
     @Test
     public void test05ListArtists()
     {
-        Call<List<Artist>> callForArtists=ampache.get_indexes_artist(loginResponse.getAuth(),"",null,null);
+        Call<ArtistListResponse> callForArtists=ampache.get_indexes_artist(loginResponse.getAuth(),"",null,null);
         try
         {
-            Response<List<Artist>> artistsResponse=callForArtists.execute();
+            Response<ArtistListResponse> artistsResponse=callForArtists.execute();
             if(artistsResponse.isSuccessful())
             {
-                List<Artist> artists=artistsResponse.body();
+                assert artistsResponse.body() != null;
+                List<Artist> artists=artistsResponse.body().getArtist();
                 if (artists == null) throw new AssertionError();
                 for (Artist artist : artists) {
                     System.out.println("Artist retrieved: " + artist.getName());
@@ -159,13 +164,14 @@ public class FunctionTest {
     @Test
     public void test06ListPlaylists()
     {
-        Call<List<Playlist>> callForPlaylists=ampache.get_indexes_playlist(loginResponse.getAuth(),"",null,null);
+        Call<PlaylistListResponse> callForPlaylists=ampache.get_indexes_playlist(loginResponse.getAuth(),"",null,null);
         try
         {
-            Response<List<Playlist>> playlistsResponse=callForPlaylists.execute();
+            Response<PlaylistListResponse> playlistsResponse=callForPlaylists.execute();
             if(playlistsResponse.isSuccessful())
             {
-                List<Playlist> playlists=playlistsResponse.body();
+                assert playlistsResponse.body() != null;
+                List<Playlist> playlists=playlistsResponse.body().getPlaylist();
                 if (playlists == null) throw new AssertionError();
                 for (Playlist playlist : playlists) {
                     System.out.println("Playlist retrieved: " + playlist.getName());

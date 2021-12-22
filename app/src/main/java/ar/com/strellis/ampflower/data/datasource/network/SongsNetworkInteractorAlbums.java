@@ -10,7 +10,6 @@ import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractor;
 import ar.com.strellis.ampflower.data.datasource.memory.SongsMemoryInteractor;
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
-import ar.com.strellis.ampflower.data.model.EntityWithSongs;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.Single;
@@ -30,11 +29,12 @@ public class SongsNetworkInteractorAlbums extends SongsNetworkInteractor<AlbumWi
                     album.setId(Integer.parseInt(album_id));
                     AlbumWithSongs s=new AlbumWithSongs();
                     s.setAlbum(album);
-                    s.setSongs(songs);
+                    s.setSongs(songs.getSong());
                     return s;
                 })
                 .doOnSuccess(databaseInteractor::saveData)
                 .doOnSuccess(memoryInteractor::saveData)
-                .doOnError(throwable -> Log.d("SongsNetworkInteractor","Error interacting with the network: "+throwable));
+                .doOnError(throwable ->
+                        Log.d("SongsNetworkInteractor","Error interacting with the network: "+throwable));
     }
 }

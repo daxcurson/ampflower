@@ -8,8 +8,6 @@ import java.util.Objects;
 
 import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractor;
 import ar.com.strellis.ampflower.data.datasource.memory.SongsMemoryInteractor;
-import ar.com.strellis.ampflower.data.model.Album;
-import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.ArtistWithSongs;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
@@ -32,7 +30,7 @@ public class SongsNetworkInteractorArtists extends SongsNetworkInteractor<Artist
                     artist.setId(Integer.parseInt(entityId));
                     ArtistWithSongs s=new ArtistWithSongs();
                     s.setArtist(artist);
-                    s.setSongs(songs);
+                    s.setSongs(songs.getSong());
                     return s;
                 })
                 .doOnSuccess(databaseInteractor::saveData)

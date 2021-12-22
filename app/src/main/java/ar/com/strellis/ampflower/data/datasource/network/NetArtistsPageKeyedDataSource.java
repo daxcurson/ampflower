@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ar.com.strellis.ampflower.data.model.Artist;
+import ar.com.strellis.ampflower.data.model.ArtistListResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
@@ -53,16 +54,16 @@ public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, A
         int offset=0;
         String filterQuery=this.query.getValue();
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        Call<List<Artist>> callBack = ampacheService.get_indexes_artist(loginResponse.getAuth(),filterQuery,offset,limit);
-        callBack.enqueue(new Callback<List<Artist>>() {
+        Call<ArtistListResponse> callBack = ampacheService.get_indexes_artist(loginResponse.getAuth(),filterQuery,offset,limit);
+        callBack.enqueue(new Callback<ArtistListResponse>() {
             @Override
-            public void onResponse(@NonNull Call<List<Artist>> call, @NonNull Response<List<Artist>> response) {
+            public void onResponse(@NonNull Call<ArtistListResponse> call, @NonNull Response<ArtistListResponse> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer! We queried with: >"+filterQuery+"<");
                     assert response.body() != null;
-                    callback.onResult(response.body(), null, "1");
+                    callback.onResult(response.body().getArtist(), null, "1");
                     networkState.postValue(NetworkState.LOADED);
-                    List<Artist> results=response.body();
+                    List<Artist> results=response.body().getArtist();
                     Log.d(TAG,"There are "+results.size()+" artists retrieved");
                     results.forEach(artistsObservable::onNext);
                     Log.d(TAG,"Done loading artists");
@@ -73,7 +74,7 @@ public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, A
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Artist>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ArtistListResponse> call, @NonNull Throwable t) {
                 String errorMessage;
                 if (t.getMessage() == null) {
                     errorMessage = "unknown error";
@@ -103,16 +104,16 @@ public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, A
         String filterQuery=this.query.getValue();
         Log.d(TAG,"Page="+page.get()+", offset="+offset+", limit="+limit);
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
-        Call<List<Artist>> callBack = ampacheService.get_indexes_artist(loginResponse.getAuth(),filterQuery,offset,limit);
-        callBack.enqueue(new Callback<List<Artist>>() {
+        Call<ArtistListResponse> callBack = ampacheService.get_indexes_artist(loginResponse.getAuth(),filterQuery,offset,limit);
+        callBack.enqueue(new Callback<ArtistListResponse>() {
             @Override
-            public void onResponse(@NonNull Call<List<Artist>> call, @NonNull Response<List<Artist>> response) {
+            public void onResponse(@NonNull Call<ArtistListResponse> call, @NonNull Response<ArtistListResponse> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer! We queried with: >"+filterQuery+"<");
                     assert response.body() != null;
-                    callback.onResult(response.body(),Integer.toString(page.get()+1));
+                    callback.onResult(response.body().getArtist(),Integer.toString(page.get()+1));
                     networkState.postValue(NetworkState.LOADED);
-                    response.body().forEach(artistsObservable::onNext);
+                    response.body().getArtist().forEach(artistsObservable::onNext);
                 } else {
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));
                     Log.e("API CALL", response.message());
@@ -120,7 +121,7 @@ public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, A
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Artist>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ArtistListResponse> call, @NonNull Throwable t) {
                 String errorMessage;
                 if (t.getMessage() == null) {
                     errorMessage = "unknown error";

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.model.AlbumListResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
@@ -58,16 +59,16 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
         int offset=0;
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
         String filterQuery=this.query.getValue();
-        Call<List<Album>> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),filterQuery,offset,limit);
-        callBack.enqueue(new Callback<List<Album>>() {
+        Call<AlbumListResponse> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),filterQuery,offset,limit);
+        callBack.enqueue(new Callback<AlbumListResponse>() {
             @Override
-            public void onResponse(@NonNull Call<List<Album>> call, @NonNull Response<List<Album>> response) {
+            public void onResponse(@NonNull Call<AlbumListResponse> call, @NonNull Response<AlbumListResponse> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer! We queried with "+filterQuery);
                     assert response.body() != null;
-                    callback.onResult(response.body(), null, "1");
+                    callback.onResult(response.body().getAlbum(), null, "1");
                     networkState.postValue(NetworkState.LOADED);
-                    List<Album> results=response.body();
+                    List<Album> results=response.body().getAlbum();
                     Log.d(TAG,"There are "+results.size()+" albums retrieved");
                     results.forEach(albumsObservable::onNext);
                     Log.d(TAG,"Done loading albums");
@@ -78,7 +79,7 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Album>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<AlbumListResponse> call, @NonNull Throwable t) {
                 String errorMessage;
                 if (t.getMessage() == null) {
                     errorMessage = "unknown error";
@@ -108,16 +109,16 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
         Log.d(TAG,"Page="+page.get()+", offset="+offset+", limit="+limit);
         Log.d(TAG,"Attempting to connect, auth: "+loginResponse.getAuth());
         String filterQuery=this.query.getValue();
-        Call<List<Album>> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),filterQuery,offset,limit);
-        callBack.enqueue(new Callback<List<Album>>() {
+        Call<AlbumListResponse> callBack = ampacheService.get_indexes_album(loginResponse.getAuth(),filterQuery,offset,limit);
+        callBack.enqueue(new Callback<AlbumListResponse>() {
             @Override
-            public void onResponse(@NonNull Call<List<Album>> call, @NonNull Response<List<Album>> response) {
+            public void onResponse(@NonNull Call<AlbumListResponse> call, @NonNull Response<AlbumListResponse> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer from a subsequent page! We queried with "+filterQuery);
                     assert response.body() != null;
-                    callback.onResult(response.body(),Integer.toString(page.get()+1));
+                    callback.onResult(response.body().getAlbum(),Integer.toString(page.get()+1));
                     networkState.postValue(NetworkState.LOADED);
-                    List<Album> results=response.body();
+                    List<Album> results=response.body().getAlbum();
                     Log.d(TAG,"There are "+results.size()+" albums retrieved");
                     results.forEach(albumsObservable::onNext);
                     Log.d(TAG,"Done loading albums");
@@ -128,7 +129,7 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Album>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<AlbumListResponse> call, @NonNull Throwable t) {
                 String errorMessage;
                 if (t.getMessage() == null) {
                     errorMessage = "unknown error";

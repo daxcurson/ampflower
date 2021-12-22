@@ -28,7 +28,6 @@ public class Album extends ModelEntity implements Searchable<Integer>, Serializa
     private String name;
     private Artist artist;
     private int year;
-    private int tracks;
     private int disk;
     private List<Tag> tag;
     /**
@@ -59,12 +58,6 @@ public class Album extends ModelEntity implements Searchable<Integer>, Serializa
     }
     public void setYear(int year) {
         this.year = year;
-    }
-    public int getTracks() {
-        return tracks;
-    }
-    public void setTracks(int tracks) {
-        this.tracks = tracks;
     }
     public int getDisk() {
         return disk;

@@ -8,8 +8,6 @@ import java.util.Objects;
 
 import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractor;
 import ar.com.strellis.ampflower.data.datasource.memory.SongsMemoryInteractor;
-import ar.com.strellis.ampflower.data.model.Album;
-import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
@@ -32,7 +30,7 @@ public class SongsNetworkInteractorPlaylists extends SongsNetworkInteractor<Play
                     playlist.setId(entityId);
                     PlaylistWithSongs s=new PlaylistWithSongs();
                     s.setPlaylist(playlist);
-                    s.setSongs(songs);
+                    s.setSongs(songs.getSong());
                     return s;
                 })
                 .doOnSuccess(databaseInteractor::saveData)

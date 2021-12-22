@@ -57,7 +57,7 @@ public class ArtistAdapter extends PagedListAdapter<Artist, RecyclerView.ViewHol
             ArtistViewHolder artistViewHolder=(ArtistViewHolder)holder;
             Artist artist=getItem(position);
             artistViewHolder.getArtistName().setText(Objects.requireNonNull(artist).getName());
-            artistViewHolder.getSongsQuantity().setText(myContext.getString(R.string.songsQuantity,artist.getSongs()));
+            artistViewHolder.getSongsQuantity().setText(myContext.getString(R.string.songsQuantity,artist.getSongcount()));
             // Now, attempt to download the image.
             Picasso.get().load(artist.getArt()).into(artistViewHolder.getArtistFace());
         }

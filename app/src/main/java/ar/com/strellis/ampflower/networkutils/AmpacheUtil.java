@@ -110,6 +110,14 @@ public class AmpacheUtil
                                 Log.d("AmpacheUtil.loginToAmpache.onResponse","We have a body!!!");
                                 callback.loginSuccess(response.body());
                             }
+                            else
+                            {
+                                Log.d("AmpacheUtil.loginToAmpache.onResponse","Unable to log in, the body is null. ");
+                                String error="";
+                                if(response.errorBody()!=null)
+                                    error=response.errorBody().toString();
+                                callback.loginFailure(error);
+                            }
                         }
 
                         @Override
@@ -120,6 +128,7 @@ public class AmpacheUtil
                     });
                 } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
+                    callback.loginFailure(e.getMessage());
                 }
             }
             else

@@ -104,7 +104,8 @@ public class ArtistsFragment extends Fragment {
                 artistsViewModel.setQuery(newText);
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("ArtistsFragment","The recycler for artists is forced to update, new text: "+newText);
-                Objects.requireNonNull(artistsRecycler.getAdapter()).notifyDataSetChanged();
+                if(artistsRecycler.getAdapter()!=null)
+                    artistsRecycler.getAdapter().notifyDataSetChanged();
                 return false;
             }
         });

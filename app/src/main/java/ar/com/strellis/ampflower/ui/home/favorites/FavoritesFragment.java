@@ -10,21 +10,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import ar.com.strellis.ampflower.R;
+import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.databinding.FragmentFavoritesBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
+import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.FavoritesViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
+import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.disposables.Disposable;
 
 public class FavoritesFragment extends Fragment {
     private FragmentFavoritesBinding binding;
     private FavoritesViewModel favoritesViewModel;
     private ServerStatusViewModel serverStatusViewModel;
+    private SongsViewModel songsViewModel;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -34,6 +41,7 @@ public class FavoritesFragment extends Fragment {
         setHasOptionsMenu(true);
         favoritesViewModel=new ViewModelProvider(requireActivity()).get(FavoritesViewModel.class);
         serverStatusViewModel=new ViewModelProvider(requireActivity()).get(ServerStatusViewModel.class);
+        songsViewModel=new ViewModelProvider(requireActivity()).get(SongsViewModel.class);
         return root;
     }
 
@@ -49,6 +57,27 @@ public class FavoritesFragment extends Fragment {
         binding.recyclerViewRandomAlbums.setLayoutManager(gridLayoutManager);
         binding.recyclerViewRandomAlbums.addItemDecoration(new GridSpace(1,20,true));
         binding.recyclerViewRandomAlbums.setItemAnimator(new DefaultItemAnimator());
+        binding.recyclerViewRandomAlbums.addOnItemTouchListener(
+                new ClickItemTouchListener(binding.recyclerViewRandomAlbums) {
+                    @Override
+                    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+                    }
+
+                    @Override
+                    public boolean onClick(RecyclerView parent, View view, int position, long id) {
+                        Log.d("FavoritesFragment.recyclerViewRandomAlbums.ClickItemTouchListener","Clicked on view: "+view.getId()+", position: "+position+", id: "+id);
+                        Album entity=randomAlbumsAdapter.peek(position);
+                        songsViewModel.setSearchableItem(entity);
+                        Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onLongClick(RecyclerView parent, View view, int position, long id) {
+                        return false;
+                    }
+                });
         binding.recyclerViewTopRatedArtists.setLayoutManager(gridLayoutManager2);
         binding.recyclerViewTopRatedArtists.addItemDecoration(new GridSpace(1,20,true));
         binding.recyclerViewTopRatedArtists.setItemAnimator(new DefaultItemAnimator());

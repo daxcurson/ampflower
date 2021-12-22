@@ -43,7 +43,7 @@ public class AlbumAdapterRx extends PagingDataAdapter<Album,AlbumViewHolder>
         @Override
         public boolean areItemsTheSame(@NonNull Album oldItem, @NonNull Album newItem) {
             Log.d("DEBUG","Callback comparing item "+oldItem.getId()+" with item "+newItem.getId());
-            return oldItem.getId()==newItem.getId() && oldItem.getArtist().getId()==newItem.getArtist().getId();
+            return oldItem.getId().equals(newItem.getId()) && oldItem.getArtist().getId().equals(newItem.getArtist().getId());
         }
 
         @Override

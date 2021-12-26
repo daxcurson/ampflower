@@ -24,6 +24,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LifecycleService;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.exoplayer2.C;
@@ -49,7 +53,9 @@ import java.util.stream.Collectors;
 import ar.com.strellis.ampflower.BuildConfig;
 import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.R;
+import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Song;
+import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 
 public class MediaPlayerService extends LifecycleService
 {
@@ -86,6 +92,7 @@ public class MediaPlayerService extends LifecycleService
     public static final String ACTION_PLAY_ITEM = BuildConfig.APPLICATION_ID+".action.PLAY_ITEM";
     public static final String ACTION_DELETE_ITEM = BuildConfig.APPLICATION_ID+".action.DELETE_ITEM";
     public static final String ACTION_SEEK = BuildConfig.APPLICATION_ID+".action.SEEK";
+    public static final String ACTION_RENEW_TOKEN = BuildConfig.APPLICATION_ID + ".action.RENEW_LOGINRESPONSE";
 
     public MediaPlayerService()
     {
@@ -160,40 +167,17 @@ public class MediaPlayerService extends LifecycleService
                                         intent,
                                         PendingIntent.FLAG_UPDATE_CURRENT);
                             }
-
-                    @NotNull
-                    @Override
-                    public CharSequence getCurrentContentText(@NotNull Player player) {
-                        Log.d("MediaPlayerService","getCurrentContentText");
-                        if(player.getCurrentMediaItem() != null) {
-                            player.getCurrentMediaItem();
-
-                        }
-                        String album= Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.albumTitle).toString();
-                        String artist=Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.artist).toString();
-                        return album+" by "+artist;
-                        /*
-                        try {
-                            FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
-                            if(player.getCurrentMediaItem()!=null && player.getCurrentMediaItem().playbackProperties!=null) {
-                                String uri = Objects.requireNonNull(Objects.requireNonNull(player.getCurrentMediaItem()).playbackProperties).uri.toString();
-                                Log.d("MediaPlayerService", "Media URL=" + uri);
-                                mmr.setDataSource(uri);
-                                String album = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
-                                String artist = mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ARTIST);
-                                mmr.release();
-                                if (album != null && artist != null)
-                                    return album + " by " + artist;
+                            @NotNull
+                            @Override
+                            public CharSequence getCurrentContentText(@NotNull Player player) {
+                                Log.d("MediaPlayerService","getCurrentContentText");
+                                if(player.getCurrentMediaItem() != null) {
+                                    player.getCurrentMediaItem();
+                                }
+                                String album= Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.albumTitle).toString();
+                                String artist=Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.artist).toString();
+                                return album+" by "+artist;
                             }
-                        }
-                        catch(IllegalArgumentException e)
-                        {
-                            Log.d("MediaPlayerService","Error downloading metadata in getCurrentContentText");
-                        }
-                        return "Temporarily unavailable";
-
-                         */
-                    }
 
                             @Nullable
                             @Override
@@ -487,7 +471,7 @@ public class MediaPlayerService extends LifecycleService
      * Sends a message to the Activity to request the renewal of the LoginResponse, and maybe restart the player?
      */
     private void requestRenewLoginResponse() {
-        Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".action.RENEW_LOGINRESPONSE");
+        Intent intent = new Intent(ACTION_RENEW_TOKEN);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

@@ -631,9 +631,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final BroadcastReceiver messageReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("BroadcastReceiver.onReceive","Received a request to renew the login response");
-            loginToAmpache();
-            // Restart the player, maybe?
+            Log.d("BroadcastReceiver.onReceive", "Received a broadcast message!");
+            if(intent.getAction().equals(MediaPlayerService.ACTION_RENEW_TOKEN)) {
+                Log.d("BroadcastReceiver.onReceive", "Received a request to renew the login response");
+                loginToAmpache();
+            }
         }
     };
 
@@ -664,7 +666,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void play(MediaItem item) {
-            Log.d("Playing","Received a Play message, looping into playing");
+            assert item.playbackProperties != null;
+            Log.d("Playing","Received a Play message, looping into playing, URL of the media item: "+item.playbackProperties.uri);
             updateUiWithMediaItem(item);
             updateUiToPlayState();
             state=playing;

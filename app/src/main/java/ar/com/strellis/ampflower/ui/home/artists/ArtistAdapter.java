@@ -97,13 +97,13 @@ public class ArtistAdapter extends PagedListAdapter<Artist, RecyclerView.ViewHol
     public static DiffUtil.ItemCallback<Artist> callback_diff=new DiffUtil.ItemCallback<Artist>() {
         @Override
         public boolean areItemsTheSame(@NonNull Artist oldItem,@NonNull Artist newItem) {
-            Log.d("DEBUG","Callback comparing item "+oldItem.getId()+" with item "+newItem.getId());
+            Log.d("ArtistAdapter","Callback comparing item "+oldItem.getId()+" with item "+newItem.getId());
             return oldItem.getId()==newItem.getId() && oldItem.getName().equals(newItem.getName());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull Artist oldItem,@NonNull Artist newItem) {
-            Log.d("DEBUG","Callback comparing content of item "+oldItem.getId()+" with item "+newItem.getId());
+            Log.d("ArtistAdapter","Callback comparing content of item "+oldItem.getId()+" with item "+newItem.getId());
             return oldItem.equals(newItem);
         }
 

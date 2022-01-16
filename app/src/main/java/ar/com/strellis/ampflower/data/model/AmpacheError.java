@@ -2,18 +2,36 @@ package ar.com.strellis.ampflower.data.model;
 
 public class AmpacheError
 {
-    private int code;
-    private String message;
-    public String getMessage() {
-        return message;
+    private int errorCode;
+    private String errorAction;
+    private String errorType;
+    private String errorMessage;
+    public String getErrorAction() {
+        return errorAction;
     }
-    public void setMessage(String message) {
-        this.message = message;
+    public void setErrorAction(String errorAction) {
+        this.errorAction = errorAction;
     }
-    public int getCode() {
-        return code;
+    public int getErrorCode() {
+        return errorCode;
     }
-    public void setCode(int code) {
-        this.code = code;
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
+    }
+    public String getErrorType()
+    {
+        return this.errorType;
+    }
+    public void setErrorType(String errorType)
+    {
+        this.errorType=errorType;
+    }
+    public String getErrorMessage()
+    {
+        return this.errorMessage;
+    }
+    public void setErrorMessage(String errorMessage)
+    {
+        this.errorMessage=errorMessage;
     }
 }

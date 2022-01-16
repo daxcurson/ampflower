@@ -4,6 +4,7 @@ import java.util.List;
 
 public class PlaylistListResponse {
     private List<Playlist> playlist;
+    private AmpacheError error;
 
     public void setPlaylist(List<Playlist> playlist)
     {
@@ -12,5 +13,13 @@ public class PlaylistListResponse {
     public List<Playlist> getPlaylist()
     {
         return this.playlist;
+    }
+    public AmpacheError getError()
+    {
+        return this.error;
+    }
+    public void setError(AmpacheError error)
+    {
+        this.error=error;
     }
 }

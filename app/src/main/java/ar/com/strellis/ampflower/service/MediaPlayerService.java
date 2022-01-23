@@ -513,19 +513,29 @@ public class MediaPlayerService extends LifecycleService
 
         @Override
         public void onPlayerError(PlaybackException error) {
-            Log.d("DEBUG", "The Player reported an error: " + error.getMessage() + " (" + error.errorCode + ")");
+            Log.d("MediaPlayerService", "The Player reported an error: " + error.getMessage() + " (" + error.errorCode + ")");
             // If we get a source error, maybe the session cookie needs updating.
             // This should send a message back to the activity to request a new LoginResponse.
             switch (error.errorCode) {
+                case PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT:
+                    // The server has gone away.
+                    Log.d("MediaPlayerService", "The server has gone away, network connection timeout: " + error.getMessage() + " (" + error.errorCode + ")");
+                    break;
                 case PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS:
                     // There is an unexpected HTTP status, probably 403 because of the expired token.
+                    Log.d("MediaPlayerService", "Bad HTTP status, will attempt to renew the service token: " + error.getMessage() + " (" + error.errorCode + ")");
                     requestRenewLoginResponse();
+                    break;
+                default:
+                    Log.d("MediaPlayerService", "Unexpected error: " + error.getMessage() + " (" + error.errorCode + ")");
+                    // Some unexpected error.
+                    break;
             }
         }
 
         @Override
         public void onIsPlayingChanged(boolean isPlaying) {
-            Log.d("DEBUG","Playing state changed to "+isPlaying);
+            Log.d("MediaPlayerService.onIsPlayingChanged","Playing state changed to "+isPlaying);
             if(isPlaying) {
                 dispatchPlayingEvent();
                 // Also dispatch an update event!

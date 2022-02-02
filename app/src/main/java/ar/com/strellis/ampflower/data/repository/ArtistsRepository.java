@@ -88,6 +88,12 @@ public class ArtistsRepository {
         if(instance == null){
             instance = new ArtistsRepository(context,ampacheService,settings,loginResponse,query,lifecycleOwner);
         }
+        else
+        {
+            // If they are passing a login response that is different than the one the instance has, I'll destroy that instance and create a new one.
+            if(!instance.loginResponse.equals(loginResponse))
+                instance=new ArtistsRepository(context,ampacheService,settings,loginResponse,query,lifecycleOwner);
+        }
         return instance;
     }
 

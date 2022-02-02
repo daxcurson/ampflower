@@ -50,4 +50,8 @@ public class NetAlbumsDataSourceFactory extends DataSource.Factory<String, Album
     public void setLoginResponse(LoginResponse loginResponse) {
         this.loginResponse=loginResponse;
     }
+    public LoginResponse getLoginResponse()
+    {
+        return this.loginResponse;
+    }
 }

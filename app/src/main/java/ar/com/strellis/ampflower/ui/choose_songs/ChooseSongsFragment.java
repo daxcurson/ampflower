@@ -32,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.Artist;
@@ -138,13 +139,7 @@ public class ChooseSongsFragment extends Fragment {
             public void onClick(View v) {
                 Log.d("ChooseSongsFragment","I'm asked to play the selected songs!");
                 // Let's pack an intent and send it to the service, with the list of songs
-                Intent intent=new Intent(requireActivity(), MediaPlayerService.class);
-                intent.setAction(MediaPlayerService.ACTION_SELECT_SONGS);
-                List<Song> selectedSongs=songsViewModel.getSelectedSongs();
-                Bundle bundle=new Bundle();
-                bundle.putSerializable("LIST", (Serializable) selectedSongs);
-                intent.putExtras(bundle);
-                requireActivity().startService(intent);
+                ((MainActivity)requireActivity()).sendSelectedSongsToPlayList();
                 songsViewModel.setCurrentPlaylist(songsViewModel.getSelectedSongsIntoPlaylist());
                 // Return to home.
                 NavController navController = Navigation.findNavController(requireActivity(), ChooseSongsFragment.this.getId());

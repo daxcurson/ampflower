@@ -1,6 +1,8 @@
 package ar.com.strellis.ampflower.data.model;
 
-public class SelectableSong
+import java.io.Serializable;
+
+public class SelectableSong implements Serializable
 {
     public SelectableSong(Song s,boolean selected)
     {

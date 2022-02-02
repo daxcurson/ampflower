@@ -42,7 +42,7 @@ public class AlbumsRepository {
                 && settings.getAmpacheUsername()!=null
                 && !settings.getAmpacheUsername().equals(""))
         {
-            NetAlbumsDataSourceFactory dataSourceFactory = new NetAlbumsDataSourceFactory(ampacheService,loginResponse,query,lifecycleOwner);
+            albumsDataSourceFactory = new NetAlbumsDataSourceFactory(ampacheService,loginResponse,query,lifecycleOwner);
 
             PagedList.BoundaryCallback<Album> boundaryCallback = new PagedList.BoundaryCallback<Album>() {
                 @Override
@@ -54,7 +54,7 @@ public class AlbumsRepository {
                     });
                 }
             };
-            network = new AlbumRemote(dataSourceFactory, boundaryCallback);
+            network = new AlbumRemote(albumsDataSourceFactory, boundaryCallback);
             database = AmpacheDatabase.getDatabase(context.getApplicationContext());
             // Albums retrieved from the network will be stored in the database.
             liveDataMerger = new MediatorLiveData<>();
@@ -63,8 +63,8 @@ public class AlbumsRepository {
                 Log.d(TAG, value.toString());
             });
 
-            // save the movies into db
-            dataSourceFactory.getAlbums().
+            // save the albums into db
+            albumsDataSourceFactory.getAlbums().
                     observeOn(Schedulers.io()).
                     subscribe(album -> database.albumDao().insertAlbum(album),error->{
                         Log.d("AlbumsRepository","Error inserting into the database: "+error.getMessage());
@@ -87,6 +87,12 @@ public class AlbumsRepository {
     public static AlbumsRepository getInstance(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse,LiveData<String> query,LifecycleOwner lifecycleOwner){
         if(instance == null){
             instance = new AlbumsRepository(context,ampacheService,settings,loginResponse,query,lifecycleOwner);
+        }
+        else
+        {
+            // If the login response is new, destroy the repository and create a new one
+            if(!instance.albumsDataSourceFactory.getLoginResponse().equals(loginResponse))
+                instance = new AlbumsRepository(context,ampacheService,settings,loginResponse,query,lifecycleOwner);
         }
         return instance;
     }

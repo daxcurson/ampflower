@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -38,14 +39,20 @@ import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.data.model.AmpacheAuth;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkStatus;
+import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.data.model.ServerStatus;
+import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepository;
 import ar.com.strellis.ampflower.data.repository.ArtistsRepository;
 import ar.com.strellis.ampflower.data.repository.PlaylistsRepository;
@@ -138,14 +145,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             switch(Objects.requireNonNull(status))
             {
                 case UNAVAILABLE:
+                    Log.d("MainActivity.configuraServerStatusObserver","The server is now unavailable");
                     showToast("The server is unavailable");
                     break;
                 case LOGIN_DENIED:
+                    Log.d("MainActivity.configuraServerStatusObserver","The server is now unavailable");
                     showToast("Login denied");
                     break;
                 case ONLINE:
+                    // If the server is online, it may be the first time, but it can also be after staying
+                    // offline, for example, if the authentication token expired and we need to renew it.
+                    // By the time we get here, the token has been renewed since the change in server status
+                    // is done from the login method.
+                    Log.d("MainActivity.configuraServerStatusObserver","The server is now unavailable");
                     showToast("We're online!");
                     configureDataModels();
+                    renewPlaylist();
                     break;
             }
         };
@@ -512,12 +527,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Interested in this. I'm going to ask it for its position and send a message to the
                 // MediaPlayerService to change its position
                 Log.d("MainActivity","Seeking to position "+position);
-                Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
-                intent.setAction(MediaPlayerService.ACTION_SEEK);
-                Bundle bundle=new Bundle();
-                bundle.putSerializable("position",position);
-                intent.putExtras(bundle);
-                startService(intent);
+                setPositionInSong(position);
             }
         });
     }
@@ -635,6 +645,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if(intent.getAction().equals(MediaPlayerService.ACTION_RENEW_TOKEN)) {
                 Log.d("BroadcastReceiver.onReceive", "Received a request to renew the login response");
                 loginToAmpache();
+                // And apart from logging in, we need to destroy the Artist Repositories, but they are Singletons!
+                // We'll pass the session token, and let them decide if they need to be destroyed.
+                configureDataModels();
             }
         }
     };
@@ -782,6 +795,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             long secondsPosition=(position.getPosition()/1000)%60;
             binding.layoutMusicPlayer.txtTotalDuration.setText(getString(R.string.duration,minutesDuration,secondsDuration));
             binding.layoutMusicPlayer.txtSongDuration.setText(getString(R.string.currentTime,minutesPosition,secondsPosition));
+            playerViewModel.setCurrentPosition(position.getPosition());
         }
         else
             Log.d("MainActivity","Received a progress update, position: "+position.getPosition()+", duration: "+position.getDuration()+", avoiding updating the progress");
@@ -793,5 +807,117 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateUiWithMediaItem(item);
         // and now, the all-important notification about the media item number being played.
         songsViewModel.setCurrentItemInPlaylist(positionInPlaylist);
+    }
+
+    /**
+     * If the server comes back online after, say, the login token is renewed, and there are songs in the playlist,
+     * we need to renew the token, and for that, we need to either edit the URL of the song to replace the token,
+     * or get the song again from the server. We'll try doing the former, i.e.,
+     */
+    private void renewPlaylist()
+    {
+        List<SelectableSong> currentPlaylist=songsViewModel.getCurrentPlaylist().getValue();
+        LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
+        if(currentPlaylist!=null && !currentPlaylist.isEmpty()) {
+            List<SelectableSong> newPlaylist=new LinkedList<>();
+            for (SelectableSong s : currentPlaylist) {
+                Uri oldUri = Uri.parse(s.getSong().getUrl());
+                Uri.Builder uriBuilder = new Uri.Builder()
+                        .scheme(oldUri.getScheme())
+                        .authority(oldUri.getAuthority())
+                        .path(oldUri.getPath());
+                for (String parameter : oldUri.getQueryParameterNames()) {
+                    // Now, for each parameter, if it is the ssid, replace it.
+                    if (parameter.equals("ssid") && loginResponse != null && loginResponse.getAuth() != null) {
+                        uriBuilder.appendQueryParameter("ssid", loginResponse.getAuth());
+                    } else // otherwise, pass through the old value
+                    {
+                        uriBuilder.appendQueryParameter(parameter, oldUri.getQueryParameter(parameter));
+                    }
+                }
+                Uri newUri = uriBuilder.build();
+                s.getSong().setUrl(newUri.toString());
+                // Now, add the song to the new playlist.
+                newPlaylist.add(s);
+            }
+            // I have all the songs. It's time to tell the player to re-add them.
+            restorePlayerStatus(newPlaylist);
+        }
+    }
+
+    /**
+     * Informs the server to add the songs to the list, and if the player is playing,
+     * restore the position and the seek time.
+     * @param songs
+     */
+    private void restorePlayerStatus(List<SelectableSong> songs)
+    {
+        Log.d("MainActivity.restorePlayerStatus","Replacing currently-selected songs");
+        songsViewModel.setCurrentPlaylist(songs);
+        Log.d("MainActivity.restorePlayerStatus","Restoring player status after refreshing the token");
+        sendCurrentPlaylist();
+        // Notify playlist item
+        if(songsViewModel.getCurrentItemInPlaylist()!=null && songsViewModel.getCurrentItemInPlaylist().getValue()!=null) {
+            playPlaylistItem(songsViewModel.getCurrentItemInPlaylist().getValue());
+            if(playerViewModel.getCurrentPosition()!=null && playerViewModel.getCurrentPosition().getValue()!=null)
+                setPositionInSong(playerViewModel.getCurrentPosition().getValue());
+        }
+    }
+    public void sendCurrentPlaylist()
+    {
+        // Send songs
+        Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
+        intent.setAction(MediaPlayerService.ACTION_SELECT_SONGS);
+        List<SelectableSong> selectedSongs=songsViewModel.getCurrentPlaylist().getValue();
+        // I need to send a list of Song instead of SelectableSong...
+        if(selectedSongs!=null && !selectedSongs.isEmpty()) {
+            List<Song> songsToSend = selectedSongs.stream().map(
+                    SelectableSong::getSong
+            ).collect(Collectors.toList());
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("LIST", (Serializable) songsToSend);
+            intent.putExtras(bundle);
+            startService(intent);
+        }
+    }
+    public void sendSelectedSongsToPlayList()
+    {
+        // Send songs
+        Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
+        intent.setAction(MediaPlayerService.ACTION_SELECT_SONGS);
+        List<Song> selectedSongs=songsViewModel.getSelectedSongs();
+        Bundle bundle=new Bundle();
+        bundle.putSerializable("LIST", (Serializable) selectedSongs);
+        intent.putExtras(bundle);
+        startService(intent);
+    }
+
+    /**
+     * Tells the media service to play the specified item in the current playlist
+     * @param position 0-indexed Item number in the playlist
+     */
+    public void playPlaylistItem(int position)
+    {
+        Intent intent=new Intent(this, MediaPlayerService.class);
+        intent.setAction(MediaPlayerService.ACTION_PLAY_ITEM);
+        Bundle bundle=new Bundle();
+        bundle.putSerializable("position",position);
+        intent.putExtras(bundle);
+        startService(intent);
+    }
+
+    /**
+     * Tells the media service to seek the currently-played song to the specified position
+     * @param position Position within the song to seek to
+     */
+    public void setPositionInSong(long position)
+    {
+        songsViewModel.setCurrentPlaylist(songsViewModel.getSelectedSongsIntoPlaylist());
+        Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
+        intent.setAction(MediaPlayerService.ACTION_SEEK);
+        Bundle bundle=new Bundle();
+        bundle.putSerializable("position",position);
+        intent.putExtras(bundle);
+        startService(intent);
     }
 }

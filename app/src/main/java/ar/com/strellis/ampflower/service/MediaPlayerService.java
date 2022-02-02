@@ -530,6 +530,70 @@ public class MediaPlayerService extends LifecycleService
                     Log.d("MediaPlayerService", "Unexpected error: " + error.getMessage() + " (" + error.errorCode + ")");
                     // Some unexpected error.
                     break;
+                case PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED:
+                    break;
+                case PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED:
+                    break;
+                case PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW:
+                    break;
+                case PlaybackException.ERROR_CODE_DECODER_INIT_FAILED:
+                    break;
+                case PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED:
+                    break;
+                case PlaybackException.ERROR_CODE_DECODING_FAILED:
+                    break;
+                case PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES:
+                    break;
+                case PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR:
+                    break;
+                case PlaybackException.ERROR_CODE_DRM_UNSPECIFIED:
+                    break;
+                case PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK:
+                    break;
+                case PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED:
+                    break;
+                case PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND:
+                    break;
+                case PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE:
+                    break;
+                case PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED:
+                    break;
+                case PlaybackException.ERROR_CODE_IO_NO_PERMISSION:
+                    break;
+                case PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE:
+                    break;
+                case PlaybackException.ERROR_CODE_IO_UNSPECIFIED:
+                    break;
+                case PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED:
+                    break;
+                case PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED:
+                    break;
+                case PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED:
+                    break;
+                case PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED:
+                    break;
+                case PlaybackException.ERROR_CODE_REMOTE_ERROR:
+                    break;
+                case PlaybackException.ERROR_CODE_TIMEOUT:
+                    break;
+                case PlaybackException.ERROR_CODE_UNSPECIFIED:
+                    break;
             }
         }
 

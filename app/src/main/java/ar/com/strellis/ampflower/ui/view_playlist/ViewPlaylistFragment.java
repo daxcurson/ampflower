@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.databinding.FragmentViewPlaylistBinding;
 import ar.com.strellis.ampflower.service.MediaPlayerService;
@@ -106,7 +107,7 @@ public class ViewPlaylistFragment extends Fragment
             @Override
             public boolean onClick(RecyclerView parent, View view, int position, long id) {
                 Log.d("ViewPlaylistFragment","Received a click on item at position "+position);
-                playSongInService(position);
+                playSongInPlaylist(position);
                 return false;
             }
 
@@ -150,13 +151,8 @@ public class ViewPlaylistFragment extends Fragment
         intent.putExtras(bundle);
         requireActivity().startService(intent);
     }
-    private void playSongInService(int position)
+    private void playSongInPlaylist(int position)
     {
-        Intent intent=new Intent(requireActivity(), MediaPlayerService.class);
-        intent.setAction(MediaPlayerService.ACTION_PLAY_ITEM);
-        Bundle bundle=new Bundle();
-        bundle.putSerializable("position",position);
-        intent.putExtras(bundle);
-        requireActivity().startService(intent);
+        ((MainActivity)requireActivity()).playPlaylistItem(position);
     }
 }

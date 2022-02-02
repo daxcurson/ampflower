@@ -11,11 +11,13 @@ public class PlayerViewModel extends ViewModel
 {
     private final MutableLiveData<MainActivity.State> playerState;
     private final MutableLiveData<MediaItem> mediaItem;
+    private final MutableLiveData<Long> currentPosition;
 
     public PlayerViewModel()
     {
         playerState=new MutableLiveData<>();
         mediaItem=new MutableLiveData<>();
+        currentPosition=new MutableLiveData<>();
     }
     public void setPlayerState(MainActivity.State state)
     {
@@ -32,5 +34,12 @@ public class PlayerViewModel extends ViewModel
     public MutableLiveData<MediaItem> getMediaItem()
     {
         return this.mediaItem;
+    }
+    public void setCurrentPosition(long position)
+    {
+        currentPosition.setValue(position);
+    }
+    public MutableLiveData<Long> getCurrentPosition() {
+        return currentPosition;
     }
 }

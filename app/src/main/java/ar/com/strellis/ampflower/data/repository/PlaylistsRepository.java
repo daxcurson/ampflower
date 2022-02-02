@@ -85,6 +85,11 @@ public class PlaylistsRepository {
         if(instance == null){
             instance = new PlaylistsRepository(context,ampacheService,settings,loginResponse);
         }
+        else
+        {
+            if(!instance.loginResponse.equals(loginResponse))
+                instance = new PlaylistsRepository(context,ampacheService,settings,loginResponse);
+        }
         return instance;
     }
 

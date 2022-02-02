@@ -85,17 +85,17 @@ public class FavoritesFragment extends Fragment {
         binding.recyclerViewTrendingAlbums.addItemDecoration(new GridSpace(1,20,true));
         binding.recyclerViewTrendingAlbums.setItemAnimator(new DefaultItemAnimator());
 
-        favoritesViewModel.loadingRandomAlbums.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewRandomAlbums.toggleHoldersAdapter(loading));
-        favoritesViewModel.loadingTopRatedArtists.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewTopRatedArtists.toggleHoldersAdapter(loading));
-        favoritesViewModel.loadingTrendingAlbums.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewTrendingAlbums.toggleHoldersAdapter(loading));
+        //favoritesViewModel.loadingRandomAlbums.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewRandomAlbums.toggleHoldersAdapter(loading));
+        //favoritesViewModel.loadingTopRatedArtists.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewTopRatedArtists.toggleHoldersAdapter(loading));
+        //favoritesViewModel.loadingTrendingAlbums.observe(getViewLifecycleOwner(),loading-> binding.recyclerViewTrendingAlbums.toggleHoldersAdapter(loading));
         binding.recyclerViewRandomAlbums.setAdapter(randomAlbumsAdapter);
-        binding.recyclerViewRandomAlbums.holdersAdapter=new AlbumsPlaceHolderAdapter();
+        //binding.recyclerViewRandomAlbums.holdersAdapter=new AlbumsPlaceHolderAdapter();
         //binding.recyclerViewRandomAlbums.setHoldersItemDecoration(new GridSpace(2,20,true));
         binding.recyclerViewTopRatedArtists.setAdapter(topArtistsAdapter);
-        binding.recyclerViewTopRatedArtists.holdersAdapter=new AlbumsPlaceHolderAdapter();
+        //binding.recyclerViewTopRatedArtists.holdersAdapter=new AlbumsPlaceHolderAdapter();
         //binding.recyclerViewTopRatedArtists.setHoldersItemDecoration(new GridSpace(2,20,true));
         binding.recyclerViewTrendingAlbums.setAdapter(trendingAlbumsAdapter);
-        binding.recyclerViewTrendingAlbums.holdersAdapter=new AlbumsPlaceHolderAdapter();
+        //binding.recyclerViewTrendingAlbums.holdersAdapter=new AlbumsPlaceHolderAdapter();
         //binding.recyclerViewTrendingAlbums.setHoldersItemDecoration(new GridSpace(2,20,true));
         AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
         serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{

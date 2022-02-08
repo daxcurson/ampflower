@@ -61,14 +61,25 @@ public class NetArtistsPageKeyedDataSource extends PageKeyedDataSource<String, A
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer! We queried with: >"+filterQuery+"<");
                     assert response.body() != null;
-                    callback.onResult(response.body().getArtist(), null, "1");
-                    networkState.postValue(NetworkState.LOADED);
-                    List<Artist> results=response.body().getArtist();
-                    Log.d(TAG,"There are "+results.size()+" artists retrieved");
-                    results.forEach(artistsObservable::onNext);
-                    Log.d(TAG,"Done loading artists");
+                    if(response.body().getArtist()!=null) {
+                        callback.onResult(response.body().getArtist(), null, "1");
+                        networkState.postValue(NetworkState.LOADED);
+                        List<Artist> results = response.body().getArtist();
+                        Log.d(TAG, "There are " + results.size() + " artists retrieved");
+                        results.forEach(artistsObservable::onNext);
+                        Log.d(TAG, "Done loading artists");
+                    }
+                    else
+                    {
+                        // There is an error.
+                        if(response.body().getError()!=null)
+                        {
+                            Log.e("NetArtistsPageKeyedDataSource","Error retrieving albums: "+response.body().getError().getErrorMessage()+"("+response.body().getError().getErrorCode()+")");
+                        }
+                        networkState.postValue(new NetworkState(NetworkState.Status.FAILED,response.message()));
+                    }
                 } else {
-                    Log.e("API CALL", response.message());
+                    Log.e("NetArtistsPageKeyedDataSource", response.message());
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));
                 }
             }

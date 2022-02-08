@@ -58,12 +58,23 @@ public class NetPlaylistsPageKeyedDataSource extends PageKeyedDataSource<String,
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer!");
                     assert response.body() != null;
-                    callback.onResult(response.body().getPlaylist(), null, "1");
-                    networkState.postValue(NetworkState.LOADED);
-                    List<Playlist> results=response.body().getPlaylist();
-                    Log.d(TAG,"There are "+results.size()+" playlists retrieved");
-                    results.forEach(playlistsObservable::onNext);
-                    Log.d(TAG,"Done loading playlists");
+                    if(response.body().getPlaylist()!=null) {
+                        callback.onResult(response.body().getPlaylist(), null, "1");
+                        networkState.postValue(NetworkState.LOADED);
+                        List<Playlist> results = response.body().getPlaylist();
+                        Log.d(TAG, "There are " + results.size() + " playlists retrieved");
+                        results.forEach(playlistsObservable::onNext);
+                        Log.d(TAG, "Done loading playlists");
+                    }
+                    else
+                    {
+                        // There is an error.
+                        if(response.body().getError()!=null)
+                        {
+                            Log.e("NetPlaylistsPageKeyedDataSource","Error retrieving playlists: "+response.body().getError().getErrorMessage()+"("+response.body().getError().getErrorCode()+")");
+                        }
+                        networkState.postValue(new NetworkState(NetworkState.Status.FAILED,response.message()));
+                    }
                 } else {
                     Log.e(TAG, "The response is not successful: "+response.message());
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));

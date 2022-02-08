@@ -84,7 +84,7 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
                         networkState.postValue(new NetworkState(NetworkState.Status.FAILED,response.message()));
                     }
                 } else {
-                    Log.e("API CALL", response.message());
+                    Log.e("NetAlbumsPageKeyedDataSource", response.message());
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));
                 }
             }

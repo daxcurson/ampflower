@@ -24,14 +24,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LifecycleService;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
@@ -53,9 +48,7 @@ import java.util.stream.Collectors;
 import ar.com.strellis.ampflower.BuildConfig;
 import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.R;
-import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Song;
-import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 
 public class MediaPlayerService extends LifecycleService
 {
@@ -65,10 +58,6 @@ public class MediaPlayerService extends LifecycleService
         {
             return MediaPlayerService.this;
         }
-        /*public ExoPlayer getExoPlayer()
-        {
-            return MediaPlayerService.this.getExoPlayer();
-        }*/
     }
     private SimpleExoPlayer exoPlayer;
     private PlayerNotificationManager playerNotificationManager;
@@ -205,7 +194,6 @@ public class MediaPlayerService extends LifecycleService
                 Bundle extras = new Bundle();
                 // The system looks for information about the item windowIndex in the playlist.
                 // So let's give them that.
-                CharSequence title = "No media playing";
                 MediaItem currentItem=player.getCurrentMediaItem();
                 CharSequence currentTitle = "No media playing";
                 if(currentItem!=null)
@@ -219,7 +207,7 @@ public class MediaPlayerService extends LifecycleService
                 extras.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist);
                 extras.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album);
                 // Here we would send the title of the song.
-                title = wantedItem.mediaMetadata.title;
+                CharSequence title = wantedItem.mediaMetadata.title;
                 Log.d("MediaPlayerService", "Playing " + currentTitle + ", sending information about item " + windowIndex + ": "+title+" by "+artist+" in album "+album);
                 return new MediaDescriptionCompat.Builder()
                         .setIconBitmap(bitmap)
@@ -531,67 +519,36 @@ public class MediaPlayerService extends LifecycleService
                     // Some unexpected error.
                     break;
                 case PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED:
-                    break;
                 case PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED:
-                    break;
                 case PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW:
-                    break;
                 case PlaybackException.ERROR_CODE_DECODER_INIT_FAILED:
-                    break;
                 case PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED:
-                    break;
                 case PlaybackException.ERROR_CODE_DECODING_FAILED:
-                    break;
                 case PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES:
-                    break;
                 case PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR:
-                    break;
                 case PlaybackException.ERROR_CODE_DRM_UNSPECIFIED:
-                    break;
                 case PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK:
-                    break;
                 case PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED:
-                    break;
                 case PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND:
-                    break;
                 case PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE:
-                    break;
                 case PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED:
-                    break;
                 case PlaybackException.ERROR_CODE_IO_NO_PERMISSION:
-                    break;
                 case PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE:
-                    break;
                 case PlaybackException.ERROR_CODE_IO_UNSPECIFIED:
-                    break;
                 case PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED:
-                    break;
                 case PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED:
-                    break;
                 case PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED:
-                    break;
                 case PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED:
-                    break;
                 case PlaybackException.ERROR_CODE_REMOTE_ERROR:
-                    break;
                 case PlaybackException.ERROR_CODE_TIMEOUT:
-                    break;
                 case PlaybackException.ERROR_CODE_UNSPECIFIED:
                     break;
             }

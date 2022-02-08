@@ -66,12 +66,23 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer! We queried with "+filterQuery);
                     assert response.body() != null;
-                    callback.onResult(response.body().getAlbum(), null, "1");
-                    networkState.postValue(NetworkState.LOADED);
-                    List<Album> results=response.body().getAlbum();
-                    Log.d(TAG,"There are "+results.size()+" albums retrieved");
-                    results.forEach(albumsObservable::onNext);
-                    Log.d(TAG,"Done loading albums");
+                    if(response.body().getAlbum()!=null) {
+                        callback.onResult(response.body().getAlbum(), null, "1");
+                        networkState.postValue(NetworkState.LOADED);
+                        List<Album> results = response.body().getAlbum();
+                        Log.d(TAG, "There are " + results.size() + " albums retrieved");
+                        results.forEach(albumsObservable::onNext);
+                        Log.d(TAG, "Done loading albums");
+                    }
+                    else
+                    {
+                        // There is an error.
+                        if(response.body().getError()!=null)
+                        {
+                            Log.e("NetAlbumsPageKeyedDataSource","Error retrieving albums: "+response.body().getError().getErrorMessage()+"("+response.body().getError().getErrorCode()+")");
+                        }
+                        networkState.postValue(new NetworkState(NetworkState.Status.FAILED,response.message()));
+                    }
                 } else {
                     Log.e("API CALL", response.message());
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));
@@ -116,12 +127,23 @@ public class NetAlbumsPageKeyedDataSource extends PageKeyedDataSource<String, Al
                 if (response.isSuccessful()) {
                     Log.d(TAG,"We have a successful answer from a subsequent page! We queried with "+filterQuery);
                     assert response.body() != null;
-                    callback.onResult(response.body().getAlbum(),Integer.toString(page.get()+1));
-                    networkState.postValue(NetworkState.LOADED);
-                    List<Album> results=response.body().getAlbum();
-                    Log.d(TAG,"There are "+results.size()+" albums retrieved");
-                    results.forEach(albumsObservable::onNext);
-                    Log.d(TAG,"Done loading albums");
+                    if(response.body().getAlbum()!=null) {
+                        callback.onResult(response.body().getAlbum(), Integer.toString(page.get() + 1));
+                        networkState.postValue(NetworkState.LOADED);
+                        List<Album> results = response.body().getAlbum();
+                        Log.d(TAG, "There are " + results.size() + " albums retrieved");
+                        results.forEach(albumsObservable::onNext);
+                        Log.d(TAG, "Done loading albums");
+                    }
+                    else
+                    {
+                        // There is an error.
+                        if(response.body().getError()!=null)
+                        {
+                            Log.e("NetAlbumsPageKeyedDataSource","Error retrieving albums: "+response.body().getError().getErrorMessage()+"("+response.body().getError().getErrorCode()+")");
+                        }
+                        networkState.postValue(new NetworkState(NetworkState.Status.FAILED,response.message()));
+                    }
                 } else {
                     networkState.postValue(new NetworkState(NetworkState.Status.FAILED, response.message()));
                     Log.e("API CALL", response.message());

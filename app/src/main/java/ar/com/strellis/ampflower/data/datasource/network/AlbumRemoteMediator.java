@@ -12,6 +12,7 @@ import java.util.List;
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
 import ar.com.strellis.ampflower.data.dao.AlbumDao;
 import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.model.AlbumListResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.Single;
@@ -75,7 +76,7 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
         int limit=pagingState.getConfig().pageSize;
         return ampacheService.get_indexes_album_rx(loginResponse.getAuth(),query,offset,limit)
                 .subscribeOn(Schedulers.io())
-                .map((Function<List<Album>, MediatorResult>) response -> {
+                .map((Function<AlbumListResponse, MediatorResult>) response -> {
                     ampacheDatabase.runInTransaction(() -> {
                         if (loadType == LoadType.REFRESH) {
                             albumDao.deleteAll();
@@ -83,10 +84,10 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
 
                         // Insert new users into database, which invalidates the current
                         // PagingData, allowing Paging to present the updates in the DB.
-                        albumDao.insertAllAlbums(response);
+                        albumDao.insertAllAlbums(response.getAlbum());
                     });
 
-                    boolean endOfList=response.isEmpty();
+                    boolean endOfList=response.getAlbum().isEmpty();
                     return new MediatorResult.Success(endOfList);
                 })
                 .onErrorResumeNext(e -> {

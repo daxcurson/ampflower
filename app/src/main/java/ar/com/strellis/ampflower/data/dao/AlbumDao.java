@@ -41,4 +41,6 @@ public interface AlbumDao {
     List<Album> listAlbumsByname(String query);
     @Query("select * from albums where name like :query")
     PagingSource<Integer, Album> pagingSource(String query);
+    @Query("select * from albums where name like :s")
+    PagingSource<Integer, Album> listAlbumsByNameRx(String s);
 }

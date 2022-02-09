@@ -46,11 +46,11 @@ public class AlbumsRepositoryRx {
     public Flowable<PagingData<Album>> getAlbums() {
         AlbumRemoteMediator mediator=new AlbumRemoteMediator("",ampacheService,database);
         mediator.setLoginResponse(loginResponse);
-        Pager<Integer,Album> pager= new Pager<Integer,Album>(
-                new PagingConfig(PAGE_SIZE,1),
+        Pager<Integer,Album> pager= new Pager<>(
+                new PagingConfig(PAGE_SIZE, 1),
                 1,
                 mediator,
-                ()->database.albumDao().listAlbumsByNameRx("")
+                () -> database.albumDao().listAlbumsByNameRx("")
         );
         return PagingRx.getFlowable(pager);
     }

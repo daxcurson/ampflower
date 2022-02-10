@@ -1,22 +1,28 @@
 package ar.com.strellis.ampflower.ui.home.albums;
 
+import android.content.Context;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.paging.PagedList;
 import androidx.paging.PagingDataAdapter;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
 import java.util.Objects;
 
+import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.model.NetworkState;
 
 public class AlbumAdapterRx extends PagingDataAdapter<Album,AlbumViewHolder>
 {
+    private NetworkState networkState;
+
     public AlbumAdapterRx()
     {
         super(AlbumAdapterRx.callback_diff);
@@ -25,7 +31,10 @@ public class AlbumAdapterRx extends PagingDataAdapter<Album,AlbumViewHolder>
     @NonNull
     @Override
     public AlbumViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new AlbumViewHolder(parent);
+        Context context=parent.getContext();
+        LayoutInflater inflater=LayoutInflater.from(context);
+        View itemView=inflater.inflate(R.layout.list_item_album,parent,false);
+        return new AlbumViewHolder(itemView);
     }
 
     @Override

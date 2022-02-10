@@ -37,7 +37,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class AlbumsFragment extends Fragment {
     private FragmentAlbumsBinding binding;
-    private AlbumAdapter adapter;
+    private AlbumAdapterRx adapter;
     private AlbumsViewModel albumsViewModel;
     private SongsViewModel songsViewModel;
     private ServerStatusViewModel serverStatusViewModel;
@@ -62,9 +62,9 @@ public class AlbumsFragment extends Fragment {
         LinearLayoutManager layoutManager=new LinearLayoutManager(getContext());
         binding.albumsRecycler.setLayoutManager(layoutManager);
         binding.albumsRecycler.setItemAnimator(new DefaultItemAnimator());
-        adapter=new AlbumAdapter();
-        albumsViewModel.getAlbums().observe(getViewLifecycleOwner(), albums -> adapter.submitList(albums));
-        albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
+        adapter=new AlbumAdapterRx();
+        albumsViewModel.getAlbums().subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData));
+        //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.albumsRecycler.setAdapter(adapter);
         binding.albumsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.albumsRecycler)
         {
@@ -76,7 +76,7 @@ public class AlbumsFragment extends Fragment {
 
             @Override
             public boolean onClick(RecyclerView parent, View view, int position, long id) {
-                Searchable entity= Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
+                Searchable entity= adapter.peek(position);//Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
                 songsViewModel.setSearchableItem(entity);
                 Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
                 return false;

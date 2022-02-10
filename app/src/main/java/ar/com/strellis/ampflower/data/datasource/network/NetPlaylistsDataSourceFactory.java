@@ -8,7 +8,7 @@ import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import io.reactivex.subjects.ReplaySubject;
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 
 public class NetPlaylistsDataSourceFactory extends DataSource.Factory<String, Playlist> {
 

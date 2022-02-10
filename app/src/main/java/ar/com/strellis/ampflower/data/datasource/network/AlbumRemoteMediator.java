@@ -5,7 +5,7 @@ import androidx.annotation.OptIn;
 import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.LoadType;
 import androidx.paging.PagingState;
-import androidx.paging.rxjava2.RxRemoteMediator;
+import androidx.paging.rxjava3.RxRemoteMediator;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumListResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import io.reactivex.Single;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @OptIn(markerClass = ExperimentalPagingApi.class)
 public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>

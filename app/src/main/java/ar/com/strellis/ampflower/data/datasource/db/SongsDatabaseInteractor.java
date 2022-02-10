@@ -11,8 +11,8 @@ import ar.com.strellis.ampflower.data.model.AlbumSong;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import ar.com.strellis.ampflower.data.model.EntityWithSongs;
 import ar.com.strellis.ampflower.data.model.Song;
-import io.reactivex.Maybe;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public abstract class SongsDatabaseInteractor<T extends EntityWithSongs>
 {

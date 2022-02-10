@@ -8,8 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
 import androidx.paging.Pager;
-import androidx.paging.PagingSource;
-import androidx.paging.rxjava2.PagingRx;
+import androidx.paging.rxjava3.PagingRx;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
 import ar.com.strellis.ampflower.data.datasource.network.AlbumRemoteMediator;
@@ -17,7 +16,7 @@ import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 public class AlbumsRepositoryRx {
     private static final String TAG = AlbumsRepositoryRx.class.getSimpleName();

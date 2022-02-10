@@ -25,8 +25,8 @@ import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import retrofit2.HttpException;
 
 public class SongsRepository

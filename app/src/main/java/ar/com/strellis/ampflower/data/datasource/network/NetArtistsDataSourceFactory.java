@@ -11,7 +11,7 @@ import androidx.paging.DataSource;
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import io.reactivex.subjects.ReplaySubject;
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 
 public class NetArtistsDataSourceFactory extends DataSource.Factory<String, Artist>{
 

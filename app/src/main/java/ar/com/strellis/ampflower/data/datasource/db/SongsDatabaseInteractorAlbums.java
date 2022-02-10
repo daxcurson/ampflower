@@ -10,7 +10,7 @@ import ar.com.strellis.ampflower.data.datasource.memory.SongsMemoryInteractor;
 import ar.com.strellis.ampflower.data.model.AlbumSong;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import ar.com.strellis.ampflower.data.model.Song;
-import io.reactivex.Maybe;
+import io.reactivex.rxjava3.core.Maybe;
 
 public class SongsDatabaseInteractorAlbums extends SongsDatabaseInteractor<AlbumWithSongs>
 {

@@ -14,7 +14,7 @@ import java.util.List;
 
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
-import io.reactivex.Maybe;
+import io.reactivex.rxjava3.core.Maybe;
 
 @Dao
 public interface AlbumDao {

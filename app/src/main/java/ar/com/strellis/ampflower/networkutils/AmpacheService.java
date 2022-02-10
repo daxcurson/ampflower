@@ -12,7 +12,7 @@ import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.data.model.SongListResponse;
 import ar.com.strellis.ampflower.data.model.UserResponse;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

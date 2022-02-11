@@ -28,7 +28,6 @@ import java.util.Objects;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentAlbumsBinding;
-import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapter;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
@@ -41,7 +40,7 @@ public class AlbumsFragment extends Fragment {
     private AlbumsViewModel albumsViewModel;
     private SongsViewModel songsViewModel;
     private ServerStatusViewModel serverStatusViewModel;
-    private CompositeDisposable disposable=new CompositeDisposable();
+    private final CompositeDisposable disposable=new CompositeDisposable();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -63,7 +62,7 @@ public class AlbumsFragment extends Fragment {
         binding.albumsRecycler.setLayoutManager(layoutManager);
         binding.albumsRecycler.setItemAnimator(new DefaultItemAnimator());
         adapter=new AlbumAdapterRx();
-        albumsViewModel.getAlbums().subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData));
+        disposable.add(albumsViewModel.getAlbums().subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData)));
         //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.albumsRecycler.setAdapter(
                 adapter.withLoadStateHeaderAndFooter(new AlbumLoadStateAdapter(),new AlbumLoadStateAdapter())

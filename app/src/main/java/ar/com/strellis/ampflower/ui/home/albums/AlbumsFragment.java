@@ -109,6 +109,7 @@ public class AlbumsFragment extends Fragment {
             public boolean onQueryTextChange(String newText) {
                 // update the albums model with the search string
                 albumsViewModel.setQuery(newText);
+                ((AlbumAdapterRx)binding.albumsRecycler.getAdapter()).refresh();
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("AlbumsFragment","The recycler for albums is forced to update, new text: "+newText);
                 Objects.requireNonNull(binding.albumsRecycler.getAdapter()).notifyDataSetChanged();

@@ -1,5 +1,7 @@
 package ar.com.strellis.ampflower.data.datasource.network;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
@@ -21,12 +23,14 @@ public class AlbumPagingSourceRx extends RxPagingSource<Integer, Album>
     private final AmpacheService ampacheService;
     private final LoginResponse loginResponse;
     private final MutableLiveData<NetworkState> loading;
+    private final String query;
 
-    public AlbumPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, MutableLiveData<NetworkState> loading)
+    public AlbumPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, MutableLiveData<NetworkState> loading,String query)
     {
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;
         this.loading=loading;
+        this.query=query;
     }
     @Nullable
     @Override
@@ -40,7 +44,7 @@ public class AlbumPagingSourceRx extends RxPagingSource<Integer, Album>
         int page=loadParams.getKey()!=null? loadParams.getKey() : 0;
         int offset=page*PAGE_SIZE;
         loading.setValue(NetworkState.LOADING);
-        String filter="";
+        String filter=query;
         return ampacheService.get_indexes_album_rx(loginResponse.getAuth(),filter,offset,PAGE_SIZE)
                 .subscribeOn(Schedulers.io())
                 .map(albums->toLoadResult(albums,page))

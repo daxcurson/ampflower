@@ -37,10 +37,7 @@ public class AlbumsViewModel extends ViewModel
     }
     public Flowable<PagingData<Album>> getAlbums()
     {
-        String query="";
-        if(this.query.getValue()!=null)
-            query=this.query.getValue();
-        Flowable<PagingData<Album>> newResult=albumsRepository.getAlbums(query);
+        Flowable<PagingData<Album>> newResult=albumsRepository.getAlbums();
         CoroutineScope coroutineScope= ViewModelKt.getViewModelScope(this);
         PagingRx.cachedIn(newResult,coroutineScope);
         return newResult;

@@ -1,10 +1,12 @@
 package ar.com.strellis.ampflower.data.repository;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
 import androidx.paging.Pager;
@@ -29,6 +31,8 @@ public class AlbumsRepositoryRx {
     private AmpacheSettings ampacheSettings;
     private final LoginResponse loginResponse;
     private final MutableLiveData<NetworkState> loading;
+    private AlbumPagingSourceRx pagingSourceRx;
+    private LiveData<String> query;
 
     private AlbumsRepositoryRx(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse,LiveData<String> query,LifecycleOwner lifecycleOwner)
     {
@@ -37,6 +41,7 @@ public class AlbumsRepositoryRx {
         this.ampacheService=ampacheService;
         this.ampacheSettings=settings;
         loading=new MutableLiveData<>();
+        this.query=query;
     }
     public static AlbumsRepositoryRx getInstance(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner){
         if(instance == null){
@@ -44,13 +49,13 @@ public class AlbumsRepositoryRx {
         }
         return instance;
     }
-    public Flowable<PagingData<Album>> getAlbums(String query) {
-        AlbumRemoteMediator mediator=new AlbumRemoteMediator(query,ampacheService,database);
+    public Flowable<PagingData<Album>> getAlbums() {
+        AlbumRemoteMediator mediator=new AlbumRemoteMediator(query.getValue(),ampacheService,database);
         mediator.setLoginResponse(loginResponse);
         Pager<Integer,Album> pager= new Pager<>(
                 new PagingConfig(PAGE_SIZE, 1),
                 1,
-                ()->new AlbumPagingSourceRx(ampacheService,loginResponse, loading)
+                ()->new AlbumPagingSourceRx(ampacheService,loginResponse, loading,query.getValue())
         );
         return PagingRx.getFlowable(pager);
     }

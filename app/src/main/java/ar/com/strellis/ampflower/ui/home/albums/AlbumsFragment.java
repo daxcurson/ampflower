@@ -65,7 +65,9 @@ public class AlbumsFragment extends Fragment {
         adapter=new AlbumAdapterRx();
         albumsViewModel.getAlbums().subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData));
         //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
-        binding.albumsRecycler.setAdapter(adapter);
+        binding.albumsRecycler.setAdapter(
+                adapter.withLoadStateHeaderAndFooter(new AlbumLoadStateAdapter(),new AlbumLoadStateAdapter())
+        );
         binding.albumsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.albumsRecycler)
         {
 
@@ -109,7 +111,7 @@ public class AlbumsFragment extends Fragment {
             public boolean onQueryTextChange(String newText) {
                 // update the albums model with the search string
                 albumsViewModel.setQuery(newText);
-                ((AlbumAdapterRx)binding.albumsRecycler.getAdapter()).refresh();
+                adapter.refresh();
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("AlbumsFragment","The recycler for albums is forced to update, new text: "+newText);
                 Objects.requireNonNull(binding.albumsRecycler.getAdapter()).notifyDataSetChanged();

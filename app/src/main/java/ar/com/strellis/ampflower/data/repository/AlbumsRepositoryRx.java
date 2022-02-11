@@ -54,7 +54,6 @@ public class AlbumsRepositoryRx {
         mediator.setLoginResponse(loginResponse);
         Pager<Integer,Album> pager= new Pager<>(
                 new PagingConfig(PAGE_SIZE, 1),
-                1,
                 ()->new AlbumPagingSourceRx(ampacheService,loginResponse, loading,query.getValue())
         );
         return PagingRx.getFlowable(pager);

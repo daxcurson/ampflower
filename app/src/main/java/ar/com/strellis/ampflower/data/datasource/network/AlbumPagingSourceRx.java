@@ -44,8 +44,7 @@ public class AlbumPagingSourceRx extends RxPagingSource<Integer, Album>
         int page=loadParams.getKey()!=null? loadParams.getKey() : 0;
         int offset=page*PAGE_SIZE;
         loading.setValue(NetworkState.LOADING);
-        String filter=query;
-        return ampacheService.get_indexes_album_rx(loginResponse.getAuth(),filter,offset,PAGE_SIZE)
+        return ampacheService.get_indexes_album_rx(loginResponse.getAuth(), query,offset,PAGE_SIZE)
                 .subscribeOn(Schedulers.io())
                 .map(albums->toLoadResult(albums,page))
                 .onErrorReturn(LoadResult.Error::new)

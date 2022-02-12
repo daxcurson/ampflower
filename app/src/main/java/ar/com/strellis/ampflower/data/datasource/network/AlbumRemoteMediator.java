@@ -1,5 +1,7 @@
 package ar.com.strellis.ampflower.data.datasource.network;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.paging.ExperimentalPagingApi;
@@ -87,14 +89,20 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
                         }
                         // Insert new users into database, which invalidates the current
                         // PagingData, allowing Paging to present the updates in the DB.
-                        albumDao.insertAllAlbums(response.getAlbum());
-                        ampacheDatabase.albumRemoteKeyDao().insertAll(response.getAlbum().stream().map(
-                                album -> new AlbumRemoteKey(album.getId(), finalLoadKey -1, finalLoadKey +1)).collect(Collectors.toList()));
+                        // The response may be null because the session we hold could have been expired.
+                        if(response.getAlbum()!=null) {
+                            albumDao.insertAllAlbums(response.getAlbum());
+                            ampacheDatabase.albumRemoteKeyDao().insertAll(response.getAlbum().stream().map(
+                                    album -> new AlbumRemoteKey(album.getId(), finalLoadKey - 1, finalLoadKey + 1)).collect(Collectors.toList()));
+                        }
                     });
 
-                    boolean endOfList=response.getAlbum().isEmpty();
+                    boolean endOfList=true;
+                    if(response.getAlbum()!=null)
+                        endOfList=response.getAlbum().isEmpty();
                     return new MediatorResult.Success(endOfList);
                 })
+                .doOnError(throwable -> Log.d("AlbumRemoteMediator.loadSingle","Error getting albums:"+throwable.getMessage()))
                 .onErrorResumeNext(Single::error);
     }
     private AlbumRemoteKey getFirstRemoteKey(PagingState<Integer,Album> state)

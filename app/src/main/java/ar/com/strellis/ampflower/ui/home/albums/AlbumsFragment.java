@@ -33,6 +33,7 @@ import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AlbumsFragment extends Fragment {
     private FragmentAlbumsBinding binding;
@@ -62,7 +63,13 @@ public class AlbumsFragment extends Fragment {
         binding.albumsRecycler.setLayoutManager(layoutManager);
         binding.albumsRecycler.setItemAnimator(new DefaultItemAnimator());
         adapter=new AlbumAdapterRx();
-        disposable.add(albumsViewModel.getAlbums().subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData)));
+        disposable.add(albumsViewModel.getAlbums()
+                .subscribeOn(Schedulers.io())
+                .doOnError(throwable->{
+                    Log.d("AlbumsFragment.onViewCreated","Error getting albums!!! "+throwable.getMessage());
+                })
+                .subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData))
+        );
         //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.albumsRecycler.setAdapter(
                 adapter.withLoadStateHeaderAndFooter(new AlbumLoadStateAdapter(),new AlbumLoadStateAdapter())

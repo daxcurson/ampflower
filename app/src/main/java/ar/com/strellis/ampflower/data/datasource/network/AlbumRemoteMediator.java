@@ -4,14 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.LoadType;
-import androidx.paging.PagingConfig;
 import androidx.paging.PagingSource;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava3.RxRemoteMediator;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
@@ -28,9 +26,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 @OptIn(markerClass = ExperimentalPagingApi.class)
 public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
 {
-    private final int INITIAL_LOAD_SIZE=1;
-    private final int NETWORK_PAGE_SIZE=20;
-    private String query;
+    private final String query;
     private final AmpacheService ampacheService;
     private final AmpacheDatabase ampacheDatabase;
     private final AlbumDao albumDao;
@@ -92,21 +88,14 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
                         // Insert new users into database, which invalidates the current
                         // PagingData, allowing Paging to present the updates in the DB.
                         albumDao.insertAllAlbums(response.getAlbum());
-                        ampacheDatabase.albumRemoteKeyDao().insertAll(response.getAlbum().stream().map(new java.util.function.Function<Album, AlbumRemoteKey>() {
-                            @Override
-                            public AlbumRemoteKey apply(Album album) {
-                                return new AlbumRemoteKey(album.getId(), finalLoadKey -1, finalLoadKey +1);
-                            }
-                        }).collect(Collectors.toList()));
+                        ampacheDatabase.albumRemoteKeyDao().insertAll(response.getAlbum().stream().map(
+                                album -> new AlbumRemoteKey(album.getId(), finalLoadKey -1, finalLoadKey +1)).collect(Collectors.toList()));
                     });
 
                     boolean endOfList=response.getAlbum().isEmpty();
                     return new MediatorResult.Success(endOfList);
                 })
-                .onErrorResumeNext(e -> {
-
-                    return Single.error(e);
-                });
+                .onErrorResumeNext(Single::error);
     }
     private AlbumRemoteKey getFirstRemoteKey(PagingState<Integer,Album> state)
     {

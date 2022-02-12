@@ -550,6 +550,8 @@ public class MediaPlayerService extends LifecycleService
                 case PlaybackException.ERROR_CODE_REMOTE_ERROR:
                 case PlaybackException.ERROR_CODE_TIMEOUT:
                 case PlaybackException.ERROR_CODE_UNSPECIFIED:
+                    Log.d("MediaPlayerService", "Unexpected error: " + error.getMessage() + " (" + error.errorCode + ")");
+                    // Some unexpected error.
                     break;
             }
         }

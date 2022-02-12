@@ -28,20 +28,20 @@ import java.util.Objects;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentAlbumsBinding;
-import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapter;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
-import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class AlbumsFragment extends Fragment {
     private FragmentAlbumsBinding binding;
-    private AlbumAdapter adapter;
+    private AlbumAdapterRx adapter;
     private AlbumsViewModel albumsViewModel;
     private SongsViewModel songsViewModel;
     private ServerStatusViewModel serverStatusViewModel;
-    private CompositeDisposable disposable=new CompositeDisposable();
+    private final CompositeDisposable disposable=new CompositeDisposable();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -62,10 +62,18 @@ public class AlbumsFragment extends Fragment {
         LinearLayoutManager layoutManager=new LinearLayoutManager(getContext());
         binding.albumsRecycler.setLayoutManager(layoutManager);
         binding.albumsRecycler.setItemAnimator(new DefaultItemAnimator());
-        adapter=new AlbumAdapter();
-        albumsViewModel.getAlbums().observe(getViewLifecycleOwner(), albums -> adapter.submitList(albums));
-        albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
-        binding.albumsRecycler.setAdapter(adapter);
+        adapter=new AlbumAdapterRx();
+        disposable.add(albumsViewModel.getAlbums()
+                .subscribeOn(Schedulers.io())
+                .doOnError(throwable->{
+                    Log.d("AlbumsFragment.onViewCreated","Error getting albums!!! "+throwable.getMessage());
+                })
+                .subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData))
+        );
+        //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
+        binding.albumsRecycler.setAdapter(
+                adapter.withLoadStateHeaderAndFooter(new AlbumLoadStateAdapter(),new AlbumLoadStateAdapter())
+        );
         binding.albumsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.albumsRecycler)
         {
 
@@ -76,7 +84,7 @@ public class AlbumsFragment extends Fragment {
 
             @Override
             public boolean onClick(RecyclerView parent, View view, int position, long id) {
-                Searchable entity= Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
+                Searchable entity= adapter.peek(position);//Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
                 songsViewModel.setSearchableItem(entity);
                 Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
                 return false;
@@ -109,6 +117,7 @@ public class AlbumsFragment extends Fragment {
             public boolean onQueryTextChange(String newText) {
                 // update the albums model with the search string
                 albumsViewModel.setQuery(newText);
+                adapter.refresh();
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("AlbumsFragment","The recycler for albums is forced to update, new text: "+newText);
                 Objects.requireNonNull(binding.albumsRecycler.getAdapter()).notifyDataSetChanged();

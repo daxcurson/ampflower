@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelKt;
 import androidx.paging.Pager;
 import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
-import androidx.paging.rxjava2.PagingRx;
+import androidx.paging.rxjava3.PagingRx;
 
 import ar.com.strellis.ampflower.data.datasource.network.AlbumStatsPagingSourceRx;
 import ar.com.strellis.ampflower.data.datasource.network.ArtistsPagingSourceRx;
@@ -17,7 +17,7 @@ import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.SearchType;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import kotlinx.coroutines.CoroutineScope;
 
 public class FavoritesViewModel extends ViewModel

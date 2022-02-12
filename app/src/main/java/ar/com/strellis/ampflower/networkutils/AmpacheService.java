@@ -12,7 +12,7 @@ import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.data.model.SongListResponse;
 import ar.com.strellis.ampflower.data.model.UserResponse;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Single;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -55,7 +55,7 @@ public interface AmpacheService
             @Query("limit") Integer limit
     );
     @GET("server/json.server.php?action=get_indexes&type=album")
-    Single<List<Album>> get_indexes_album_rx(
+    Single<AlbumListResponse> get_indexes_album_rx(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,

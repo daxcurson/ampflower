@@ -14,7 +14,7 @@ import java.util.List;
 
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
-import io.reactivex.Maybe;
+import io.reactivex.rxjava3.core.Maybe;
 
 @Dao
 public interface AlbumDao {
@@ -41,4 +41,6 @@ public interface AlbumDao {
     List<Album> listAlbumsByname(String query);
     @Query("select * from albums where name like :query")
     PagingSource<Integer, Album> pagingSource(String query);
+    @Query("select * from albums where name like :s")
+    PagingSource<Integer, Album> listAlbumsByNameRx(String s);
 }

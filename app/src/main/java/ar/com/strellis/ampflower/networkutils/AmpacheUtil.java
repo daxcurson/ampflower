@@ -19,7 +19,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
@@ -65,7 +65,7 @@ public class AmpacheUtil
                 .client(okHttpClient)
                 //.addConverterFactory(new ErrorConverterFactory())
                 .addConverterFactory(JacksonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build();
         return retrofit.create(AmpacheService.class);
     }
@@ -107,8 +107,21 @@ public class AmpacheUtil
                         public void onResponse(@NotNull Call<LoginResponse> call, @NotNull Response<LoginResponse> response) {
                             Log.d("AmpacheUtil.loginToAmpache.onResponse","Success, let's see the response");
                             if (response.body() != null) {
-                                Log.d("AmpacheUtil.loginToAmpache.onResponse","We have a body!!!");
-                                callback.loginSuccess(response.body());
+                                Log.d("AmpacheUtil.loginToAmpache.onResponse", "We have a body!!!");
+                                // We may have received an error instead of an auth...
+                                if(response.body().getAuth()!=null) {
+                                    Log.d("AmpacheUtil.loginToAmpache.onResponse", "We have an auth code!!!");
+                                    callback.loginSuccess(response.body());
+                                }
+                                else
+                                {
+                                    // Error!!
+                                    Log.d("AmpacheUtil.loginToAmpache.onResponse","Unable to log in, the auth is null. ");
+                                    String error="";
+                                    if(response.errorBody()!=null)
+                                        error=response.errorBody().toString();
+                                    callback.loginFailure(error);
+                                }
                             }
                             else
                             {
@@ -122,7 +135,7 @@ public class AmpacheUtil
 
                         @Override
                         public void onFailure(@NotNull Call<LoginResponse> call, @NotNull Throwable t) {
-                            Log.d("AmpacheUtil.loginToAmpache.onFailure","Failed to log in: "+t.getMessage());
+                            Log.d("AmpacheUtil.loginToAmpache.onFailure","Failed to log in, failure contacting the server: "+t.getMessage());
                             callback.loginFailure(t.getMessage());
                         }
                     });

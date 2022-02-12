@@ -14,6 +14,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import ar.com.strellis.ampflower.data.dao.AlbumDao;
+import ar.com.strellis.ampflower.data.dao.AlbumRemoteKeyDao;
 import ar.com.strellis.ampflower.data.dao.AlbumSongDao;
 import ar.com.strellis.ampflower.data.dao.ArtistDao;
 import ar.com.strellis.ampflower.data.dao.ArtistSongDao;
@@ -24,6 +25,7 @@ import ar.com.strellis.ampflower.data.datasource.db.DBAlbumsDataSourceFactory;
 import ar.com.strellis.ampflower.data.datasource.db.DBArtistsDataSourceFactory;
 import ar.com.strellis.ampflower.data.datasource.db.DBPlaylistsDataSourceFactory;
 import ar.com.strellis.ampflower.data.model.Album;
+import ar.com.strellis.ampflower.data.model.AlbumRemoteKey;
 import ar.com.strellis.ampflower.data.model.AlbumSong;
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.ArtistSong;
@@ -31,7 +33,7 @@ import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistSong;
 import ar.com.strellis.ampflower.data.model.Song;
 
-@Database(entities = {Song.class, Album.class, Artist.class, Playlist.class, AlbumSong.class, ArtistSong.class, PlaylistSong.class}, version = 17,exportSchema = false)
+@Database(entities = {Song.class, Album.class, AlbumRemoteKey.class, Artist.class, Playlist.class, AlbumSong.class, ArtistSong.class, PlaylistSong.class}, version = 18,exportSchema = false)
 @TypeConverters({AmpacheDataConverters.class})
 public abstract class AmpacheDatabase extends RoomDatabase {
     public abstract AlbumDao albumDao();
@@ -41,6 +43,7 @@ public abstract class AmpacheDatabase extends RoomDatabase {
     public abstract AlbumSongDao albumSongDao();
     public abstract ArtistSongDao artistSongDao();
     public abstract PlaylistSongDao playlistSongDao();
+    public abstract AlbumRemoteKeyDao albumRemoteKeyDao();
     private static final Object sLock = new Object();
 
     private static volatile AmpacheDatabase INSTANCE;
@@ -57,7 +60,7 @@ public abstract class AmpacheDatabase extends RoomDatabase {
                     if (INSTANCE == null) {
                         INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                 AmpacheDatabase.class, "ampache-data")
-                                .fallbackToDestructiveMigration()
+                                .fallbackToDestructiveMigration().allowMainThreadQueries()
                                 .build();
                         INSTANCE.init();
                     }

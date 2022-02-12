@@ -12,7 +12,7 @@ import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Single;
 
 public class SongsNetworkInteractorPlaylists extends SongsNetworkInteractor<PlaylistWithSongs>
 {

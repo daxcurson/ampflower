@@ -13,7 +13,7 @@ import java.util.List;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.ArtistWithSongs;
-import io.reactivex.Maybe;
+import io.reactivex.rxjava3.core.Maybe;
 
 @Dao
 public interface ArtistDao {

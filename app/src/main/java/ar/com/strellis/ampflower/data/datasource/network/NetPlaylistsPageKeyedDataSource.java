@@ -15,7 +15,7 @@ import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
-import io.reactivex.subjects.ReplaySubject;
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

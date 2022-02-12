@@ -5,9 +5,9 @@ import android.util.Log;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
 import ar.com.strellis.ampflower.data.model.EntityWithSongs;
 import ar.com.strellis.ampflower.data.model.Song;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
 
 public class SongsMemoryInteractor<T extends EntityWithSongs>
 {

@@ -43,7 +43,7 @@ import ar.com.strellis.ampflower.databinding.FragmentChooseSongsBinding;
 import ar.com.strellis.ampflower.service.MediaPlayerService;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
 public class ChooseSongsFragment extends Fragment {
     private FragmentChooseSongsBinding binding;

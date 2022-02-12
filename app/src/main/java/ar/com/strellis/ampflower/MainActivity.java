@@ -47,13 +47,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.data.model.AmpacheAuth;
+import ar.com.strellis.ampflower.data.model.AmpacheError;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkStatus;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.data.model.ServerStatus;
 import ar.com.strellis.ampflower.data.model.Song;
-import ar.com.strellis.ampflower.data.repository.AlbumsRepository;
+import ar.com.strellis.ampflower.data.repository.AlbumsRepositoryRx;
 import ar.com.strellis.ampflower.data.repository.ArtistsRepository;
 import ar.com.strellis.ampflower.data.repository.PlaylistsRepository;
 import ar.com.strellis.ampflower.data.repository.SongsRepository;
@@ -283,12 +284,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onResponse(@NotNull Call<LoginResponse> call, @NotNull Response<LoginResponse> response) {
                             if (response.body() != null) {
-                                int duration = Toast.LENGTH_LONG;
-                                Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
-                                toast.show();
-                                Log.d("MainActivity.loginToAmpache","We're in");
-                                serverStatusViewModel.setLoginResponse(response.body());
-                                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
+                                if(response.body().getAuth()!=null) {
+                                    int duration = Toast.LENGTH_LONG;
+                                    Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
+                                    toast.show();
+                                    Log.d("MainActivity.loginToAmpache", "We're in");
+                                    serverStatusViewModel.setLoginResponse(response.body());
+                                    serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
+                                }
+                                else
+                                {
+                                    // Error!
+                                    AmpacheError error=response.body().getError();
+                                    Log.d("loginToAmpache.onFailure","Failed to log in: "+error.getErrorMessage()+ "("+error.getErrorCode()+")");
+                                    serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
+                                }
                             }
                         }
 
@@ -410,7 +420,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         assert settings != null;
         AmpacheService networkService= AmpacheUtil.getService(settings);
         LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
-        AlbumsRepository albumRepository = AlbumsRepository.getInstance(this,networkService, settings,loginResponse,albumsViewModel.getQuery(),this);
+        AlbumsRepositoryRx albumRepository = AlbumsRepositoryRx.getInstance(this,networkService, settings,loginResponse,albumsViewModel.getQuery(),this);
         albumsViewModel.setAlbumsRepository(albumRepository);
     }
     private void configureArtistsViewModel()

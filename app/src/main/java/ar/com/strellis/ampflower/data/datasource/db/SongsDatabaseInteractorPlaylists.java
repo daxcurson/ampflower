@@ -12,7 +12,7 @@ import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistSong;
 import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
 import ar.com.strellis.ampflower.data.model.Song;
-import io.reactivex.Maybe;
+import io.reactivex.rxjava3.core.Maybe;
 
 public class SongsDatabaseInteractorPlaylists extends SongsDatabaseInteractor<PlaylistWithSongs>
 {

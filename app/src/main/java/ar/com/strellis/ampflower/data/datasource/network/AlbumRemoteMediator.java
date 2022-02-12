@@ -50,7 +50,7 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
     @Override
     public Single<MediatorResult> loadSingle(@NonNull LoadType loadType, @NonNull PagingState<Integer, Album> pagingState) {
         // The network load method takes an optional after=<user.id> parameter. For
-        // every page after the first, pass the last user ID to let it continue from
+        // every page after the first, pass the last album ID to let it continue from
         // where it left off. For REFRESH, pass null to load the first page.
         Integer loadKey = null;
         switch (loadType) {
@@ -62,9 +62,6 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
                     loadKey=0;
                 break;
             case PREPEND:
-                // In this example, you never need to prepend, since REFRESH will always
-                // load the first page in the list. Immediately return, reporting end of
-                // pagination.
                 remoteKey=getFirstRemoteKey(pagingState);
                 if(remoteKey!=null && remoteKey.getPrevKey()!=null)
                     loadKey=remoteKey.getPrevKey();

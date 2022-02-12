@@ -2,6 +2,7 @@ package ar.com.strellis.ampflower.data.model;
 
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -30,6 +31,8 @@ public class Album extends ModelEntity implements Searchable<Integer>, Serializa
     private int year;
     private int disk;
     private List<Tag> tag;
+    @Ignore
+    private int page;
     /**
      * URL for the Artwork for the album cover.
      */
@@ -44,6 +47,17 @@ public class Album extends ModelEntity implements Searchable<Integer>, Serializa
     public Integer getId() {
         return id;
     }
+
+    @Override
+    public int getPage() {
+        return this.page;
+    }
+
+    @Override
+    public void setPage(int page) {
+        this.page=page;
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }

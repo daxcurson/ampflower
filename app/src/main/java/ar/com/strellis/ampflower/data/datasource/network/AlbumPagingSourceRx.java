@@ -1,18 +1,18 @@
 package ar.com.strellis.ampflower.data.datasource.network;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava3.RxPagingSource;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumListResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
-import ar.com.strellis.ampflower.data.model.SearchType;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -56,6 +56,9 @@ public class AlbumPagingSourceRx extends RxPagingSource<Integer, Album>
         // in the call to the network there are no more albums.
         //Integer maxPage=page<=2 ? page+1 : null;
         Integer maxPage=albums.getAlbum().isEmpty()?null:page+1;
-        return new LoadResult.Page<>(albums.getAlbum(),page==0?null:page-1,maxPage);
+        // I'll set the page this album was obtained from.
+        List<Album> returnedAlbums=albums.getAlbum().stream()
+                .peek(album -> album.setPage(page)).collect(Collectors.toList());
+        return new LoadResult.Page<>(returnedAlbums,page==0?null:page-1,maxPage);
     }
 }

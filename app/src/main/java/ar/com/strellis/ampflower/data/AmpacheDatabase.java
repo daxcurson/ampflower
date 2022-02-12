@@ -21,7 +21,6 @@ import ar.com.strellis.ampflower.data.dao.ArtistSongDao;
 import ar.com.strellis.ampflower.data.dao.PlaylistDao;
 import ar.com.strellis.ampflower.data.dao.PlaylistSongDao;
 import ar.com.strellis.ampflower.data.dao.SongDao;
-import ar.com.strellis.ampflower.data.datasource.db.DBAlbumsDataSourceFactory;
 import ar.com.strellis.ampflower.data.datasource.db.DBArtistsDataSourceFactory;
 import ar.com.strellis.ampflower.data.datasource.db.DBPlaylistsDataSourceFactory;
 import ar.com.strellis.ampflower.data.model.Album;
@@ -60,7 +59,7 @@ public abstract class AmpacheDatabase extends RoomDatabase {
                     if (INSTANCE == null) {
                         INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                 AmpacheDatabase.class, "ampache-data")
-                                .fallbackToDestructiveMigration().allowMainThreadQueries()
+                                .fallbackToDestructiveMigration()
                                 .build();
                         INSTANCE.init();
                     }
@@ -74,19 +73,12 @@ public abstract class AmpacheDatabase extends RoomDatabase {
         Executor executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
         PagedList.Config pagedListConfig = (new PagedList.Config.Builder()).setEnablePlaceholders(false)
                 .setInitialLoadSizeHint(Integer.MAX_VALUE).setPageSize(Integer.MAX_VALUE).build();
-        DBAlbumsDataSourceFactory dataSourceFactoryAlbums = new DBAlbumsDataSourceFactory(albumDao());
         DBArtistsDataSourceFactory dataSourceFactoryArtists=new DBArtistsDataSourceFactory(artistDao());
         DBPlaylistsDataSourceFactory dataSourceFactoryPlaylists=new DBPlaylistsDataSourceFactory(playlistDao());
-        LivePagedListBuilder<String,Album> livePagedListBuilderAlbums = new LivePagedListBuilder<>(dataSourceFactoryAlbums, pagedListConfig);
         LivePagedListBuilder<String,Artist> livePagedListBuilderArtists=new LivePagedListBuilder<>(dataSourceFactoryArtists,pagedListConfig);
         LivePagedListBuilder<String,Playlist> livePagedListBuilderPlaylists=new LivePagedListBuilder<>(dataSourceFactoryPlaylists,pagedListConfig);
-        albumsPaged = livePagedListBuilderAlbums.setFetchExecutor(executor).build();
         artistsPaged=livePagedListBuilderArtists.setFetchExecutor(executor).build();
         playlistsPaged=livePagedListBuilderPlaylists.setFetchExecutor(executor).build();
-    }
-    public LiveData<PagedList<Album>> getAlbums()
-    {
-        return albumsPaged;
     }
     public LiveData<PagedList<Artist>> getArtists()
     {

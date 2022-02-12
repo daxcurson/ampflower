@@ -3,6 +3,7 @@ package ar.com.strellis.ampflower.data.model;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -38,10 +39,23 @@ public class Playlist extends ModelEntity implements Searchable<String>,Serializ
     private String rating;
     private String averagerating;
     private Integer flag;
+    @Ignore
+    private int page;
     @NonNull
     public String getId() {
         return id;
     }
+
+    @Override
+    public int getPage() {
+        return this.page;
+    }
+
+    @Override
+    public void setPage(int page) {
+        this.page=page;
+    }
+
     public void setId(@NonNull String id) {
         this.id = id;
     }

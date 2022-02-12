@@ -1,15 +1,13 @@
 package ar.com.strellis.ampflower.data.repository;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
+import androidx.paging.Pager;
 import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
-import androidx.paging.Pager;
 import androidx.paging.rxjava3.PagingRx;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
@@ -32,7 +30,7 @@ public class AlbumsRepositoryRx {
     private final LoginResponse loginResponse;
     private final MutableLiveData<NetworkState> loading;
     private AlbumPagingSourceRx pagingSourceRx;
-    private LiveData<String> query;
+    private final LiveData<String> query;
 
     private AlbumsRepositoryRx(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse,LiveData<String> query,LifecycleOwner lifecycleOwner)
     {
@@ -49,12 +47,18 @@ public class AlbumsRepositoryRx {
         }
         return instance;
     }
-    public Flowable<PagingData<Album>> getAlbums() {
+
+    /**
+     * Gets the album of the specified remote page.
+     * @param page which page to retrieve from the server
+     * @return Paging data for the albums loaded from the source
+     */
+    public Flowable<PagingData<Album>> getAlbums(Integer page) {
         AlbumRemoteMediator mediator=new AlbumRemoteMediator(query.getValue(),ampacheService,database);
         mediator.setLoginResponse(loginResponse);
         Pager<Integer,Album> pager= new Pager<>(
                 new PagingConfig(PAGE_SIZE, 1),
-                0,
+                page,
                 mediator,
                 ()->new AlbumPagingSourceRx(ampacheService,loginResponse, loading,query.getValue())
         );

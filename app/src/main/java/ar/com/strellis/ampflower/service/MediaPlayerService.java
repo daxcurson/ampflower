@@ -77,6 +77,7 @@ public class MediaPlayerService extends LifecycleService
     public static final String ACTION_NEXT = BuildConfig.APPLICATION_ID + ".action.NEXT";
     public static final String ACTION_TOGGLE = BuildConfig.APPLICATION_ID + ".action.TOGGLE_PLAYPAUSE";
     public static final String ACTION_SELECT_SONGS = BuildConfig.APPLICATION_ID+".action.SELECT_SONGS";
+    public static final String ACTION_ADD_SONGS = BuildConfig.APPLICATION_ID+".action.ADD_SONGS";
     public static final String ACTION_MOVE_ITEM = BuildConfig.APPLICATION_ID+".action.MOVE_ITEM";
     public static final String ACTION_PLAY_ITEM = BuildConfig.APPLICATION_ID+".action.PLAY_ITEM";
     public static final String ACTION_DELETE_ITEM = BuildConfig.APPLICATION_ID+".action.DELETE_ITEM";
@@ -285,6 +286,10 @@ public class MediaPlayerService extends LifecycleService
                     List<Song> songs = (List<Song>) intent.getSerializableExtra("LIST");
                     selectSongsIntoPlaylist(songs);
                     break;
+                case ACTION_ADD_SONGS:
+                    // There is a list of songs to ADD to the playlist.
+                    songs=(List<Song>) intent.getSerializableExtra("LIST");
+                    addSongsToPlaylist(songs);
                 case ACTION_MOVE_ITEM:
                     int fromPosition= (int) intent.getSerializableExtra("fromPosition");
                     int toPosition=(int)intent.getSerializableExtra("toPosition");
@@ -315,10 +320,22 @@ public class MediaPlayerService extends LifecycleService
      */
     private void selectSongsIntoPlaylist(List<Song> songs)
     {
-        Log.d("MediaPlayerService","I received "+songs.size()+" songs!!");
+        Log.d("MediaPlayerService.selectSongsIntoPlaylist","I received "+songs.size()+" songs!!");
         // I'll just shove these songs into the playlist.
         List<MediaItem> items=convertSongsToMedia(songs);
         playList(items);
+    }
+
+    /**
+     * Adds songs to the current playlist
+     * @param songs List of songs to ADD to the current playlist
+     */
+    private void addSongsToPlaylist(List<Song> songs)
+    {
+        Log.d("MediaPlayerService.addSongsToPlaylist","I received "+songs.size()+" songs to ADD to the playlist!!");
+        // I'll just shove these songs into the playlist.
+        List<MediaItem> items=convertSongsToMedia(songs);
+        addToPlaylist(items);
     }
     public List<MediaItem> convertSongsToMedia(List<Song> songs)
     {
@@ -356,6 +373,10 @@ public class MediaPlayerService extends LifecycleService
         exoPlayer.setMediaItems(playlist);
         exoPlayer.prepare();
         exoPlayer.setPlayWhenReady(true);
+    }
+    public void addToPlaylist(List<MediaItem> playlist)
+    {
+        exoPlayer.addMediaItems(playlist);
     }
     public void playItemInPosition(int position)
     {

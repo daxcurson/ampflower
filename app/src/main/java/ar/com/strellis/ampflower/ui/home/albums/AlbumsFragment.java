@@ -84,7 +84,7 @@ public class AlbumsFragment extends Fragment {
 
             @Override
             public boolean onClick(RecyclerView parent, View view, int position, long id) {
-                Searchable entity= adapter.peek(position);//Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
+                Searchable<Integer> entity= adapter.peek(position);//Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
                 songsViewModel.setSearchableItem(entity);
                 Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
                 return false;
@@ -118,7 +118,6 @@ public class AlbumsFragment extends Fragment {
                 // update the albums model with the search string
                 albumsViewModel.setQuery(newText);
                 adapter.refresh();
-                // Now, invalidate the paging, to force it to refresh?
                 Log.d("AlbumsFragment","The recycler for albums is forced to update, new text: "+newText);
                 Objects.requireNonNull(binding.albumsRecycler.getAdapter()).notifyDataSetChanged();
                 return false;

@@ -47,6 +47,13 @@ public interface AmpacheService
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
+    @GET("server/json.server.php?action=get_indexes&type=artist")
+    Single<ArtistListResponse> get_indexes_artist_rx(
+            @Query("auth") String auth,
+            @Query("filter") String filter,
+            @Query("offset") Integer offset,
+            @Query("limit") Integer limit
+    );
     @GET("server/json.server.php?action=get_indexes&type=album")
     Call<AlbumListResponse> get_indexes_album(
             @Query("auth") String auth,

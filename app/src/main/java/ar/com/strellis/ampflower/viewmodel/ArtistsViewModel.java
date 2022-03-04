@@ -3,15 +3,22 @@ package ar.com.strellis.ampflower.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelKt;
 import androidx.paging.PagedList;
+import androidx.paging.PagingData;
+import androidx.paging.rxjava3.PagingRx;
 
+import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.data.repository.ArtistsRepository;
+import ar.com.strellis.ampflower.data.repository.ArtistsRepositoryRx;
+import io.reactivex.rxjava3.core.Flowable;
+import kotlinx.coroutines.CoroutineScope;
 
 public class ArtistsViewModel extends ViewModel
 {
-    private ArtistsRepository artistsRepository;
+    private ArtistsRepositoryRx artistsRepository;
     private final MutableLiveData<String> query;
     public ArtistsViewModel()
     {
@@ -25,17 +32,18 @@ public class ArtistsViewModel extends ViewModel
     {
         this.query.setValue(query);
     }
-    public LiveData<PagedList<Artist>> getArtists()
+    public Flowable<PagingData<Artist>> getArtists()
     {
-        if(this.artistsRepository==null)
-            return new MutableLiveData<>();
-        return this.artistsRepository.getArtists();
+        Flowable<PagingData<Artist>> newResult=artistsRepository.getArtists();
+        CoroutineScope coroutineScope= ViewModelKt.getViewModelScope(this);
+        PagingRx.cachedIn(newResult,coroutineScope);
+        return newResult;
     }
-    public void setArtistsRepository(ArtistsRepository artistsRepository)
+    public void setArtistsRepository(ArtistsRepositoryRx artistsRepository)
     {
         this.artistsRepository=artistsRepository;
     }
-    public ArtistsRepository getArtistsRepository()
+    public ArtistsRepositoryRx getArtistsRepository()
     {
         return this.artistsRepository;
     }

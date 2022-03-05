@@ -17,15 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 import ar.com.strellis.ampflower.R;
-import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentPlaylistsBinding;
-import ar.com.strellis.ampflower.ui.home.albums.AlbumAdapterRx;
-import ar.com.strellis.ampflower.ui.home.albums.AlbumLoadStateAdapter;
-import ar.com.strellis.ampflower.ui.home.playlists.PlaylistAdapter;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.PlaylistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
@@ -59,12 +53,9 @@ public class PlaylistsFragment extends Fragment {
         adapter=new PlaylistAdapterRx(getContext());
         disposable.add(playlistsViewModel.getPlaylists()
                 .subscribeOn(Schedulers.io())
-                .doOnError(throwable->{
-                    Log.d("PlaylistFragment.onViewCreated","Error getting playlists!!! "+throwable.getMessage());
-                })
+                .doOnError(throwable-> Log.d("PlaylistFragment.onViewCreated","Error getting playlists!!! "+throwable.getMessage()))
                 .subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData))
         );
-        //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.playlistsRecycler.setAdapter(
                 adapter.withLoadStateHeaderAndFooter(new PlaylistLoadStateAdapter(),new PlaylistLoadStateAdapter())
         );

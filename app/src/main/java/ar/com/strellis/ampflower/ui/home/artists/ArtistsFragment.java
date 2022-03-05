@@ -23,13 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 import ar.com.strellis.ampflower.R;
-import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentArtistsBinding;
-import ar.com.strellis.ampflower.ui.home.albums.AlbumLoadStateAdapter;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
@@ -64,14 +60,11 @@ public class ArtistsFragment extends Fragment {
         adapter=new ArtistAdapterRx(getContext());
         disposable.add(artistsViewModel.getArtists()
                 .subscribeOn(Schedulers.io())
-                .doOnError(throwable->{
-                    Log.d("ArtistsFragment.onViewCreated","Error getting artists!!! "+throwable.getMessage());
-                })
+                .doOnError(throwable-> Log.d("ArtistsFragment.onViewCreated","Error getting artists!!! "+throwable.getMessage()))
                 .subscribe(artistPagingData -> adapter.submitData(getLifecycle(),artistPagingData))
         );
-        //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.artistsRecycler.setAdapter(
-                adapter.withLoadStateHeaderAndFooter(new AlbumLoadStateAdapter(),new AlbumLoadStateAdapter())
+                adapter.withLoadStateHeaderAndFooter(new ArtistLoadStateAdapter(),new ArtistLoadStateAdapter())
         );
         binding.artistsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.artistsRecycler)
         {

@@ -39,13 +39,11 @@ public class AlbumAdapterRx extends PagingDataAdapter<Album,AlbumViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull AlbumViewHolder holder, int position) {
-        Album item=getItem(position);
-        AlbumViewHolder albumViewHolder=(AlbumViewHolder)holder;
         Album album=getItem(position);
-        albumViewHolder.getAlbumTitle().setText(Objects.requireNonNull(album).getName());
-        albumViewHolder.getArtistName().setText(Objects.requireNonNull(album).getArtist().getName());
+        holder.getAlbumTitle().setText(Objects.requireNonNull(album).getName());
+        holder.getArtistName().setText(Objects.requireNonNull(album).getArtist().getName());
         // Now, attempt to download the image.
-        Picasso.get().load(album.getArt()).into(albumViewHolder.getAlbumArt());
+        Picasso.get().load(album.getArt()).into(holder.getAlbumArt());
     }
 
     public static DiffUtil.ItemCallback<Album> callback_diff=new DiffUtil.ItemCallback<Album>() {

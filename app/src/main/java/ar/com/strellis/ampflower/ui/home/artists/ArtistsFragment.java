@@ -23,20 +23,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 import ar.com.strellis.ampflower.R;
-import ar.com.strellis.ampflower.data.model.Artist;
+import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentArtistsBinding;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class ArtistsFragment extends Fragment {
     private FragmentArtistsBinding binding;
     private ArtistsViewModel artistsViewModel;
     private SongsViewModel songsViewModel;
-    private ArtistAdapter adapter;
+    private ArtistAdapterRx adapter;
+    private final CompositeDisposable disposable=new CompositeDisposable();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -56,10 +57,15 @@ public class ArtistsFragment extends Fragment {
         LinearLayoutManager layoutManager=new LinearLayoutManager(getContext());
         binding.artistsRecycler.setLayoutManager(layoutManager);
         binding.artistsRecycler.setItemAnimator(new DefaultItemAnimator());
-        adapter=new ArtistAdapter(getContext());
-        artistsViewModel.getArtists().observe(getViewLifecycleOwner(), artists -> adapter.submitList(artists));
-        artistsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
-        binding.artistsRecycler.setAdapter(adapter);
+        adapter=new ArtistAdapterRx(getContext());
+        disposable.add(artistsViewModel.getArtists()
+                .subscribeOn(Schedulers.io())
+                .doOnError(throwable-> Log.d("ArtistsFragment.onViewCreated","Error getting artists!!! "+throwable.getMessage()))
+                .subscribe(artistPagingData -> adapter.submitData(getLifecycle(),artistPagingData))
+        );
+        binding.artistsRecycler.setAdapter(
+                adapter.withLoadStateHeaderAndFooter(new ArtistLoadStateAdapter(),new ArtistLoadStateAdapter())
+        );
         binding.artistsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.artistsRecycler)
         {
 
@@ -70,7 +76,7 @@ public class ArtistsFragment extends Fragment {
 
             @Override
             public boolean onClick(RecyclerView parent, View view, int position, long id) {
-                Artist entity= Objects.requireNonNull(artistsViewModel.getArtists().getValue()).get(position);
+                Searchable<Integer> entity= adapter.peek(position);
                 songsViewModel.setSearchableItem(entity);
                 Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
                 return false;
@@ -86,7 +92,6 @@ public class ArtistsFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         // Get the SearchView and set the searchable configuration
-        RecyclerView artistsRecycler=requireActivity().findViewById(R.id.artists_recycler);
         SearchManager searchManager = (SearchManager) requireActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // Assumes current activity is the searchable activity
@@ -102,10 +107,11 @@ public class ArtistsFragment extends Fragment {
             public boolean onQueryTextChange(String newText) {
                 // update the albums model with the search string
                 artistsViewModel.setQuery(newText);
+                adapter.refresh();
                 // Now, invalidate the paging, to force it to refresh?
                 Log.d("ArtistsFragment","The recycler for artists is forced to update, new text: "+newText);
-                if(artistsRecycler.getAdapter()!=null)
-                    artistsRecycler.getAdapter().notifyDataSetChanged();
+                if(binding.artistsRecycler.getAdapter()!=null)
+                    binding.artistsRecycler.getAdapter().notifyDataSetChanged();
                 return false;
             }
         });

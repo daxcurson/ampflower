@@ -55,8 +55,8 @@ import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.data.model.ServerStatus;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepositoryRx;
-import ar.com.strellis.ampflower.data.repository.ArtistsRepository;
-import ar.com.strellis.ampflower.data.repository.PlaylistsRepository;
+import ar.com.strellis.ampflower.data.repository.ArtistsRepositoryRx;
+import ar.com.strellis.ampflower.data.repository.PlaylistsRepositoryRx;
 import ar.com.strellis.ampflower.data.repository.SongsRepository;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
@@ -429,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         assert settings != null;
         AmpacheService service= AmpacheUtil.getService(settings);
         LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
-        ArtistsRepository artistsRepository = ArtistsRepository.getInstance(this,service, settings,loginResponse,artistsViewModel.getQuery(),this);
+        ArtistsRepositoryRx artistsRepository = ArtistsRepositoryRx.getInstance(this,service, settings,loginResponse,artistsViewModel.getQuery(),this);
         artistsViewModel.setArtistsRepository(artistsRepository);
     }
     private void configurePlaylistsViewModel()
@@ -438,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         assert settings != null;
         AmpacheService service= AmpacheUtil.getService(settings);
         LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
-        PlaylistsRepository playlistsRepository = PlaylistsRepository.getInstance(this,service, settings,loginResponse);
+        PlaylistsRepositoryRx playlistsRepository = PlaylistsRepositoryRx.getInstance(this,service, settings,loginResponse,artistsViewModel.getQuery(),this);
         playlistsViewModel.setPlaylistsRepository(playlistsRepository);
     }
     private void configureSongsViewModel()
@@ -892,7 +892,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     public void sendSelectedSongsToPlayList()
     {
-        // Send songs
+        // Send songs. If there are too many songs to send, the list
+        // will have to be split, sending a different intent
         Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
         intent.setAction(MediaPlayerService.ACTION_SELECT_SONGS);
         List<Song> selectedSongs=songsViewModel.getSelectedSongs();

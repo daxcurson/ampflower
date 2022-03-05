@@ -1,6 +1,7 @@
 package ar.com.strellis.ampflower.ui.home.playlists;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,22 +17,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 import ar.com.strellis.ampflower.R;
-import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentPlaylistsBinding;
-import ar.com.strellis.ampflower.ui.home.playlists.PlaylistAdapter;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.PlaylistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class PlaylistsFragment extends Fragment {
     private FragmentPlaylistsBinding binding;
     private PlaylistsViewModel playlistsViewModel;
     private SongsViewModel songsViewModel;
-    private PlaylistAdapter adapter;
+    private PlaylistAdapterRx adapter;
+    private final CompositeDisposable disposable=new CompositeDisposable();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -50,9 +50,15 @@ public class PlaylistsFragment extends Fragment {
         LinearLayoutManager layoutManager=new LinearLayoutManager(getContext());
         binding.playlistsRecycler.setLayoutManager(layoutManager);
         binding.playlistsRecycler.setItemAnimator(new DefaultItemAnimator());
-        adapter=new PlaylistAdapter(getContext());
-        playlistsViewModel.getPlaylists().observe(getViewLifecycleOwner(), playlists -> adapter.submitList(playlists));
-        playlistsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
+        adapter=new PlaylistAdapterRx(getContext());
+        disposable.add(playlistsViewModel.getPlaylists()
+                .subscribeOn(Schedulers.io())
+                .doOnError(throwable-> Log.d("PlaylistFragment.onViewCreated","Error getting playlists!!! "+throwable.getMessage()))
+                .subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData))
+        );
+        binding.playlistsRecycler.setAdapter(
+                adapter.withLoadStateHeaderAndFooter(new PlaylistLoadStateAdapter(),new PlaylistLoadStateAdapter())
+        );
         binding.playlistsRecycler.setAdapter(adapter);
         binding.playlistsRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.playlistsRecycler)
         {
@@ -64,7 +70,7 @@ public class PlaylistsFragment extends Fragment {
 
             @Override
             public boolean onClick(RecyclerView parent, View view, int position, long id) {
-                Playlist entity= Objects.requireNonNull(playlistsViewModel.getPlaylists().getValue()).get(position);
+                Searchable<String> entity= adapter.peek(position);//Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
                 songsViewModel.setSearchableItem(entity);
                 Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
                 return false;

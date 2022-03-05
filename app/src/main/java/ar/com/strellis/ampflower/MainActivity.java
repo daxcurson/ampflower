@@ -56,7 +56,7 @@ import ar.com.strellis.ampflower.data.model.ServerStatus;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepositoryRx;
 import ar.com.strellis.ampflower.data.repository.ArtistsRepositoryRx;
-import ar.com.strellis.ampflower.data.repository.PlaylistsRepository;
+import ar.com.strellis.ampflower.data.repository.PlaylistsRepositoryRx;
 import ar.com.strellis.ampflower.data.repository.SongsRepository;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
@@ -438,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         assert settings != null;
         AmpacheService service= AmpacheUtil.getService(settings);
         LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
-        PlaylistsRepository playlistsRepository = PlaylistsRepository.getInstance(this,service, settings,loginResponse);
+        PlaylistsRepositoryRx playlistsRepository = PlaylistsRepositoryRx.getInstance(this,service, settings,loginResponse,artistsViewModel.getQuery(),this);
         playlistsViewModel.setPlaylistsRepository(playlistsRepository);
     }
     private void configureSongsViewModel()

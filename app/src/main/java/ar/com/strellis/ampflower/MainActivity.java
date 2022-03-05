@@ -55,7 +55,6 @@ import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.data.model.ServerStatus;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepositoryRx;
-import ar.com.strellis.ampflower.data.repository.ArtistsRepository;
 import ar.com.strellis.ampflower.data.repository.ArtistsRepositoryRx;
 import ar.com.strellis.ampflower.data.repository.PlaylistsRepository;
 import ar.com.strellis.ampflower.data.repository.SongsRepository;

@@ -7,7 +7,6 @@ import androidx.room.Query;
 
 import java.util.List;
 
-import ar.com.strellis.ampflower.data.model.AlbumRemoteKey;
 import ar.com.strellis.ampflower.data.model.ArtistRemoteKey;
 
 @Dao

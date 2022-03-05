@@ -20,10 +20,9 @@ import ar.com.strellis.ampflower.data.dao.ArtistDao;
 import ar.com.strellis.ampflower.data.dao.ArtistRemoteKeyDao;
 import ar.com.strellis.ampflower.data.dao.ArtistSongDao;
 import ar.com.strellis.ampflower.data.dao.PlaylistDao;
+import ar.com.strellis.ampflower.data.dao.PlaylistRemoteKeyDao;
 import ar.com.strellis.ampflower.data.dao.PlaylistSongDao;
 import ar.com.strellis.ampflower.data.dao.SongDao;
-import ar.com.strellis.ampflower.data.datasource.db.DBAlbumsDataSourceFactory;
-import ar.com.strellis.ampflower.data.datasource.db.DBArtistsDataSourceFactory;
 import ar.com.strellis.ampflower.data.datasource.db.DBPlaylistsDataSourceFactory;
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumRemoteKey;
@@ -32,11 +31,12 @@ import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.ArtistRemoteKey;
 import ar.com.strellis.ampflower.data.model.ArtistSong;
 import ar.com.strellis.ampflower.data.model.Playlist;
+import ar.com.strellis.ampflower.data.model.PlaylistRemoteKey;
 import ar.com.strellis.ampflower.data.model.PlaylistSong;
 import ar.com.strellis.ampflower.data.model.Song;
 
-@Database(entities = {Song.class, Album.class, AlbumRemoteKey.class, Artist.class, ArtistRemoteKey.class, Playlist.class, AlbumSong.class, ArtistSong.class,
-        PlaylistSong.class}, version = 19,exportSchema = false)
+@Database(entities = {Song.class, Album.class, AlbumRemoteKey.class, Artist.class, ArtistRemoteKey.class, Playlist.class, PlaylistRemoteKey.class, AlbumSong.class, ArtistSong.class,
+        PlaylistSong.class}, version = 20,exportSchema = false)
 @TypeConverters({AmpacheDataConverters.class})
 public abstract class AmpacheDatabase extends RoomDatabase {
     public abstract AlbumDao albumDao();
@@ -48,13 +48,12 @@ public abstract class AmpacheDatabase extends RoomDatabase {
     public abstract PlaylistSongDao playlistSongDao();
     public abstract AlbumRemoteKeyDao albumRemoteKeyDao();
     public abstract ArtistRemoteKeyDao artistRemoteKeyDao();
+    public abstract PlaylistRemoteKeyDao playlistRemoteKeyDao();
     private static final Object sLock = new Object();
 
     private static volatile AmpacheDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
 
-    private LiveData<PagedList<Album>> albumsPaged;
-    private LiveData<PagedList<Artist>> artistsPaged;
     private LiveData<PagedList<Playlist>> playlistsPaged;
 
     public static AmpacheDatabase getDatabase(final Context context) {
@@ -78,23 +77,9 @@ public abstract class AmpacheDatabase extends RoomDatabase {
         Executor executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
         PagedList.Config pagedListConfig = (new PagedList.Config.Builder()).setEnablePlaceholders(false)
                 .setInitialLoadSizeHint(Integer.MAX_VALUE).setPageSize(Integer.MAX_VALUE).build();
-        DBAlbumsDataSourceFactory dataSourceFactoryAlbums = new DBAlbumsDataSourceFactory(albumDao());
-        DBArtistsDataSourceFactory dataSourceFactoryArtists=new DBArtistsDataSourceFactory(artistDao());
         DBPlaylistsDataSourceFactory dataSourceFactoryPlaylists=new DBPlaylistsDataSourceFactory(playlistDao());
-        LivePagedListBuilder<String,Album> livePagedListBuilderAlbums = new LivePagedListBuilder<>(dataSourceFactoryAlbums, pagedListConfig);
-        LivePagedListBuilder<String,Artist> livePagedListBuilderArtists=new LivePagedListBuilder<>(dataSourceFactoryArtists,pagedListConfig);
         LivePagedListBuilder<String,Playlist> livePagedListBuilderPlaylists=new LivePagedListBuilder<>(dataSourceFactoryPlaylists,pagedListConfig);
-        albumsPaged = livePagedListBuilderAlbums.setFetchExecutor(executor).build();
-        artistsPaged=livePagedListBuilderArtists.setFetchExecutor(executor).build();
         playlistsPaged=livePagedListBuilderPlaylists.setFetchExecutor(executor).build();
-    }
-    public LiveData<PagedList<Album>> getAlbums()
-    {
-        return albumsPaged;
-    }
-    public LiveData<PagedList<Artist>> getArtists()
-    {
-        return artistsPaged;
     }
     public LiveData<PagedList<Playlist>> getPlaylists()
     {

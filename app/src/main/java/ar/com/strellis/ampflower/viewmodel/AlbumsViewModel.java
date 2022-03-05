@@ -4,13 +4,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelKt;
-import androidx.paging.PagedList;
 import androidx.paging.PagingData;
 import androidx.paging.rxjava3.PagingRx;
 
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.NetworkState;
-import ar.com.strellis.ampflower.data.repository.AlbumsRepository;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepositoryRx;
 import io.reactivex.rxjava3.core.Flowable;
 import kotlinx.coroutines.CoroutineScope;

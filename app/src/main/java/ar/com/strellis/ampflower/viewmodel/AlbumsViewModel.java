@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope;
 
 public class AlbumsViewModel extends ViewModel
 {
+    private int currentPage;
     private AlbumsRepositoryRx albumsRepository;
     private final MutableLiveData<String> query;
     public AlbumsViewModel()
@@ -32,10 +33,11 @@ public class AlbumsViewModel extends ViewModel
     public void setAlbumsRepository(AlbumsRepositoryRx repository)
     {
         this.albumsRepository=repository;
+        currentPage=0;
     }
     public Flowable<PagingData<Album>> getAlbums()
     {
-        Flowable<PagingData<Album>> newResult=albumsRepository.getAlbums();
+        Flowable<PagingData<Album>> newResult=albumsRepository.getAlbums(currentPage);
         CoroutineScope coroutineScope= ViewModelKt.getViewModelScope(this);
         PagingRx.cachedIn(newResult,coroutineScope);
         return newResult;
@@ -45,5 +47,13 @@ public class AlbumsViewModel extends ViewModel
         if(albumsRepository==null)
             return new MutableLiveData<>();
         return albumsRepository.getNetworkState();
+    }
+    public void setCurrentPage(int page)
+    {
+        this.currentPage=page;
+    }
+    public int getCurrentPage()
+    {
+        return this.currentPage;
     }
 }

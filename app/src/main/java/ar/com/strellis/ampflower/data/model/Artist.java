@@ -2,6 +2,7 @@ package ar.com.strellis.ampflower.data.model;
 
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -40,9 +41,22 @@ public class Artist extends ModelEntity implements Searchable<Integer>, Serializ
     private String summary;
     private int yearformed;
     private String placeformed;
+    @Ignore
+    private int page;
     public Integer getId() {
         return id;
     }
+
+    @Override
+    public int getPage() {
+        return this.page;
+    }
+
+    @Override
+    public void setPage(int page) {
+        this.page=page;
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }

@@ -68,7 +68,12 @@ public class AlbumsFragment extends Fragment {
                 .doOnError(throwable->{
                     Log.d("AlbumsFragment.onViewCreated","Error getting albums!!! "+throwable.getMessage());
                 })
-                .subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData))
+                .subscribe(
+                        albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData),
+                        error->{
+                            Log.d("AlbumsFragment","Error");
+                        }
+                )
         );
         //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
         binding.albumsRecycler.setAdapter(
@@ -84,7 +89,11 @@ public class AlbumsFragment extends Fragment {
 
             @Override
             public boolean onClick(RecyclerView parent, View view, int position, long id) {
-                Searchable<Integer> entity= adapter.peek(position);//Objects.requireNonNull(albumsViewModel.getAlbums().getValue()).get(position);
+                Searchable<Integer> entity= adapter.peek(position);
+                // I need to save the current page, so when the repository is re-created,
+                // it goes back to the same page as before.
+                if(entity!=null)
+                    albumsViewModel.setCurrentPage(entity.getPage());
                 songsViewModel.setSearchableItem(entity);
                 Navigation.findNavController(view).navigate(R.id.nav_choose_songs);
                 return false;

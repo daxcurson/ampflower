@@ -13,8 +13,7 @@ import androidx.paging.LoadStateAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ar.com.strellis.ampflower.R;
-import ar.com.strellis.ampflower.databinding.NetworkStateItemBinding;
-import ar.com.strellis.ampflower.ui.home.albums.AlbumLoadStateAdapter;
+import ar.com.strellis.ampflower.databinding.ListItemNetworkStateBinding;
 
 public class ArtistLoadStateAdapter  extends LoadStateAdapter<ArtistLoadStateAdapter.LoadStateViewHolder>
 {
@@ -40,8 +39,8 @@ public class ArtistLoadStateAdapter  extends LoadStateAdapter<ArtistLoadStateAda
                 @NonNull ViewGroup parent,
                 @NonNull View.OnClickListener retryCallback) {
             super(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.network_state_item, parent, false));
-            NetworkStateItemBinding binding = NetworkStateItemBinding.bind(itemView);
+                    .inflate(R.layout.list_item_network_state, parent, false));
+            ListItemNetworkStateBinding binding = ListItemNetworkStateBinding.bind(itemView);
             mProgressBar = binding.networkStateItemProgressBar;
             mErrorMsg = binding.networkStateItemErrorMsg;
             //mRetry = binding.retryButton;

@@ -17,6 +17,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.paging.CombinedLoadStates;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +35,7 @@ import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import kotlinx.coroutines.flow.Flow;
 
 public class AlbumsFragment extends Fragment {
     private FragmentAlbumsBinding binding;
@@ -75,7 +77,7 @@ public class AlbumsFragment extends Fragment {
                         }
                 )
         );
-        //albumsViewModel.getNetworkState().observe(getViewLifecycleOwner(),networkState -> adapter.setNetworkState(networkState));
+        binding.albumsRecycler.setHasFixedSize(true);
         binding.albumsRecycler.setAdapter(
                 adapter.withLoadStateHeaderAndFooter(new AlbumLoadStateAdapter(),new AlbumLoadStateAdapter())
         );
@@ -104,8 +106,6 @@ public class AlbumsFragment extends Fragment {
                 return false;
             }
         });
-        /*adapter=new AlbumAdapterRx();
-        albumsViewModel.getAlbums().observe(getViewLifecycleOwner(),pagingData->adapter.submitData()*/
     }
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {

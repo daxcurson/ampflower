@@ -54,6 +54,7 @@ public abstract class AmpacheDatabase extends RoomDatabase {
                     if (INSTANCE == null) {
                         INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                 AmpacheDatabase.class, "ampache-data")
+                                .allowMainThreadQueries()
                                 .fallbackToDestructiveMigration()
                                 .build();
                         INSTANCE.init();

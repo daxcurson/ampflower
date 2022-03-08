@@ -31,7 +31,7 @@ public class LoadStateViewHolder extends RecyclerView.ViewHolder {
         ListItemNetworkStateBinding binding = ListItemNetworkStateBinding.bind(itemView);
         mProgressBar = binding.networkStateItemProgressBar;
         mErrorMsg = binding.networkStateItemErrorMsg;
-        //mRetry = binding.retryButton;
+        mRetry = binding.networkStateRetry;
         //mRetry.setOnClickListener(retryCallback);
     }
 
@@ -46,8 +46,8 @@ public class LoadStateViewHolder extends RecyclerView.ViewHolder {
         // set visibility of widgets based on LoadState
         mProgressBar.setVisibility(loadState instanceof LoadState.Loading
                 ? View.VISIBLE : View.GONE);
-        //mRetry.setVisibility(loadState instanceof LoadState.Error
-        //        ? View.VISIBLE : View.GONE);
+        mRetry.setVisibility(loadState instanceof LoadState.Error
+                ? View.VISIBLE : View.GONE);
         mErrorMsg.setVisibility(loadState instanceof LoadState.Error
                 ? View.VISIBLE : View.GONE);
     }

@@ -27,12 +27,12 @@ public class AlbumsRepositoryRx {
     private final AmpacheDatabase database;
     private final AmpacheService ampacheService;
     private AmpacheSettings ampacheSettings;
-    private final LoginResponse loginResponse;
+    private final LiveData<LoginResponse> loginResponse;
     private final MutableLiveData<NetworkState> loading;
     private AlbumPagingSourceRx pagingSourceRx;
     private final LiveData<String> query;
 
-    private AlbumsRepositoryRx(Context context,AmpacheService ampacheService,AmpacheSettings settings,LoginResponse loginResponse,LiveData<String> query,LifecycleOwner lifecycleOwner)
+    private AlbumsRepositoryRx(Context context,AmpacheService ampacheService,AmpacheSettings settings,LiveData<LoginResponse> loginResponse,LiveData<String> query,LifecycleOwner lifecycleOwner)
     {
         database = AmpacheDatabase.getDatabase(context.getApplicationContext());
         this.loginResponse=loginResponse;
@@ -41,7 +41,7 @@ public class AlbumsRepositoryRx {
         loading=new MutableLiveData<>();
         this.query=query;
     }
-    public static AlbumsRepositoryRx getInstance(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner){
+    public static AlbumsRepositoryRx getInstance(Context context, AmpacheService ampacheService, AmpacheSettings settings, LiveData<LoginResponse> loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner){
         if(instance == null){
             instance = new AlbumsRepositoryRx(context,ampacheService,settings,loginResponse,query,lifecycleOwner);
         }
@@ -60,7 +60,7 @@ public class AlbumsRepositoryRx {
                 new PagingConfig(PAGE_SIZE, 1),
                 page,
                 mediator,
-                ()->new AlbumPagingSourceRx(ampacheService,loginResponse, loading,query.getValue())
+                ()->new AlbumPagingSourceRx(ampacheService,loginResponse.getValue(), loading,query.getValue())
         );
         return PagingRx.getFlowable(pager);
     }

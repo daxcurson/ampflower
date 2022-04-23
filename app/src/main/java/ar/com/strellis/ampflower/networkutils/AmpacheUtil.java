@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
@@ -153,5 +154,17 @@ public class AmpacheUtil
         {
             Log.d("AmpacheUtil.loginToAmpache","Either the settings are null or the url is null, not doing anything");
         }
+    }
+
+    /**
+     * If the response we are given is expired, return true
+     * @param response The response to check
+     * @return true if the LoginResponse is expired.
+     */
+    public static boolean isLoginExpired(LoginResponse response)
+    {
+        Log.d("AmpacheUtil", "The expiration of this login response is: "+response.getSession_expire());
+        Date now=new Date();
+        return response.getSession_expire().before(now);
     }
 }

@@ -54,20 +54,20 @@ public interface AmpacheService
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
     );
-    @GET("server/json.server.php?action=get_indexes&type=album")
-    Call<AlbumListResponse> get_indexes_album(
+    @GET("server/json.server.php?action=albums&exact=0")
+    Single<AlbumListResponse> albums(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
-    );
+    );/*
     @GET("server/json.server.php?action=get_indexes&type=album")
     Single<AlbumListResponse> get_indexes_album_rx(
             @Query("auth") String auth,
             @Query("filter") String filter,
             @Query("offset") Integer offset,
             @Query("limit") Integer limit
-    );
+    );*/
     @GET("server/json.server.php?action=get_indexes&type=playlist")
     Call<PlaylistListResponse> get_indexes_playlist(
             @Query("auth") String auth,

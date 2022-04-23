@@ -21,10 +21,10 @@ public class SongsNetworkInteractorAlbums extends SongsNetworkInteractor<AlbumWi
     }
     public Single<AlbumWithSongs> getSongs(String album_id)
     {
-        Log.d("SongsNetworkInteractor.getSongsByAlbum","Getting songs from album "+album_id+" from the network, auth: "+ Objects.requireNonNull(settings.getValue()).getAuth());
+        Log.d("SongsNetworkInteractorAlbums.getSongsByAlbum","Getting songs from album "+album_id+" from the network, auth: "+ Objects.requireNonNull(settings.getValue()).getAuth());
         return ampacheService.album_songs(Objects.requireNonNull(settings.getValue()).getAuth(),String.valueOf(album_id),0,Integer.MAX_VALUE)
                 .map(songs -> {
-                    Log.d("SongsNetworkInteractor.getSongsByAlbum$1","Received songs from the network!");
+                    Log.d("SongsNetworkInteractorAlbums.getSongsByAlbum$1","Received songs from the network!");
                     Album album=new Album();
                     album.setId(Integer.parseInt(album_id));
                     AlbumWithSongs s=new AlbumWithSongs();
@@ -35,6 +35,6 @@ public class SongsNetworkInteractorAlbums extends SongsNetworkInteractor<AlbumWi
                 .doOnSuccess(databaseInteractor::saveData)
                 .doOnSuccess(memoryInteractor::saveData)
                 .doOnError(throwable ->
-                        Log.d("SongsNetworkInteractor","Error interacting with the network: "+throwable));
+                        Log.d("SongsNetworkInteractorAlbums","Error interacting with the network: "+throwable));
     }
 }

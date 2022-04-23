@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
+import androidx.lifecycle.LiveData;
 import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.LoadType;
 import androidx.paging.PagingSource;
@@ -11,6 +12,7 @@ import androidx.paging.PagingState;
 import androidx.paging.rxjava3.RxRemoteMediator;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,7 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
     private final AmpacheService ampacheService;
     private final AmpacheDatabase ampacheDatabase;
     private final AlbumDao albumDao;
-    private LoginResponse loginResponse;
+    private LiveData<LoginResponse> loginResponse;
 
     public AlbumRemoteMediator(String query,AmpacheService ampacheService,AmpacheDatabase ampacheDatabase)
     {
@@ -41,7 +43,7 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
         this.ampacheDatabase=ampacheDatabase;
         this.albumDao=ampacheDatabase.albumDao();
     }
-    public void setLoginResponse(LoginResponse loginResponse)
+    public void setLoginResponse(LiveData<LoginResponse> loginResponse)
     {
         this.loginResponse=loginResponse;
     }
@@ -76,7 +78,7 @@ public class AlbumRemoteMediator extends RxRemoteMediator<Integer, Album>
         int offset=loadKey==null?0:loadKey;
         int limit=pagingState.getConfig().pageSize;
         int finalLoadKey = loadKey==null?0:loadKey;
-        return ampacheService.get_indexes_album_rx(loginResponse.getAuth(),query,offset,limit)
+        return ampacheService.albums(Objects.requireNonNull(loginResponse.getValue()).getAuth(),query,offset,limit)
                 .subscribeOn(Schedulers.io())
                 .map((Function<AlbumListResponse, MediatorResult>) response -> {
                     ampacheDatabase.runInTransaction(() -> {

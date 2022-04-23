@@ -2,9 +2,12 @@ package ar.com.strellis.ampflower.data.datasource.network;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava3.RxPagingSource;
+
+import java.util.Objects;
 
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.ArtistListResponse;
@@ -17,11 +20,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class ArtistPagingSourceRx extends RxPagingSource<Integer, Artist> {
     public static final int PAGE_SIZE=20;
     private final AmpacheService ampacheService;
-    private final LoginResponse loginResponse;
+    private final LiveData<LoginResponse> loginResponse;
     private final MutableLiveData<NetworkState> loading;
     private final String query;
 
-    public ArtistPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, MutableLiveData<NetworkState> loading,String query)
+    public ArtistPagingSourceRx(AmpacheService ampacheService, LiveData<LoginResponse> loginResponse, MutableLiveData<NetworkState> loading,String query)
     {
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;
@@ -40,7 +43,7 @@ public class ArtistPagingSourceRx extends RxPagingSource<Integer, Artist> {
         int page=loadParams.getKey()!=null? loadParams.getKey() : 0;
         int offset=page*PAGE_SIZE;
         loading.setValue(NetworkState.LOADING);
-        return ampacheService.get_indexes_artist_rx(loginResponse.getAuth(), query,offset,PAGE_SIZE)
+        return ampacheService.get_indexes_artist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(), query,offset,PAGE_SIZE)
                 .subscribeOn(Schedulers.io())
                 .map(artists->toLoadResult(artists,page))
                 .onErrorReturn(LoadResult.Error::new)

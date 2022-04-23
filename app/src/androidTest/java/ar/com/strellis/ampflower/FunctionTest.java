@@ -57,7 +57,7 @@ public class FunctionTest {
                 .build();
         ampache = retrofit.create(AmpacheService.class);
         loginResponse=getLoginResponse();
-    }
+    }/*
     @Test
     public void test01Ping()
     {
@@ -73,7 +73,7 @@ public class FunctionTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
     @Test
     public void test02Goodbye()
     {

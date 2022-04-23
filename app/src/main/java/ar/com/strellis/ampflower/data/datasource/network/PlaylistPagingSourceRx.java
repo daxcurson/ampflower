@@ -2,17 +2,17 @@ package ar.com.strellis.ampflower.data.datasource.network;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava3.RxPagingSource;
 
-import ar.com.strellis.ampflower.data.model.Artist;
-import ar.com.strellis.ampflower.data.model.ArtistListResponse;
+import java.util.Objects;
+
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
-import ar.com.strellis.ampflower.data.model.SearchType;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -20,17 +20,17 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class PlaylistPagingSourceRx extends RxPagingSource<Integer, Playlist> {
     public static final int PAGE_SIZE=20;
     private final AmpacheService ampacheService;
-    private LoginResponse loginResponse;
+    private LiveData<LoginResponse> loginResponse;
     private final MutableLiveData<NetworkState> loading;
     private final String query;
-    public PlaylistPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, MutableLiveData<NetworkState> loading,String query)
+    public PlaylistPagingSourceRx(AmpacheService ampacheService, LiveData<LoginResponse> loginResponse, MutableLiveData<NetworkState> loading,String query)
     {
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;
         this.loading=loading;
         this.query=query;
     }
-    public void setLoginResponse(LoginResponse loginResponse)
+    public void setLoginResponse(LiveData<LoginResponse> loginResponse)
     {
         this.loginResponse=loginResponse;
     }
@@ -40,7 +40,7 @@ public class PlaylistPagingSourceRx extends RxPagingSource<Integer, Playlist> {
         int page=loadParams.getKey()!=null? loadParams.getKey() : 0;
         int offset=page*PAGE_SIZE;
         loading.setValue(NetworkState.LOADING);
-        return ampacheService.get_indexes_playlist_rx(loginResponse.getAuth(), query,offset,PAGE_SIZE)
+        return ampacheService.get_indexes_playlist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(), query,offset,PAGE_SIZE)
                 .subscribeOn(Schedulers.io())
                 .map(playlists->toLoadResult(playlists,page))
                 .onErrorReturn(LoadResult.Error::new)

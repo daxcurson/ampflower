@@ -3,22 +3,19 @@ package ar.com.strellis.ampflower.data.datasource.network;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.paging.LoadType;
 import androidx.paging.PagingSource;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava3.RxRemoteMediator;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
-import ar.com.strellis.ampflower.data.dao.AlbumDao;
 import ar.com.strellis.ampflower.data.dao.PlaylistDao;
-import ar.com.strellis.ampflower.data.model.AlbumListResponse;
-import ar.com.strellis.ampflower.data.model.AlbumRemoteKey;
-import ar.com.strellis.ampflower.data.model.Artist;
-import ar.com.strellis.ampflower.data.model.ArtistRemoteKey;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
@@ -34,7 +31,7 @@ public class PlaylistRemoteMediator extends RxRemoteMediator<Integer, Playlist>
     private final AmpacheService ampacheService;
     private final AmpacheDatabase ampacheDatabase;
     private final PlaylistDao playlistDao;
-    private LoginResponse loginResponse;
+    private LiveData<LoginResponse> loginResponse;
 
     public PlaylistRemoteMediator(String query,AmpacheService ampacheService,AmpacheDatabase ampacheDatabase)
     {
@@ -43,7 +40,7 @@ public class PlaylistRemoteMediator extends RxRemoteMediator<Integer, Playlist>
         this.ampacheDatabase=ampacheDatabase;
         this.playlistDao=ampacheDatabase.playlistDao();
     }
-    public void setLoginResponse(LoginResponse loginResponse)
+    public void setLoginResponse(LiveData<LoginResponse> loginResponse)
     {
         this.loginResponse=loginResponse;
     }
@@ -81,7 +78,7 @@ public class PlaylistRemoteMediator extends RxRemoteMediator<Integer, Playlist>
         int offset=loadKey==null?0:loadKey;
         int limit=pagingState.getConfig().pageSize;
         int finalLoadKey = loadKey==null?0:loadKey;
-        return ampacheService.get_indexes_playlist_rx(loginResponse.getAuth(),query,offset,limit)
+        return ampacheService.get_indexes_playlist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(),query,offset,limit)
                 .subscribeOn(Schedulers.io())
                 .map((Function<PlaylistListResponse, MediatorResult>) response -> {
                     ampacheDatabase.runInTransaction(() -> {

@@ -12,10 +12,8 @@ import androidx.paging.rxjava3.PagingRx;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
 import ar.com.strellis.ampflower.data.datasource.network.AlbumPagingSourceRx;
-import ar.com.strellis.ampflower.data.datasource.network.AlbumRemoteMediator;
 import ar.com.strellis.ampflower.data.datasource.network.PlaylistPagingSourceRx;
 import ar.com.strellis.ampflower.data.datasource.network.PlaylistRemoteMediator;
-import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
@@ -30,12 +28,12 @@ public class PlaylistsRepositoryRx {
     private final AmpacheDatabase database;
     private final AmpacheService ampacheService;
     private AmpacheSettings ampacheSettings;
-    private final LoginResponse loginResponse;
+    private final LiveData<LoginResponse> loginResponse;
     private final MutableLiveData<NetworkState> loading;
     private AlbumPagingSourceRx pagingSourceRx;
     private LiveData<String> query;
 
-    private PlaylistsRepositoryRx(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner)
+    private PlaylistsRepositoryRx(Context context, AmpacheService ampacheService, AmpacheSettings settings, LiveData<LoginResponse> loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner)
     {
         database = AmpacheDatabase.getDatabase(context.getApplicationContext());
         this.loginResponse=loginResponse;
@@ -44,7 +42,7 @@ public class PlaylistsRepositoryRx {
         loading=new MutableLiveData<>();
         this.query=query;
     }
-    public static PlaylistsRepositoryRx getInstance(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner){
+    public static PlaylistsRepositoryRx getInstance(Context context, AmpacheService ampacheService, AmpacheSettings settings, LiveData<LoginResponse> loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner){
         if(instance == null){
             instance = new PlaylistsRepositoryRx(context,ampacheService,settings,loginResponse,query,lifecycleOwner);
         }

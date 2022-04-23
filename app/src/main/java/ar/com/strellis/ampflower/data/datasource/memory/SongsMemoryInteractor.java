@@ -20,10 +20,16 @@ public class SongsMemoryInteractor<T extends EntityWithSongs>
     }
     public void saveData(T songs)
     {
-        Log.d("SongsMemoryInteractor","Saving received songs: "+songs.getSongs().size()+" songs");
-        for(Song songInAlbum:songs.getSongs())
-            Log.d("SongsMemoryInteractor","Saving this song in memory: "+songInAlbum.getName());
-        this.songs=songs;
+        if(songs.getSongs()!=null) {
+            Log.d("SongsMemoryInteractor", "Saving received songs: " + songs.getSongs().size() + " songs");
+            for (Song songInAlbum : songs.getSongs())
+                Log.d("SongsMemoryInteractor", "Saving this song in memory: " + songInAlbum.getName());
+            this.songs = songs;
+        }
+        else
+        {
+            Log.d("SongsMemoryInteractor","The list of songs received is empty");
+        }
         observable.onNext(songs);
     }
     public Maybe<T> getSongs()

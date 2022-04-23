@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.data.model.Song;
@@ -18,7 +19,7 @@ import ar.com.strellis.ampflower.data.repository.SongsRepository;
 public class SongsViewModel extends ViewModel
 {
     private SongsRepository songsRepository;
-    private final MutableLiveData<Searchable> searchableItem;
+    private final MutableLiveData<Searchable<?>> searchableItem;
     private final MutableLiveData<List<SelectableSong>> songsInView;
     private final MutableLiveData<List<SelectableSong>> currentPlaylist;
     private int oldItemInPlaylist;
@@ -50,12 +51,12 @@ public class SongsViewModel extends ViewModel
     {
         return this.songsRepository;
     }
-    public void setSearchableItem(Searchable songs)
+    public void setSearchableItem(Searchable<?> songs)
     {
         Log.d("SongsViewModel","This is setSearchableItem");
         searchableItem.setValue(songs);
     }
-    public LiveData<Searchable> getSearchableItem()
+    public LiveData<Searchable<?>> getSearchableItem()
     {
         Log.d("SongsViewModel","This is getSearchableItem");
         return searchableItem;
@@ -118,4 +119,9 @@ public class SongsViewModel extends ViewModel
                 .map(SelectableSong::getSong)
                 .collect(Collectors.toList());
     }
+    public LoginResponse getLoginResponse()
+    {
+        return songsRepository.getLoginResponse();
+    }
+
 }

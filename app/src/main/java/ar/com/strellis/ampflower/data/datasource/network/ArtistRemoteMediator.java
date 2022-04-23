@@ -3,19 +3,19 @@ package ar.com.strellis.ampflower.data.datasource.network;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.paging.LoadType;
 import androidx.paging.PagingSource;
 import androidx.paging.PagingState;
 import androidx.paging.rxjava3.RxRemoteMediator;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
-import ar.com.strellis.ampflower.data.dao.AlbumDao;
 import ar.com.strellis.ampflower.data.dao.ArtistDao;
-import ar.com.strellis.ampflower.data.model.AlbumListResponse;
 import ar.com.strellis.ampflower.data.model.AlbumRemoteKey;
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.ArtistListResponse;
@@ -32,7 +32,7 @@ public class ArtistRemoteMediator extends RxRemoteMediator<Integer, Artist>
     private final AmpacheService ampacheService;
     private final AmpacheDatabase ampacheDatabase;
     private final ArtistDao artistDao;
-    private LoginResponse loginResponse;
+    private LiveData<LoginResponse> loginResponse;
 
     public ArtistRemoteMediator(String query,AmpacheService ampacheService,AmpacheDatabase ampacheDatabase)
     {
@@ -41,7 +41,7 @@ public class ArtistRemoteMediator extends RxRemoteMediator<Integer, Artist>
         this.ampacheDatabase=ampacheDatabase;
         this.artistDao=ampacheDatabase.artistDao();
     }
-    public void setLoginResponse(LoginResponse loginResponse)
+    public void setLoginResponse(LiveData<LoginResponse> loginResponse)
     {
         this.loginResponse=loginResponse;
     }
@@ -79,7 +79,7 @@ public class ArtistRemoteMediator extends RxRemoteMediator<Integer, Artist>
         int offset=loadKey==null?0:loadKey;
         int limit=pagingState.getConfig().pageSize;
         int finalLoadKey = loadKey==null?0:loadKey;
-        return ampacheService.get_indexes_artist_rx(loginResponse.getAuth(),query,offset,limit)
+        return ampacheService.get_indexes_artist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(),query,offset,limit)
                 .subscribeOn(Schedulers.io())
                 .map((Function<ArtistListResponse, MediatorResult>) response -> {
                     ampacheDatabase.runInTransaction(() -> {

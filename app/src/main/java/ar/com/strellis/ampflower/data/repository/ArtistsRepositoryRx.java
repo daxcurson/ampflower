@@ -30,12 +30,12 @@ public class ArtistsRepositoryRx {
     private final AmpacheDatabase database;
     private final AmpacheService ampacheService;
     private AmpacheSettings ampacheSettings;
-    private final LoginResponse loginResponse;
+    private final LiveData<LoginResponse> loginResponse;
     private final MutableLiveData<NetworkState> loading;
     private AlbumPagingSourceRx pagingSourceRx;
     private LiveData<String> query;
 
-    private ArtistsRepositoryRx(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner)
+    private ArtistsRepositoryRx(Context context, AmpacheService ampacheService, AmpacheSettings settings, LiveData<LoginResponse> loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner)
     {
         database = AmpacheDatabase.getDatabase(context.getApplicationContext());
         this.loginResponse=loginResponse;
@@ -44,7 +44,7 @@ public class ArtistsRepositoryRx {
         loading=new MutableLiveData<>();
         this.query=query;
     }
-    public static ArtistsRepositoryRx getInstance(Context context, AmpacheService ampacheService, AmpacheSettings settings, LoginResponse loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner){
+    public static ArtistsRepositoryRx getInstance(Context context, AmpacheService ampacheService, AmpacheSettings settings, LiveData<LoginResponse> loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner){
         if(instance == null){
             instance = new ArtistsRepositoryRx(context,ampacheService,settings,loginResponse,query,lifecycleOwner);
         }
@@ -68,6 +68,6 @@ public class ArtistsRepositoryRx {
     public String getImageUrl(int artistId)
     {
         // builds an URL of an image to be used by Picasso
-        return AmpacheUtil.getImageUrl(artistId,"artist",ampacheSettings,loginResponse);
+        return AmpacheUtil.getImageUrl(artistId,"artist",ampacheSettings,loginResponse.getValue());
     }
 }

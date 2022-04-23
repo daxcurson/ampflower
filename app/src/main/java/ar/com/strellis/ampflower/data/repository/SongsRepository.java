@@ -41,8 +41,10 @@ public class SongsRepository
     private final SongsMemoryInteractor<PlaylistWithSongs> songsMemoryInteractorPlaylists;
     private final SongsDatabaseInteractorPlaylists songsDatabaseInteractorPlaylists;
     private final SongsNetworkInteractorPlaylists songsNetworkInteractorPlaylists;
+    private LiveData<LoginResponse> settings;
     public SongsRepository(Context context,AmpacheService ampacheService, LiveData<LoginResponse> settings)
     {
+        this.settings=settings;
         songsMemoryInteractorAlbums=new SongsMemoryInteractor<>();
         AmpacheDatabase appDatabase=AmpacheDatabase.getDatabase(context);
         songsDatabaseInteractorAlbums=new SongsDatabaseInteractorAlbums(appDatabase,songsMemoryInteractorAlbums);
@@ -159,5 +161,9 @@ public class SongsRepository
                     },this::handleNonHttpException);
         }
         return songsMemoryInteractorPlaylists.getSongsObservable();
+    }
+    public LoginResponse getLoginResponse()
+    {
+        return this.settings.getValue();
     }
 }

@@ -24,15 +24,21 @@ public class SongsDatabaseInteractorAlbums extends SongsDatabaseInteractor<Album
     }
     public void saveData(AlbumWithSongs songs)
     {
-        Log.d("SongsDatabaseInteractor.saveData","Saving the retrieved data");
+        Log.d("SongsDatabaseInteractorAlbums.saveData","Saving the retrieved data");
         List<AlbumSong> songsToInsert=new LinkedList<>();
-        for(Song s:songs.getSongs()) {
-            AlbumSong albumSong = new AlbumSong();
-            albumSong.setAlbumId(songs.getAlbum().getId());
-            albumSong.setSongId(s.getId());
-            Log.d("SongsDatabaseInteractor.saveData", "Storing AlbumSong entity for this song: " + s.getName());
-            songsToInsert.add(albumSong);
+        if(songs.getSongs()!=null) {
+            for (Song s : songs.getSongs()) {
+                AlbumSong albumSong = new AlbumSong();
+                albumSong.setAlbumId(songs.getAlbum().getId());
+                albumSong.setSongId(s.getId());
+                Log.d("SongsDatabaseInteractorAlbums.saveData", "Storing AlbumSong entity for this song: " + s.getName());
+                songsToInsert.add(albumSong);
+            }
+            appDatabase.albumSongDao().insertAll(songsToInsert);
         }
-        appDatabase.albumSongDao().insertAll(songsToInsert);
+        else
+        {
+            Log.d("SongsDatabaseInteractorAlbums.saveData","An error occurred when saving the list of songs for an album");
+        }
     }
 }

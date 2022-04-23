@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,7 +26,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -38,18 +36,19 @@ import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.SelectableSong;
-import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.databinding.FragmentChooseSongsBinding;
-import ar.com.strellis.ampflower.service.MediaPlayerService;
+import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class ChooseSongsFragment extends Fragment {
     private FragmentChooseSongsBinding binding;
     private SongsViewModel songsViewModel;
     private int numberSelected = 0;
     private ChooseSongsAdapter chooseSongsAdapter;
+    private final CompositeDisposable disposable=new CompositeDisposable();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -152,35 +151,69 @@ public class ChooseSongsFragment extends Fragment {
                 selectedEntity -> {
             if(selectedEntity instanceof Album) {
                 Log.d("ChooseSongsFragment", "I have to get an album's songs!");
-                songsViewModel.getSongsRepository().getSongsByAlbum((Integer) selectedEntity.getId())
+                disposable.add(songsViewModel.getSongsRepository().getSongsByAlbum((Integer) selectedEntity.getId())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(chooseSongsAdapter::submitList);
+                        .doOnError(error->{
+                            Log.d("ChooseSongsFragment","Error when receiving album songs, doOnError");
+                        })
+                        .subscribe(albumWithSongs -> {
+                            chooseSongsAdapter.submitList(albumWithSongs);
+                        },error->{
+                            Log.d("ChooseSongsFragment","Error when receiving album songs for the recycler");
+                            // It is possible that we may need to renew the authentication token.
+                            if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
+                            {
+                                Log.d("ChooseSongsFragment","The login is expired, must be renewed");
+                                //Intent intent = new Intent(ACTION_RENEW_TOKEN);
+                                //LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(intent);
+                            }
+                        })
+                );
             }
             if(selectedEntity instanceof Artist)
             {
                 Log.d("ChooseSongsFragment", "I have to get an artist's songs!");
-                songsViewModel.getSongsRepository().getSongsByArtist((Integer) selectedEntity.getId())
+                disposable.add(songsViewModel.getSongsRepository().getSongsByArtist((Integer) selectedEntity.getId())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(chooseSongsAdapter::submitList);
+                        .doOnError(error->{
+                            Log.d("ChooseSongsFragment","Error when receiving artist songs, doOnError");
+                        })
+                        .subscribe(artistWithSongs -> {
+                                chooseSongsAdapter.submitList(artistWithSongs);
+                        },error->{
+                            Log.d("ChooseSongsFragment","Error when receiving album songs for the recycler");
+                            // It is possible that we may need to renew the authentication token.
+                            if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
+                            {
+                                Log.d("ChooseSongsFragment","The login is expired, must be renewed");
+                                //Intent intent = new Intent(ACTION_RENEW_TOKEN);
+                                //LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+                            }
+                        })
+                );
             }
             if(selectedEntity instanceof Playlist)
             {
                 Log.d("ChooseSongsFragment", "I have to get a playlist's songs!");
-                songsViewModel.getSongsRepository().getSongsByPlaylist((String) selectedEntity.getId())
+                disposable.add(songsViewModel.getSongsRepository().getSongsByPlaylist((String) selectedEntity.getId())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(chooseSongsAdapter::submitList);
+                        .doOnError(error->{
+                            Log.d("ChooseSongsFragment","Error when receiving playlist songs, doOnError");
+                        })
+                        .subscribe(playlistWithSongs -> {
+                            chooseSongsAdapter.submitList(playlistWithSongs);
+                        },error->{
+                            Log.d("ChooseSongsFragment","Error when receiving playlist songs for the recycler");
+                            // It is possible that we may need to renew the authentication token.
+                            if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
+                            {
+                                Log.d("ChooseSongsFragment","The login is expired, must be renewed");
+                                //Intent intent = new Intent(ACTION_RENEW_TOKEN);
+                                //LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+                            }
+                        })
+                );
             }
-                    // now it's time to call the Repository.
-            /*
-            songsViewModel.getSongsByAlbum().observe(getViewLifecycleOwner(), songs -> {
-                Log.d("ChooseSongsFragment","I have a list of songs, "+songs.size()+" items");
-                for(AlbumWithSongs s:songs)
-                {
-                    Log.d("ChooseSongsFragment","The album is "+s.getAlbum().getName());
-                    Log.d("ChooseSongsFragment", "It has "+s.getSongs().size()+" songs");
-                }
-                chooseSongsAdapter.submitList(songs);
-            });*/
                 });
         hideKeyboardFrom(requireContext(),view);
     }

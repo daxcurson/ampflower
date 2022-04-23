@@ -39,11 +39,14 @@ import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.data.model.AmpacheAuth;
@@ -75,6 +78,8 @@ import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import ar.com.strellis.utils.SlidingUpPanelLayout;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -150,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     showToast("The server is unavailable");
                     break;
                 case LOGIN_DENIED:
-                    Log.d("MainActivity.configuraServerStatusObserver","The server is now unavailable");
+                    Log.d("MainActivity.configuraServerStatusObserver","Login denied");
                     showToast("Login denied");
                     break;
                 case ONLINE:
@@ -158,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     // offline, for example, if the authentication token expired and we need to renew it.
                     // By the time we get here, the token has been renewed since the change in server status
                     // is done from the login method.
-                    Log.d("MainActivity.configuraServerStatusObserver","The server is now unavailable");
+                    Log.d("MainActivity.configuraServerStatusObserver","The server is online!!");
                     showToast("We're online!");
                     configureDataModels();
                     renewPlaylist();
@@ -419,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
         assert settings != null;
         AmpacheService networkService= AmpacheUtil.getService(settings);
-        LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
+        LiveData<LoginResponse> loginResponse=serverStatusViewModel.getLoginResponse();
         AlbumsRepositoryRx albumRepository = AlbumsRepositoryRx.getInstance(this,networkService, settings,loginResponse,albumsViewModel.getQuery(),this);
         albumsViewModel.setAlbumsRepository(albumRepository);
     }
@@ -428,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
         assert settings != null;
         AmpacheService service= AmpacheUtil.getService(settings);
-        LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
+        LiveData<LoginResponse> loginResponse=serverStatusViewModel.getLoginResponse();
         ArtistsRepositoryRx artistsRepository = ArtistsRepositoryRx.getInstance(this,service, settings,loginResponse,artistsViewModel.getQuery(),this);
         artistsViewModel.setArtistsRepository(artistsRepository);
     }
@@ -437,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
         assert settings != null;
         AmpacheService service= AmpacheUtil.getService(settings);
-        LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
+        LiveData<LoginResponse> loginResponse=serverStatusViewModel.getLoginResponse();
         PlaylistsRepositoryRx playlistsRepository = PlaylistsRepositoryRx.getInstance(this,service, settings,loginResponse,artistsViewModel.getQuery(),this);
         playlistsViewModel.setPlaylistsRepository(playlistsRepository);
     }
@@ -634,13 +639,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d("MainActivity","I'm resumed");
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver,new IntentFilter(BuildConfig.APPLICATION_ID+".action.RENEW_LOGINRESPONSE"));
     }
 
     @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver);
+        Log.d("MainActivity","I'm paused");
         super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("MainActivity","I'm stopped");
     }
 
     private void bindMediaPlayerService()
@@ -689,8 +702,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void play(MediaItem item) {
-            assert item.playbackProperties != null;
-            Log.d("Playing","Received a Play message, looping into playing, URL of the media item: "+item.playbackProperties.uri);
+            assert item.localConfiguration != null;
+            Log.d("Playing","Received a Play message, looping into playing, URL of the media item: "+item.localConfiguration.uri);
             updateUiWithMediaItem(item);
             updateUiToPlayState();
             state=playing;
@@ -858,7 +871,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Informs the server to add the songs to the list, and if the player is playing,
      * restore the position and the seek time.
-     * @param songs
+     * @param songs the songs that were stored in the playlist
      */
     private void restorePlayerStatus(List<SelectableSong> songs)
     {

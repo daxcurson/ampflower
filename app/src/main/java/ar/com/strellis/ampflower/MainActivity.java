@@ -79,6 +79,9 @@ import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import ar.com.strellis.utils.SlidingUpPanelLayout;
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -102,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SharedPreferences sharedPreferences;
     private boolean boundToService=false;
     private MediaPlayerService playerService;
+    private Disposable disposableObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -296,6 +300,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     Log.d("MainActivity.loginToAmpache", "We're in");
                                     serverStatusViewModel.setLoginResponse(response.body());
                                     serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
+                                    // Try to renew the session
+                                    scheduleSessionRenewal(getNextUpdateTime(response.body()));
                                 }
                                 else
                                 {
@@ -633,6 +639,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
         // I need to remove myself as listener to the service!
         playerService.removeEventListener(this);
+        // Also destroy the thread renewer
+        if(disposableObserver!=null)
+            disposableObserver.dispose();
         Log.d("MainActivity","I'm destroyed");
     }
 
@@ -943,5 +952,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bundle.putSerializable("position",position);
         intent.putExtras(bundle);
         startService(intent);
+    }
+    /**
+     * Pings the server to try to renew our current session.
+     */
+    private void renewSession()
+    {
+        AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
+        if(settings!=null
+                && settings.getAmpacheUrl()!=null
+                && !settings.getAmpacheUrl().equals("")) {
+            AmpacheService ampacheService = AmpacheUtil.getService(settings);
+            LoginResponse r=serverStatusViewModel.getLoginResponse().getValue();
+            if(r!=null) {
+                Log.d("MainActivity","Pinging the server");
+                try {
+                    ampacheService.ping(r.getAuth()).execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Schedules the next session renewal
+     * @param delay interval in seconds until the next session renewal
+     */
+    private void scheduleSessionRenewal(Long delay)
+    {
+        if(disposableObserver==null)
+            disposableObserver= Observable.interval(delay,TimeUnit.SECONDS)
+                .subscribeOn(Schedulers.io())
+                .subscribe(data->renewSession(),error->{Log.d("MainActivity.scheduleSessionRenewal","Error renewing the session");});
+    }
+
+    /**
+     * Calculates the next update time based on the current session expiration time
+     * @param response LoginResponse received from the server
+     * @return interval in seconds until the next update
+     */
+    private long getNextUpdateTime(LoginResponse response)
+    {
+        Date now=new Date();
+        long milliseconds=Math.abs(response.getSession_expire().getTime()-now.getTime());
+        return TimeUnit.SECONDS.convert(milliseconds,TimeUnit.MILLISECONDS)/2;
     }
 }

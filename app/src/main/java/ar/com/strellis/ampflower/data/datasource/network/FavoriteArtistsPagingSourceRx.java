@@ -14,13 +14,13 @@ import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class ArtistsPagingSourceRx extends RxPagingSource<Integer, Artist> {
+public class FavoriteArtistsPagingSourceRx extends RxPagingSource<Integer, Artist> {
     public static final int PAGE_SIZE=4;
     private final AmpacheService ampacheService;
     private LoginResponse loginResponse;
     private final SearchType searchType;
     private MutableLiveData<Boolean> loading;
-    public ArtistsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType,MutableLiveData<Boolean> loading)
+    public FavoriteArtistsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType, MutableLiveData<Boolean> loading)
     {
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;

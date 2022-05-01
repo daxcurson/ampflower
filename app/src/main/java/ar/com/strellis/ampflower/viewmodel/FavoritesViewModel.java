@@ -9,7 +9,7 @@ import androidx.paging.PagingData;
 import androidx.paging.rxjava3.PagingRx;
 
 import ar.com.strellis.ampflower.data.datasource.network.AlbumStatsPagingSourceRx;
-import ar.com.strellis.ampflower.data.datasource.network.ArtistsPagingSourceRx;
+import ar.com.strellis.ampflower.data.datasource.network.FavoriteArtistsPagingSourceRx;
 import ar.com.strellis.ampflower.data.datasource.network.SongsPagingSourceRx;
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.Artist;
@@ -50,10 +50,10 @@ public class FavoritesViewModel extends ViewModel
         PagingRx.cachedIn(pagedRandomAlbums,coroutineScope);
         loadingRandomAlbums.setValue(false);
 
-        ArtistsPagingSourceRx topRatedArtistsPagingSource=new ArtistsPagingSourceRx(service,loginResponse,SearchType.HIGHEST,this.loadingTopRatedArtists);
+        FavoriteArtistsPagingSourceRx topRatedArtistsPagingSource=new FavoriteArtistsPagingSourceRx(service,loginResponse,SearchType.HIGHEST,this.loadingTopRatedArtists);
         Pager<Integer,Artist> pagerArtists=new Pager<>(
-                new PagingConfig(ArtistsPagingSourceRx.PAGE_SIZE,
-                        ArtistsPagingSourceRx.PAGE_SIZE
+                new PagingConfig(FavoriteArtistsPagingSourceRx.PAGE_SIZE,
+                        FavoriteArtistsPagingSourceRx.PAGE_SIZE
                 ),
                 ()->topRatedArtistsPagingSource
         );

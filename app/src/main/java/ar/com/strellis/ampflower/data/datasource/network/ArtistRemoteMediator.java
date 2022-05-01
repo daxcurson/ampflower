@@ -28,13 +28,13 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class ArtistRemoteMediator extends RxRemoteMediator<Integer, Artist>
 {
-    private final String query;
+    private final LiveData<String> query;
     private final AmpacheService ampacheService;
     private final AmpacheDatabase ampacheDatabase;
     private final ArtistDao artistDao;
     private LiveData<LoginResponse> loginResponse;
 
-    public ArtistRemoteMediator(String query,AmpacheService ampacheService,AmpacheDatabase ampacheDatabase)
+    public ArtistRemoteMediator(LiveData<String> query,AmpacheService ampacheService,AmpacheDatabase ampacheDatabase)
     {
         this.query=query;
         this.ampacheService=ampacheService;
@@ -79,7 +79,7 @@ public class ArtistRemoteMediator extends RxRemoteMediator<Integer, Artist>
         int offset=loadKey==null?0:loadKey;
         int limit=pagingState.getConfig().pageSize;
         int finalLoadKey = loadKey==null?0:loadKey;
-        return ampacheService.get_indexes_artist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(),query,offset,limit)
+        return ampacheService.get_indexes_artist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(),query.getValue(),offset,limit)
                 .subscribeOn(Schedulers.io())
                 .map((Function<ArtistListResponse, MediatorResult>) response -> {
                     ampacheDatabase.runInTransaction(() -> {

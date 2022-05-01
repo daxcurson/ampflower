@@ -54,13 +54,13 @@ public class AlbumsRepositoryRx {
      * @return Paging data for the albums loaded from the source
      */
     public Flowable<PagingData<Album>> getAlbums(Integer page) {
-        AlbumRemoteMediator mediator=new AlbumRemoteMediator(query.getValue(),ampacheService,database);
+        AlbumRemoteMediator mediator=new AlbumRemoteMediator(query,ampacheService,database);
         mediator.setLoginResponse(loginResponse);
         Pager<Integer,Album> pager= new Pager<>(
                 new PagingConfig(PAGE_SIZE, 1),
                 page,
                 mediator,
-                ()->new AlbumPagingSourceRx(ampacheService,loginResponse.getValue(), loading,query.getValue())
+                ()->new AlbumPagingSourceRx(ampacheService,loginResponse, loading,query)
         );
         return PagingRx.getFlowable(pager);
     }

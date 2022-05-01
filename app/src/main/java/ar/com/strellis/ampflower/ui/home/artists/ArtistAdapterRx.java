@@ -50,7 +50,7 @@ public class ArtistAdapterRx extends PagingDataAdapter<Artist, ArtistViewHolder>
         @Override
         public boolean areItemsTheSame(@NonNull Artist oldItem,@NonNull Artist newItem) {
             Log.d("ArtistAdapter","Callback comparing item "+oldItem.getId()+" with item "+newItem.getId());
-            return oldItem.getId()==newItem.getId() && oldItem.getName().equals(newItem.getName());
+            return oldItem.getId().equals(newItem.getId()) && oldItem.getName().equals(newItem.getName());
         }
 
         @Override

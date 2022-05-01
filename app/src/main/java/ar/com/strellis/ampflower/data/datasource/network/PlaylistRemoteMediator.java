@@ -69,6 +69,7 @@ public class PlaylistRemoteMediator extends RxRemoteMediator<Integer, Playlist>
                     loadKey=remoteKey.getPrevKey();
                 else
                     return Single.just(new MediatorResult.Success(true));
+                break;
             case APPEND:
                 remoteKey=getLastRemoteKey(pagingState);
                 if(remoteKey!=null && remoteKey.getNextKey()!=null)

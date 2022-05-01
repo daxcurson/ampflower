@@ -32,7 +32,6 @@ public class ArtistsRepositoryRx {
     private AmpacheSettings ampacheSettings;
     private final LiveData<LoginResponse> loginResponse;
     private final MutableLiveData<NetworkState> loading;
-    private AlbumPagingSourceRx pagingSourceRx;
     private LiveData<String> query;
 
     private ArtistsRepositoryRx(Context context, AmpacheService ampacheService, AmpacheSettings settings, LiveData<LoginResponse> loginResponse, LiveData<String> query, LifecycleOwner lifecycleOwner)
@@ -51,13 +50,13 @@ public class ArtistsRepositoryRx {
         return instance;
     }
     public Flowable<PagingData<Artist>> getArtists() {
-        ArtistRemoteMediator mediator=new ArtistRemoteMediator(query.getValue(),ampacheService,database);
+        ArtistRemoteMediator mediator=new ArtistRemoteMediator(query,ampacheService,database);
         mediator.setLoginResponse(loginResponse);
         Pager<Integer,Artist> pager= new Pager<>(
                 new PagingConfig(PAGE_SIZE, 1),
                 0,
                 mediator,
-                ()->new ArtistPagingSourceRx(ampacheService,loginResponse, loading,query.getValue())
+                ()->new ArtistPagingSourceRx(ampacheService,loginResponse, loading,query)
         );
         return PagingRx.getFlowable(pager);
     }

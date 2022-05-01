@@ -22,9 +22,9 @@ public class ArtistPagingSourceRx extends RxPagingSource<Integer, Artist> {
     private final AmpacheService ampacheService;
     private final LiveData<LoginResponse> loginResponse;
     private final MutableLiveData<NetworkState> loading;
-    private final String query;
+    private final LiveData<String> query;
 
-    public ArtistPagingSourceRx(AmpacheService ampacheService, LiveData<LoginResponse> loginResponse, MutableLiveData<NetworkState> loading,String query)
+    public ArtistPagingSourceRx(AmpacheService ampacheService, LiveData<LoginResponse> loginResponse, MutableLiveData<NetworkState> loading,LiveData<String> query)
     {
         this.ampacheService=ampacheService;
         this.loginResponse=loginResponse;
@@ -43,7 +43,7 @@ public class ArtistPagingSourceRx extends RxPagingSource<Integer, Artist> {
         int page=loadParams.getKey()!=null? loadParams.getKey() : 0;
         int offset=page*PAGE_SIZE;
         loading.setValue(NetworkState.LOADING);
-        return ampacheService.get_indexes_artist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(), query,offset,PAGE_SIZE)
+        return ampacheService.get_indexes_artist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(), query.getValue(),offset,PAGE_SIZE)
                 .subscribeOn(Schedulers.io())
                 .map(artists->toLoadResult(artists,page))
                 .onErrorReturn(LoadResult.Error::new)

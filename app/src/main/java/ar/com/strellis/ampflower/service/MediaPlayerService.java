@@ -163,10 +163,12 @@ public class MediaPlayerService extends LifecycleService
                                 Log.d("MediaPlayerService","getCurrentContentText");
                                 if(player.getCurrentMediaItem() != null) {
                                     player.getCurrentMediaItem();
+                                    String album= Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.albumTitle).toString();
+                                    String artist=Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.artist).toString();
+                                    return album+" by "+artist;
                                 }
-                                String album= Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.albumTitle).toString();
-                                String artist=Objects.requireNonNull(player.getCurrentMediaItem().mediaMetadata.artist).toString();
-                                return album+" by "+artist;
+                                else
+                                    return "No media selected";
                             }
 
                             @Nullable

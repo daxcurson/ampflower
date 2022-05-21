@@ -133,17 +133,18 @@ public class ChooseSongsFragment extends Fragment {
                 return false;
             }
         });
-        binding.playSelectedSongsText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("ChooseSongsFragment","I'm asked to play the selected songs!");
+        binding.playSelectedSongsText.setOnClickListener(v -> {
+            // If there are actually any selected songs, then play them...
+            if(!songsViewModel.getSelectedSongs().isEmpty()) {
+                Log.d("ChooseSongsFragment", "I'm asked to play the selected songs!");
                 // Let's pack an intent and send it to the service, with the list of songs
-                ((MainActivity)requireActivity()).sendSelectedSongsToPlayList();
+                ((MainActivity) requireActivity()).sendSelectedSongsToPlayList();
                 songsViewModel.setCurrentPlaylist(songsViewModel.getSelectedSongsIntoPlaylist());
                 // Return to home.
                 NavController navController = Navigation.findNavController(requireActivity(), ChooseSongsFragment.this.getId());
                 navController.navigateUp();
             }
+            // Else, we do nothing.
         });
         // Observe the change in selectedSongs, and when that is changed, I'll observe
         // the changes in getSongsByAlbum. Sounds cumbersome, let's hope this works.
@@ -153,12 +154,8 @@ public class ChooseSongsFragment extends Fragment {
                 Log.d("ChooseSongsFragment", "I have to get an album's songs!");
                 disposable.add(songsViewModel.getSongsRepository().getSongsByAlbum((Integer) selectedEntity.getId())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .doOnError(error->{
-                            Log.d("ChooseSongsFragment","Error when receiving album songs, doOnError");
-                        })
-                        .subscribe(albumWithSongs -> {
-                            chooseSongsAdapter.submitList(albumWithSongs);
-                        },error->{
+                        .doOnError(error-> Log.d("ChooseSongsFragment","Error when receiving album songs, doOnError"))
+                        .subscribe(albumWithSongs -> chooseSongsAdapter.submitList(albumWithSongs), error->{
                             Log.d("ChooseSongsFragment","Error when receiving album songs for the recycler");
                             // It is possible that we may need to renew the authentication token.
                             if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
@@ -175,12 +172,8 @@ public class ChooseSongsFragment extends Fragment {
                 Log.d("ChooseSongsFragment", "I have to get an artist's songs!");
                 disposable.add(songsViewModel.getSongsRepository().getSongsByArtist((Integer) selectedEntity.getId())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .doOnError(error->{
-                            Log.d("ChooseSongsFragment","Error when receiving artist songs, doOnError");
-                        })
-                        .subscribe(artistWithSongs -> {
-                                chooseSongsAdapter.submitList(artistWithSongs);
-                        },error->{
+                        .doOnError(error-> Log.d("ChooseSongsFragment","Error when receiving artist songs, doOnError"))
+                        .subscribe(artistWithSongs -> chooseSongsAdapter.submitList(artistWithSongs), error->{
                             Log.d("ChooseSongsFragment","Error when receiving album songs for the recycler");
                             // It is possible that we may need to renew the authentication token.
                             if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
@@ -197,12 +190,8 @@ public class ChooseSongsFragment extends Fragment {
                 Log.d("ChooseSongsFragment", "I have to get a playlist's songs!");
                 disposable.add(songsViewModel.getSongsRepository().getSongsByPlaylist((String) selectedEntity.getId())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .doOnError(error->{
-                            Log.d("ChooseSongsFragment","Error when receiving playlist songs, doOnError");
-                        })
-                        .subscribe(playlistWithSongs -> {
-                            chooseSongsAdapter.submitList(playlistWithSongs);
-                        },error->{
+                        .doOnError(error-> Log.d("ChooseSongsFragment","Error when receiving playlist songs, doOnError"))
+                        .subscribe(playlistWithSongs -> chooseSongsAdapter.submitList(playlistWithSongs), error->{
                             Log.d("ChooseSongsFragment","Error when receiving playlist songs for the recycler");
                             // It is possible that we may need to renew the authentication token.
                             if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))

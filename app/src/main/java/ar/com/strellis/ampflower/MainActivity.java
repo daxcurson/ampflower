@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 {
                                     // Error!
                                     AmpacheError error=response.body().getError();
-                                    Log.d("loginToAmpache.onFailure","Failed to log in: "+error.getErrorMessage()+ "("+error.getErrorCode()+")");
+                                    Log.d("loginToAmpache.onResponse","Failed to log in: "+error.getErrorMessage()+ "("+error.getErrorCode()+")");
                                     serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
                                 }
                             }
@@ -632,6 +632,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("DEBUG","Null binding, component name:"+name.getClassName());
         }
     };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("MainActivity","I'm started");
+    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

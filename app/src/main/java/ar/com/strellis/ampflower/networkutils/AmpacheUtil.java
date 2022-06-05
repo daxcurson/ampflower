@@ -148,11 +148,15 @@ public class AmpacheUtil
             else
             {
                 Log.d("AmpacheUtil.loginToAmpache","Either username, password or url are blank, not doing anything");
+                serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
+                // The callback should include a method for failing the process altogether!
             }
         }
         else
         {
             Log.d("AmpacheUtil.loginToAmpache","Either the settings are null or the url is null, not doing anything");
+            // Now, server status is obviously unavailable!!
+            serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
         }
     }
 

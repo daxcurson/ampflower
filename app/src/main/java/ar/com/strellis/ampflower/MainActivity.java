@@ -64,6 +64,7 @@ import ar.com.strellis.ampflower.data.repository.SongsRepository;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
+import ar.com.strellis.ampflower.networkutils.LoginCallback;
 import ar.com.strellis.ampflower.networkutils.NetworkReceiver;
 import ar.com.strellis.ampflower.service.MediaPlayerService;
 import ar.com.strellis.ampflower.service.MediaServiceEventsListener;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureServerStatusObserver();
         configureButtons();
         bindMediaPlayerService();
+        configureTokenRenewalObserver();
     }
 
     @Override
@@ -144,6 +146,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toast.show();
     }
 
+    /**
+     * Configures an observer to refresh the login token when required.
+     */
+    private void configureTokenRenewalObserver()
+    {
+        Observer<Boolean> needTokenRemovalObserver=requireRenewal->{
+            if(requireRenewal)
+            {
+                // Renew the token, and create a callback which will rebuild the models.
+                AmpacheUtil.loginToAmpache(serverStatusViewModel, serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
+                serverStatusViewModel.setNeedTokenRenewal(false);
+            }
+        };
+        serverStatusViewModel.getNeedTokenRenewal().observe(this,needTokenRemovalObserver);
+    }
+    private LoginCallback getLoginCallback()
+    {
+        return new LoginCallback() {
+            @Override
+            public void loginSuccess(LoginResponse response) {
+                int duration = Toast.LENGTH_LONG;
+                //Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
+                //toast.show();
+                Log.d("MainActivity.loginToAmpache", "We're in");
+                serverStatusViewModel.setLoginResponse(response);
+                serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
+                // Try to renew the session
+                scheduleSessionRenewal(getNextUpdateTime(response));
+            }
+
+            @Override
+            public void loginFailure(String message) {
+                // Error!
+                AmpacheError error=new AmpacheError();
+                error.setErrorMessage(message);
+                Log.d("loginToAmpache.onResponse","Failed to log in: "+error.getErrorMessage()+ "("+error.getErrorCode()+")");
+                serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
+            }
+        };
+    }
     /**
      * Observes the server status view to trigger the load of the data repositories
      */
@@ -259,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if(!serverStatus.equals(ServerStatus.CONNECTING) && !serverStatus.equals(ServerStatus.LOGIN_DENIED) && !serverStatus.equals(ServerStatus.ONLINE))
             {
                 Log.d("configureSettingsLoader","The server is not connecting, we are not denied and not online and we loaded settings, trying to connect");
-                loginToAmpache();
+                AmpacheUtil.loginToAmpache(serverStatusViewModel,serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
             }
             else
             {
@@ -269,70 +311,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         serverStatusViewModel.getAmpacheSettings().observe(this,loadedSettingsObserver);
         serverStatusViewModel.setAmpacheSettings(loadSavedSettings());
     }
-    private synchronized void loginToAmpache()
-    {
-        Log.d("MainActivity.loginToAmpache","Attempting to log in");
-        serverStatusViewModel.setServerStatus(ServerStatus.CONNECTING);
-        AmpacheSettings settings=serverStatusViewModel.getAmpacheSettings().getValue();
-        if(settings!=null
-                && settings.getAmpacheUrl()!=null
-                && !settings.getAmpacheUrl().equals("")) {
-            AmpacheService ampacheService= AmpacheUtil.getService(settings);
-            String user = settings.getAmpacheUsername();
-            String password = settings.getAmpachePassword();
-            // We attempt to log in only if we actually have data in those fields
-            if(user!=null && !user.equals("") && password!=null && !password.equals("")) {
-                AmpacheAuth auth;
-                try {
-                    auth = AmpacheUtil.getAmpacheAuth(password);
-                    Call<LoginResponse> call = ampacheService.handshake(auth.getAuthToSend(), user, auth.getTimestamp());
 
-                    call.enqueue(new Callback<LoginResponse>() {
-                        @Override
-                        public void onResponse(@NotNull Call<LoginResponse> call, @NotNull Response<LoginResponse> response) {
-                            if (response.body() != null) {
-                                if(response.body().getAuth()!=null) {
-                                    int duration = Toast.LENGTH_LONG;
-                                    Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
-                                    toast.show();
-                                    Log.d("MainActivity.loginToAmpache", "We're in");
-                                    serverStatusViewModel.setLoginResponse(response.body());
-                                    serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
-                                    // Try to renew the session
-                                    scheduleSessionRenewal(getNextUpdateTime(response.body()));
-                                }
-                                else
-                                {
-                                    // Error!
-                                    AmpacheError error=response.body().getError();
-                                    Log.d("loginToAmpache.onResponse","Failed to log in: "+error.getErrorMessage()+ "("+error.getErrorCode()+")");
-                                    serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(@NotNull Call<LoginResponse> call, @NotNull Throwable t) {
-                            Log.d("loginToAmpache.onFailure","Failed to log in: "+t.getMessage());
-                            serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
-                        }
-                    });
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                }
-            }
-            else
-            {
-                Log.d("MainActivity.loginToAmpache","The required parameters user, password and url are blank, not attempting connection");
-                serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
-            }
-        }
-        else
-        {
-            Log.d("MainActivity.loginToAmpache","Either the settings are null, or the URL is null, not doing anything");
-            serverStatusViewModel.setServerStatus(ServerStatus.UNAVAILABLE);
-        }
-    }
 
     /**
      * Configures an observer for the settings, that will try to save them if they change
@@ -391,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if(!serverStatus.equals(ServerStatus.CONNECTING) && !serverStatus.equals(ServerStatus.LOGIN_DENIED) && !serverStatus.equals(ServerStatus.ONLINE))
                 {
                     Log.d("configureNetworkStatusListener","The server is not connecting, we are not denied and not online, trying to connect");
-                    loginToAmpache();
+                    AmpacheUtil.loginToAmpache(serverStatusViewModel,serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
                 }
                 else
                 {
@@ -682,7 +661,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("BroadcastReceiver.onReceive", "Received a broadcast message!");
             if(intent.getAction().equals(MediaPlayerService.ACTION_RENEW_TOKEN)) {
                 Log.d("BroadcastReceiver.onReceive", "Received a request to renew the login response");
-                loginToAmpache();
+                AmpacheUtil.loginToAmpache(serverStatusViewModel,serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
                 // And apart from logging in, we need to destroy the Artist Repositories, but they are Singletons!
                 // We'll pass the session token, and let them decide if they need to be destroyed.
                 configureDataModels();

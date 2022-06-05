@@ -24,6 +24,7 @@ import ar.com.strellis.ampflower.data.model.ArtistWithSongs;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
 import ar.com.strellis.ampflower.data.model.Song;
+import ar.com.strellis.ampflower.error.AmpacheSessionExpiredException;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -79,8 +80,12 @@ public class SongsRepository
 
         } else if (throwable instanceof ConnectException) {
             Log.d("SongsRepository","ConnectException: "+throwable);
-
-        } else {
+        } else if (throwable instanceof AmpacheSessionExpiredException)
+        {
+            Log.d("SongsRepository","Ampache expired session! "+throwable);
+            // Should we request for a token renewal here???
+        }
+        else {
             Log.d("SongsRepository","New exception of some kind: "+throwable);
         }
     }
@@ -107,10 +112,16 @@ public class SongsRepository
                     .concat(memoryObservable,databaseObservable,networkObservable)
                     //.firstElement()
                     .subscribe((data)->{
+                        // If I get here, the previous Observables were successful.
+                        // If I produce an error here, for example when data.getSongs() returns null,
+                        // this error will be captured downstream.
+                        // If an exception is thrown upsteam, for example in the network interactor,
+                        // the error goes straight into onError below.
                         Log.d("SongsRepository", "Concatenated the 3 Observables, received data for album "+data.getAlbum().getId());
-                        for(Song s:data.getSongs())
-                        {
-                            Log.d("SongsRepository","Received this song: "+s.getName()+", flag: "+s.getFlag()+", mode: "+s.getMode()+", playlisttrack: "+s.getPlaylisttrack());
+                        if(data.getSongs()!=null) {
+                            for (Song s : data.getSongs()) {
+                                Log.d("SongsRepository", "Received this song: " + s.getName() + ", flag: " + s.getFlag() + ", mode: " + s.getMode() + ", playlisttrack: " + s.getPlaylisttrack());
+                            }
                         }
                     },this::handleNonHttpException);
         }

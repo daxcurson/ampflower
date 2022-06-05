@@ -12,12 +12,14 @@ public class ServerStatusViewModel extends ViewModel {
     private final MutableLiveData<ServerStatus> serverStatusMutableLiveData;
     private final MutableLiveData<AmpacheSettings> ampacheSettingsMutableLiveData;
     private final MutableLiveData<LoginResponse> loginResponseMutableLiveData;
+    private final MutableLiveData<Boolean> needTokenRenewal;
 
     public ServerStatusViewModel()
     {
         serverStatusMutableLiveData=new MutableLiveData<>();
         ampacheSettingsMutableLiveData=new MutableLiveData<>();
         loginResponseMutableLiveData=new MutableLiveData<>();
+        needTokenRenewal=new MutableLiveData<>();
     }
     public MutableLiveData<ServerStatus> getServerStatus()
     {
@@ -42,5 +44,12 @@ public class ServerStatusViewModel extends ViewModel {
     public void setLoginResponse(LoginResponse response)
     {
         loginResponseMutableLiveData.setValue(response);
+    }
+    public void setNeedTokenRenewal(boolean value)
+    {
+        needTokenRenewal.setValue(value);
+    }
+    public MutableLiveData<Boolean> getNeedTokenRenewal() {
+        return needTokenRenewal;
     }
 }

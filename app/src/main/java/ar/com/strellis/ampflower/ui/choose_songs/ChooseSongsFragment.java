@@ -39,6 +39,7 @@ import ar.com.strellis.ampflower.data.model.SelectableSong;
 import ar.com.strellis.ampflower.databinding.FragmentChooseSongsBinding;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
+import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -46,6 +47,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 public class ChooseSongsFragment extends Fragment {
     private FragmentChooseSongsBinding binding;
     private SongsViewModel songsViewModel;
+    private ServerStatusViewModel serverStatusViewModel;
     private int numberSelected = 0;
     private ChooseSongsAdapter chooseSongsAdapter;
     private final CompositeDisposable disposable=new CompositeDisposable();
@@ -57,6 +59,7 @@ public class ChooseSongsFragment extends Fragment {
         binding = FragmentChooseSongsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         songsViewModel=new ViewModelProvider(requireActivity()).get(SongsViewModel.class);
+        serverStatusViewModel=new ViewModelProvider(requireActivity()).get(ServerStatusViewModel.class);
         setHasOptionsMenu(true);
         return root;
     }
@@ -161,8 +164,8 @@ public class ChooseSongsFragment extends Fragment {
                             if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
                             {
                                 Log.d("ChooseSongsFragment","The login is expired, must be renewed");
-                                //Intent intent = new Intent(ACTION_RENEW_TOKEN);
-                                //LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(intent);
+                                // By way of this model, I'll send a messaage to activity to require a token renewal.
+                                serverStatusViewModel.setNeedTokenRenewal(true);
                             }
                         })
                 );
@@ -179,8 +182,6 @@ public class ChooseSongsFragment extends Fragment {
                             if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
                             {
                                 Log.d("ChooseSongsFragment","The login is expired, must be renewed");
-                                //Intent intent = new Intent(ACTION_RENEW_TOKEN);
-                                //LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
                             }
                         })
                 );
@@ -197,8 +198,6 @@ public class ChooseSongsFragment extends Fragment {
                             if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
                             {
                                 Log.d("ChooseSongsFragment","The login is expired, must be renewed");
-                                //Intent intent = new Intent(ACTION_RENEW_TOKEN);
-                                //LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
                             }
                         })
                 );

@@ -902,7 +902,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int batch=0;
         while(batch*batch_size<selectedSongs.size())
         {
-            int nextBatch=((batch+1)*batch_size)<selectedSongs.size() ? (batch+1)*batch_size-1 : selectedSongs.size()-1;
+            int nextBatch= Math.min(((batch + 1) * batch_size), selectedSongs.size());
             List<Song> selectedBatch=new ArrayList<>(selectedSongs.subList(batch*batch_size,nextBatch));
             Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
             if(batch==0)

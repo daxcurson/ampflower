@@ -27,6 +27,7 @@ import androidx.lifecycle.LifecycleService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
@@ -59,7 +60,7 @@ public class MediaPlayerService extends LifecycleService
             return MediaPlayerService.this;
         }
     }
-    private SimpleExoPlayer exoPlayer;
+    private ExoPlayer exoPlayer;
     private PlayerNotificationManager playerNotificationManager;
     private MediaSessionCompat mediaSession;
     private MediaSessionConnector mediaSessionConnector;
@@ -93,7 +94,7 @@ public class MediaPlayerService extends LifecycleService
     {
         super.onCreate();
         Log.d("MediaPlayerService","Launching the media player service");
-        exoPlayer=new SimpleExoPlayer.Builder(getApplicationContext()).build();
+        exoPlayer=new ExoPlayer.Builder(getApplicationContext()).build();
         AudioAttributes audioAttributes=new AudioAttributes.Builder()
                 .setUsage(C.USAGE_MEDIA)
                 .setContentType(C.CONTENT_TYPE_MUSIC)

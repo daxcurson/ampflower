@@ -10,6 +10,7 @@ import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractor;
 import ar.com.strellis.ampflower.data.datasource.memory.SongsMemoryInteractor;
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumWithSongs;
+import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
@@ -27,6 +28,8 @@ public class SongsNetworkInteractorAlbums extends SongsNetworkInteractor<AlbumWi
                     Log.d("SongsNetworkInteractorAlbums.getSongsByAlbum$1","Received songs from the network!");
                     Album album=new Album();
                     album.setId(Integer.parseInt(album_id));
+                    Artist artist=new Artist();
+                    album.setArtist(artist);
                     AlbumWithSongs s=new AlbumWithSongs();
                     s.setAlbum(album);
                     s.setSongs(songs.getSong());

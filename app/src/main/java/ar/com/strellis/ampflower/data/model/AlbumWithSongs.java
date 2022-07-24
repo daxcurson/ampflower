@@ -10,6 +10,12 @@ public class AlbumWithSongs extends EntityWithSongs {
     @Embedded
     private Album album;
     @Relation(
+            parentColumn="id",
+            entity=Artist.class,
+            entityColumn = "id"
+    )
+    private Artist artist;
+    @Relation(
             parentColumn = "id",
             entity = Song.class,
             entityColumn = "id",
@@ -36,5 +42,13 @@ public class AlbumWithSongs extends EntityWithSongs {
     public String getName()
     {
         return album.getName();
+    }
+    public void setArtist(Artist artist)
+    {
+        this.artist=artist;
+    }
+    public Artist getArtist()
+    {
+        return this.artist;
     }
 }

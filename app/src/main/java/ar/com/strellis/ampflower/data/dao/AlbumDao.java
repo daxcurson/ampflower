@@ -35,6 +35,9 @@ public interface AlbumDao {
     @Transaction
     @Query("select * from albums where id=:albumId")
     Maybe<AlbumWithSongs> listAlbumSongsObservable(int albumId);
+    @Transaction
+    @Query("select * from albums where id=:albumId")
+    AlbumWithSongs listAlbumSongs(int albumId);
     @Query("SELECT * FROM albums")
     List<Album> listAllAlbums();
     @Query("select * from albums where name like :query")

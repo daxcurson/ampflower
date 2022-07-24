@@ -10,6 +10,7 @@ import com.google.gson.JsonSyntaxException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.util.Date;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
 import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractorAlbums;
@@ -28,6 +29,7 @@ import ar.com.strellis.ampflower.error.AmpacheSessionExpiredException;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Predicate;
 import retrofit2.HttpException;
 
 public class SongsRepository
@@ -110,7 +112,13 @@ public class SongsRepository
             // I'll request the 3 observables and keep the entry that is returned first.
             dataProviderDisposable=Observable
                     .concat(memoryObservable,databaseObservable,networkObservable)
-                    //.firstElement()
+                    .filter(new Predicate<AlbumWithSongs>() {
+                        @Override
+                        public boolean test(AlbumWithSongs albumWithSongs) throws Throwable {
+                            return !albumWithSongs.getSongs().isEmpty();
+                        }
+                    })
+                    .firstElement()
                     .subscribe((data)->{
                         // If I get here, the previous Observables were successful.
                         // If I produce an error here, for example when data.getSongs() returns null,

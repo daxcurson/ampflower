@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @Entity(tableName="albums")
@@ -31,6 +32,8 @@ public class Album extends ModelEntity implements Searchable<Integer>, Serializa
     private int year;
     private int disk;
     private List<Tag> tag;
+    @Ignore
+    private Date retrieved;
     @Ignore
     private int page;
     /**
@@ -148,5 +151,13 @@ public class Album extends ModelEntity implements Searchable<Integer>, Serializa
         }
         else
             return false;
+    }
+    public Date getRetrieved()
+    {
+        return retrieved;
+    }
+    public void setRetrieved(Date retrieved)
+    {
+        this.retrieved=retrieved;
     }
 }

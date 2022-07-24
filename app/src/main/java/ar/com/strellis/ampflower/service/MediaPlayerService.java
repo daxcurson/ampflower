@@ -292,6 +292,7 @@ public class MediaPlayerService extends LifecycleService
                     // There is a list of songs to ADD to the playlist.
                     songs=(List<Song>) intent.getSerializableExtra("LIST");
                     addSongsToPlaylist(songs);
+                    break;
                 case ACTION_MOVE_ITEM:
                     int fromPosition= (int) intent.getSerializableExtra("fromPosition");
                     int toPosition=(int)intent.getSerializableExtra("toPosition");

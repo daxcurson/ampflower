@@ -2,6 +2,7 @@ package ar.com.strellis.ampflower.data.datasource.db;
 
 import android.util.Log;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,7 +35,12 @@ public class SongsDatabaseInteractorAlbums extends SongsDatabaseInteractor<Album
                 Log.d("SongsDatabaseInteractorAlbums.saveData", "Storing AlbumSong entity for this song: " + s.getName());
                 songsToInsert.add(albumSong);
             }
+            songs.getAlbum().setRetrieved(new Date());
+            // I have to insert the songs as well as their relationship to the album!!!!
+            // And the artist!!!
+            appDatabase.songDao().insertAllSongs(songs.getSongs());
             appDatabase.albumSongDao().insertAll(songsToInsert);
+            appDatabase.artistDao().insertArtist(songs.getAlbum().getArtist());
         }
         else
         {

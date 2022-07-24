@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +49,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import ar.com.strellis.ampflower.data.model.AmpacheAuth;
 import ar.com.strellis.ampflower.data.model.AmpacheError;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
@@ -82,9 +81,6 @@ import ar.com.strellis.utils.SlidingUpPanelLayout;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MediaServiceEventsListener
 {
@@ -901,13 +897,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         // Send songs. If there are too many songs to send, the list
         // will have to be split, sending a different intent
-        Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
-        intent.setAction(MediaPlayerService.ACTION_SELECT_SONGS);
+        int batch_size=100;
         List<Song> selectedSongs=songsViewModel.getSelectedSongs();
-        Bundle bundle=new Bundle();
-        bundle.putSerializable("LIST", (Serializable) selectedSongs);
-        intent.putExtras(bundle);
-        startService(intent);
+        int batch=0;
+        while(batch*batch_size<selectedSongs.size())
+        {
+            int nextBatch=((batch+1)*batch_size)<selectedSongs.size() ? (batch+1)*batch_size-1 : selectedSongs.size()-1;
+            List<Song> selectedBatch=new ArrayList<>(selectedSongs.subList(batch*batch_size,nextBatch));
+            Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
+            if(batch==0)
+                intent.setAction(MediaPlayerService.ACTION_SELECT_SONGS);
+            else
+                intent.setAction(MediaPlayerService.ACTION_ADD_SONGS);
+
+            Bundle bundle=new Bundle();
+            bundle.putSerializable("LIST", (Serializable) selectedBatch);
+            intent.putExtras(bundle);
+            startService(intent);
+            batch++;
+        }
     }
 
     /**

@@ -92,7 +92,7 @@ public class FunctionTest {
         {
             e.printStackTrace();
         }
-    }
+    }/*
     @Test
     public void test03ListAlbums()
     {
@@ -115,7 +115,7 @@ public class FunctionTest {
             e.printStackTrace();
             fail();
         }
-    }
+    }*/
     @Test
     public void test04ListSongs()
     {

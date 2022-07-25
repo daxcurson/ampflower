@@ -1,7 +1,6 @@
 package ar.com.strellis.ampflower.ui.home.albums;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.paging.PagingDataAdapter;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
@@ -50,7 +48,7 @@ public class AlbumAdapterRx extends PagingDataAdapter<Album,AlbumViewHolder>
         @Override
         public boolean areItemsTheSame(@NonNull Album oldItem, @NonNull Album newItem) {
             //Log.d("AlbumAdapterRx","Callback comparing item "+oldItem.getId()+" with item "+newItem.getId());
-            return oldItem.getId().equals(newItem.getId()) && oldItem.getArtist().getId().equals(newItem.getArtist().getId());
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override

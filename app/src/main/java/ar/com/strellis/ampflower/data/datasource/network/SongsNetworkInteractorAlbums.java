@@ -25,7 +25,7 @@ public class SongsNetworkInteractorAlbums extends SongsNetworkInteractor<AlbumWi
         Log.d("SongsNetworkInteractorAlbums.getSongsByAlbum","Getting songs from album "+album_id+" from the network, auth: "+ Objects.requireNonNull(settings.getValue()).getAuth());
         return ampacheService.album_songs(Objects.requireNonNull(settings.getValue()).getAuth(),String.valueOf(album_id),0,Integer.MAX_VALUE)
                 .map(songs -> {
-                    Log.d("SongsNetworkInteractorAlbums.getSongsByAlbum$1","Received songs from the network!");
+                    Log.d("SongsNetworkInteractorAlbums.getSongsByAlbum$1","Received songs from the network! Album "+album_id);
                     Album album=new Album();
                     album.setId(Integer.parseInt(album_id));
                     Artist artist=new Artist();

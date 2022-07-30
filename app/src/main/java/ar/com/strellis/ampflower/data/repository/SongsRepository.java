@@ -10,7 +10,6 @@ import com.google.gson.JsonSyntaxException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
-import java.util.Date;
 
 import ar.com.strellis.ampflower.data.AmpacheDatabase;
 import ar.com.strellis.ampflower.data.datasource.db.SongsDatabaseInteractorAlbums;
@@ -118,7 +117,7 @@ public class SongsRepository
                             return !albumWithSongs.getSongs().isEmpty();
                         }
                     })
-                    .firstElement()
+                    //.firstElement()
                     .subscribe((data)->{
                         // If I get here, the previous Observables were successful.
                         // If I produce an error here, for example when data.getSongs() returns null,

@@ -162,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return new LoginCallback() {
             @Override
             public void loginSuccess(LoginResponse response) {
-                int duration = Toast.LENGTH_LONG;
                 //Toast toast = Toast.makeText(getApplicationContext(), "Login successful", duration);
                 //toast.show();
                 Log.d("MainActivity.loginToAmpache", "We're in");
@@ -977,7 +976,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(disposableObserver==null)
             disposableObserver= Observable.interval(delay,TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
-                .subscribe(data->renewSession(),error->{Log.d("MainActivity.scheduleSessionRenewal","Error renewing the session");});
+                .subscribe(data->renewSession(),error-> Log.d("MainActivity.scheduleSessionRenewal","Error renewing the session"));
     }
 
     /**

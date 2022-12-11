@@ -24,3 +24,6 @@ hs_err_pid*
 .gradle/
 .idea/
 local.properties
+app/.DS_Store
+app/debug/
+app/release/

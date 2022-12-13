@@ -20,6 +20,10 @@ This software will allow:
 
 If you want to contribute, check out the code and submit a pull request, I'll be happy to review. You can also create issues to get my attention.
 
+## Testers welcome!
+
+We're on Google Play and we're open for testing! Please use this link to download and test: https://play.google.com/store/apps/details?id=ar.com.strellis.ampflower
+
 ## Example Screenshots
 
 <table>

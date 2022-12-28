@@ -13,6 +13,7 @@ import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
+import ar.com.strellis.ampflower.error.AmpacheSessionExpiredException;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -47,9 +48,10 @@ public class PlaylistPagingSourceRx extends RxPagingSource<Integer, Playlist> {
                 .doOnSuccess(integerPlaylistLoadResult -> loading.postValue(NetworkState.LOADED));
     }
 
-    private LoadResult<Integer, Playlist> toLoadResult(PlaylistListResponse playlists, int page)
-    {
+    private LoadResult<Integer, Playlist> toLoadResult(PlaylistListResponse playlists, int page) throws AmpacheSessionExpiredException {
         Integer maxPage=page<=2 ? page+1 : null;
+        if(playlists.getError()!=null)
+            throw new AmpacheSessionExpiredException();
         return new LoadResult.Page<>(playlists.getPlaylist(),page==0?null:page-1,maxPage);
     }
 

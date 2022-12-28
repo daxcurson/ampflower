@@ -19,7 +19,7 @@ public class FavoriteArtistsPagingSourceRx extends RxPagingSource<Integer, Artis
     private final AmpacheService ampacheService;
     private LoginResponse loginResponse;
     private final SearchType searchType;
-    private MutableLiveData<Boolean> loading;
+    private final MutableLiveData<Boolean> loading;
     public FavoriteArtistsPagingSourceRx(AmpacheService ampacheService, LoginResponse loginResponse, SearchType searchType, MutableLiveData<Boolean> loading)
     {
         this.ampacheService=ampacheService;

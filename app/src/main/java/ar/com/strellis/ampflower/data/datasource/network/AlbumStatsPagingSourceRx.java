@@ -10,6 +10,7 @@ import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.AlbumListResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.SearchType;
+import ar.com.strellis.ampflower.error.AmpacheSessionExpiredException;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -44,9 +45,11 @@ public class AlbumStatsPagingSourceRx extends RxPagingSource<Integer, Album> {
                 .doOnSuccess(integerAlbumLoadResult -> loading.postValue(false));
     }
 
-    private LoadResult<Integer,Album> toLoadResult(AlbumListResponse albums, int page)
-    {
+    private LoadResult<Integer,Album> toLoadResult(AlbumListResponse albums, int page) throws AmpacheSessionExpiredException {
         Integer maxPage=page<=2 ? page+1 : null;
+        // What if the token expired?
+        if(albums.getError()!=null)
+            throw new AmpacheSessionExpiredException();
         return new LoadResult.Page<>(albums.getAlbum(),page==0?null:page-1,maxPage);
     }
 

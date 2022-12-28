@@ -47,7 +47,8 @@ public class ServerStatusViewModel extends ViewModel {
     }
     public void setNeedTokenRenewal(boolean value)
     {
-        needTokenRenewal.setValue(value);
+        //needTokenRenewal.setValue(value);
+        needTokenRenewal.postValue(value);
     }
     public MutableLiveData<Boolean> getNeedTokenRenewal() {
         return needTokenRenewal;

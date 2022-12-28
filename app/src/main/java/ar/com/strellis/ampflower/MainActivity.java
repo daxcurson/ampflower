@@ -42,7 +42,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -986,8 +985,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private long getNextUpdateTime(LoginResponse response)
     {
-        Date now=new Date();
-        long milliseconds=Math.abs(response.getSession_expire().getTime()-now.getTime());
-        return TimeUnit.SECONDS.convert(milliseconds,TimeUnit.MILLISECONDS)/2;
+        /*Date now=new Date();
+        long milliseconds=Math.abs(response.getSession_expire().getTime()-now.getTime());*/
+        // I could do some calculation based on the expiration time of the token,
+        // but I could also make this time a setting.
+        // I'll make a default of it.
+        //return TimeUnit.SECONDS.convert(milliseconds,TimeUnit.MILLISECONDS);
+        return Objects.requireNonNull(serverStatusViewModel.getAmpacheSettings().getValue()).getSessionRenewalTime();
     }
 }

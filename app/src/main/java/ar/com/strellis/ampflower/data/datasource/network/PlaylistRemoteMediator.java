@@ -20,6 +20,7 @@ import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.Playlist;
 import ar.com.strellis.ampflower.data.model.PlaylistListResponse;
 import ar.com.strellis.ampflower.data.model.PlaylistRemoteKey;
+import ar.com.strellis.ampflower.error.AmpacheSessionExpiredException;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Function;
@@ -82,6 +83,9 @@ public class PlaylistRemoteMediator extends RxRemoteMediator<Integer, Playlist>
         return ampacheService.get_indexes_playlist_rx(Objects.requireNonNull(loginResponse.getValue()).getAuth(),query,offset,limit)
                 .subscribeOn(Schedulers.io())
                 .map((Function<PlaylistListResponse, MediatorResult>) response -> {
+                    // Expired session?
+                    if(response.getError()!=null)
+                        throw new AmpacheSessionExpiredException();
                     ampacheDatabase.runInTransaction(() -> {
                         if (loadType == LoadType.REFRESH) {
                             playlistDao.deleteAll();

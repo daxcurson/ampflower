@@ -4,6 +4,13 @@ public class AmpacheSettings {
     private String ampacheUrl;
     private String ampacheUsername;
     private String ampachePassword;
+    private Long sessionRenewalTime;
+
+    public final Long DEFAULT_RENEWAL_SECONDS=100L;
+
+    public AmpacheSettings() {
+        this.sessionRenewalTime = DEFAULT_RENEWAL_SECONDS;
+    }
 
     public String getAmpacheUrl() {
         return ampacheUrl;
@@ -27,5 +34,13 @@ public class AmpacheSettings {
 
     public void setAmpachePassword(String ampachePassword) {
         this.ampachePassword = ampachePassword;
+    }
+    public void setSessionRenewalTime(Long time)
+    {
+        sessionRenewalTime=time;
+    }
+    public Long getSessionRenewalTime()
+    {
+        return sessionRenewalTime;
     }
 }

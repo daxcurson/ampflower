@@ -13,6 +13,7 @@ import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.ArtistListResponse;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
+import ar.com.strellis.ampflower.error.AmpacheSessionExpiredException;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -49,12 +50,13 @@ public class ArtistPagingSourceRx extends RxPagingSource<Integer, Artist> {
                 .onErrorReturn(LoadResult.Error::new)
                 .doOnSuccess(integerAlbumLoadResult -> loading.postValue(NetworkState.LOADED));
     }
-    private LoadResult<Integer,Artist> toLoadResult(ArtistListResponse artists, int page)
-    {
+    private LoadResult<Integer,Artist> toLoadResult(ArtistListResponse artists, int page) throws AmpacheSessionExpiredException {
         // If the list of albums is empty, this means that for the specified offset
         // in the call to the network there are no more albums.
         //Integer maxPage=page<=2 ? page+1 : null;
         Integer maxPage=artists.getArtist().isEmpty()?null:page+1;
+        if(artists.getError()!=null)
+            throw new AmpacheSessionExpiredException();
         return new LoadResult.Page<>(artists.getArtist(),page==0?null:page-1,maxPage);
     }
 }

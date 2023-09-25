@@ -17,6 +17,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,7 +32,7 @@ import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
+@ExperimentalPagingApi
 public class ArtistsFragment extends Fragment {
     private FragmentArtistsBinding binding;
     private ArtistsViewModel artistsViewModel;
@@ -58,6 +59,8 @@ public class ArtistsFragment extends Fragment {
         binding.artistsRecycler.setLayoutManager(layoutManager);
         binding.artistsRecycler.setItemAnimator(new DefaultItemAnimator());
         adapter=new ArtistAdapterRx(getContext());
+        // If the artists repository hasn't been initialized, the getArtists may be called on a null method reference
+        // within the viewModel, which causes the application to crash
         disposable.add(artistsViewModel.getArtists()
                 .subscribeOn(Schedulers.io())
                 .doOnError(throwable-> Log.d("ArtistsFragment.onViewCreated","Error getting artists!!! "+throwable.getMessage()))

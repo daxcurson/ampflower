@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.Pager;
 import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
@@ -23,7 +24,7 @@ import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import io.reactivex.rxjava3.core.Flowable;
-
+@ExperimentalPagingApi
 public class ArtistsRepositoryRx {
     private static final int PAGE_SIZE=20;
     private static ArtistsRepositoryRx instance;

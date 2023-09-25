@@ -30,6 +30,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.paging.ExperimentalPagingApi;
 
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ui.TimeBar;
@@ -80,7 +81,7 @@ import ar.com.strellis.utils.SlidingUpPanelLayout;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
+@ExperimentalPagingApi
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MediaServiceEventsListener
 {
 
@@ -167,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 serverStatusViewModel.setLoginResponse(response);
                 serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
                 // Try to renew the session
-                scheduleSessionRenewal(getNextUpdateTime(response));
+                //scheduleSessionRenewal(getNextUpdateTime(response));
             }
 
             @Override
@@ -420,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         assert settings != null;
         AmpacheService service= AmpacheUtil.getService(settings);
         LiveData<LoginResponse> loginResponse=serverStatusViewModel.getLoginResponse();
-        PlaylistsRepositoryRx playlistsRepository = PlaylistsRepositoryRx.getInstance(this,service, settings,loginResponse,artistsViewModel.getQuery(),this);
+        PlaylistsRepositoryRx playlistsRepository = PlaylistsRepositoryRx.getInstance(this,service, settings,loginResponse,playlistsViewModel.getQuery(),this);
         playlistsViewModel.setPlaylistsRepository(playlistsRepository);
     }
     private void configureSongsViewModel()
@@ -609,6 +610,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStart() {
         super.onStart();
+        /*
+        There is a race condition involving the start of the application once it's been stopped: it so happens,
+        that the repositories are null because the onCreate of the Application is not called when the Fragment's
+        onViewCreated is called. This is probably due to the fact that the application has already been created
+        but the values of the repositories are not retained for some reason. However, the onViewCreated of the fragment
+        is called after the onStart, so a way to make sure that the repositories always exist, whether it is after
+        the application creation or restart, but before the Fragment's view are created, would be to initialize them
+        here, when the onStart method of the Activity is executed.
+         */
         Log.d("MainActivity","I'm started");
     }
 

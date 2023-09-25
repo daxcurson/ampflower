@@ -41,7 +41,7 @@ public class Song implements Serializable
     private String album_mbid;
     private String artist_mbid;
     private String art;
-    private int flag;
+    private boolean flag;
     private String preciserating;
     private int playcount;
     private int catalog;
@@ -185,10 +185,10 @@ public class Song implements Serializable
     public void setArt(String art) {
         this.art = art;
     }
-    public int getFlag() {
+    public boolean getFlag() {
         return flag;
     }
-    public void setFlag(int flag) {
+    public void setFlag(boolean flag) {
         this.flag = flag;
     }
     public String getPreciserating() {

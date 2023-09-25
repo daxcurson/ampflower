@@ -4,15 +4,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelKt;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.PagingData;
 import androidx.paging.rxjava3.PagingRx;
+
+import org.jetbrains.annotations.NotNull;
 
 import ar.com.strellis.ampflower.data.model.Artist;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.data.repository.ArtistsRepositoryRx;
 import io.reactivex.rxjava3.core.Flowable;
 import kotlinx.coroutines.CoroutineScope;
-
+@ExperimentalPagingApi
 public class ArtistsViewModel extends ViewModel
 {
     private ArtistsRepositoryRx artistsRepository;
@@ -36,7 +39,7 @@ public class ArtistsViewModel extends ViewModel
         PagingRx.cachedIn(newResult,coroutineScope);
         return newResult;
     }
-    public void setArtistsRepository(ArtistsRepositoryRx artistsRepository)
+    public void setArtistsRepository(@NotNull ArtistsRepositoryRx artistsRepository)
     {
         this.artistsRepository=artistsRepository;
     }

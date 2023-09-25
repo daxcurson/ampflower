@@ -5,6 +5,7 @@ import java.util.List;
 public class ArtistListResponse
 {
     private List<Artist> artist;
+    private int total_count;
     private AmpacheError error;
 
     public void setArtist(List<Artist> artist)
@@ -22,5 +23,13 @@ public class ArtistListResponse
     public void setError(AmpacheError error)
     {
         this.error=error;
+    }
+    public void setTotal_count(int total_count)
+    {
+        this.total_count=total_count;
+    }
+    public int getTotal_count()
+    {
+        return total_count;
     }
 }

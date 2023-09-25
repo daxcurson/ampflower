@@ -5,6 +5,7 @@ import java.util.List;
 public class AlbumListResponse {
     private List<Album> album;
     private AmpacheError error;
+    private int total_count;
 
     public List<Album> getAlbum()
     {
@@ -21,5 +22,13 @@ public class AlbumListResponse {
     public void setError(AmpacheError error)
     {
         this.error=error;
+    }
+    public void setTotal_count(int total_count)
+    {
+        this.total_count=total_count;
+    }
+    public int getTotal_count()
+    {
+        return this.total_count;
     }
 }

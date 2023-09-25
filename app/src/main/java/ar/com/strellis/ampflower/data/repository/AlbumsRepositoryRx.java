@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.Pager;
 import androidx.paging.PagingConfig;
 import androidx.paging.PagingData;
@@ -19,7 +20,7 @@ import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Flowable;
-
+@ExperimentalPagingApi
 public class AlbumsRepositoryRx {
     private static final String TAG = AlbumsRepositoryRx.class.getSimpleName();
     private static final int PAGE_SIZE=20;

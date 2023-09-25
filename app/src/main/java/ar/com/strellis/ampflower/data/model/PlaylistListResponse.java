@@ -5,6 +5,7 @@ import java.util.List;
 public class PlaylistListResponse {
     private List<Playlist> playlist;
     private AmpacheError error;
+    private int total_count;
 
     public void setPlaylist(List<Playlist> playlist)
     {
@@ -21,5 +22,13 @@ public class PlaylistListResponse {
     public void setError(AmpacheError error)
     {
         this.error=error;
+    }
+    public void setTotal_count(int total_count)
+    {
+        this.total_count=total_count;
+    }
+    public int getTotal_count()
+    {
+        return this.total_count;
     }
 }

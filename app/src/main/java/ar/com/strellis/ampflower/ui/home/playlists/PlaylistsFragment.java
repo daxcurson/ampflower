@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,7 +26,7 @@ import ar.com.strellis.ampflower.viewmodel.PlaylistsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
+@ExperimentalPagingApi
 public class PlaylistsFragment extends Fragment {
     private FragmentPlaylistsBinding binding;
     private PlaylistsViewModel playlistsViewModel;
@@ -51,6 +52,11 @@ public class PlaylistsFragment extends Fragment {
         binding.playlistsRecycler.setLayoutManager(layoutManager);
         binding.playlistsRecycler.setItemAnimator(new DefaultItemAnimator());
         adapter=new PlaylistAdapterRx(getContext());
+        /*
+        If the application is resumed, the Activity executes its onStart method, whose first line is super.onStart(). This causes
+        the rest of the views to be created, and the onViewCreated of the PlaylistsFragments requires the playlists repository to exist,
+        but that repository is initalized after the start has been completed. So it could be impossible to initialize the repository at that stage!!!
+         */
         disposable.add(playlistsViewModel.getPlaylists()
                 .subscribeOn(Schedulers.io())
                 .doOnError(throwable-> Log.d("PlaylistFragment.onViewCreated","Error getting playlists!!! "+throwable.getMessage()))

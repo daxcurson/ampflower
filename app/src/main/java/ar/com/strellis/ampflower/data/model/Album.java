@@ -40,7 +40,7 @@ public class Album extends ModelEntity implements Searchable<Integer>, Serializa
      * URL for the Artwork for the album cover.
      */
     private String art;
-    private int flag;
+    private boolean flag;
     private String preciserating;
     private String rating;
     private String averagerating;
@@ -94,10 +94,10 @@ public class Album extends ModelEntity implements Searchable<Integer>, Serializa
     public void setArt(String art) {
         this.art = art;
     }
-    public int getFlag() {
+    public boolean getFlag() {
         return flag;
     }
-    public void setFlag(int flag) {
+    public void setFlag(boolean flag) {
         this.flag = flag;
     }
     public String getPreciserating() {

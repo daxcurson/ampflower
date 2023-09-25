@@ -34,7 +34,7 @@ public class Artist extends ModelEntity implements Searchable<Integer>, Serializ
     private int songcount;
     private List<Tag> tag;
     private String art;
-    private int flag;
+    private boolean flag;
     private String preciserating;
     private String averagerating;
     private String mbid;
@@ -80,10 +80,10 @@ public class Artist extends ModelEntity implements Searchable<Integer>, Serializ
     public void setArt(String art) {
         this.art = art;
     }
-    public int getFlag() {
+    public boolean getFlag() {
         return flag;
     }
-    public void setFlag(int flag) {
+    public void setFlag(boolean flag) {
         this.flag = flag;
     }
     public String getPreciserating() {

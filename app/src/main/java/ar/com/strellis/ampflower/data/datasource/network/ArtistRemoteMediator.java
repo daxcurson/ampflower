@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.LoadType;
 import androidx.paging.PagingSource;
 import androidx.paging.PagingState;
@@ -25,7 +26,7 @@ import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
+@ExperimentalPagingApi
 public class ArtistRemoteMediator extends RxRemoteMediator<Integer, Artist>
 {
     private final LiveData<String> query;

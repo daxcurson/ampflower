@@ -38,7 +38,7 @@ public class Playlist extends ModelEntity implements Searchable<String>,Serializ
     private String preciserating;
     private String rating;
     private String averagerating;
-    private Integer flag;
+    private boolean flag;
     @Ignore
     private int page;
     @NonNull
@@ -115,11 +115,11 @@ public class Playlist extends ModelEntity implements Searchable<String>,Serializ
     {
         this.averagerating=averagerating;
     }
-    public Integer getFlag()
+    public boolean getFlag()
     {
         return flag;
     }
-    public void setFlag(Integer flag)
+    public void setFlag(boolean flag)
     {
         this.flag=flag;
     }

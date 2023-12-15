@@ -17,7 +17,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
-import androidx.paging.CombinedLoadStates;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,8 +35,8 @@ import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import kotlinx.coroutines.flow.Flow;
 
+@ExperimentalPagingApi
 public class AlbumsFragment extends Fragment {
     private FragmentAlbumsBinding binding;
     private AlbumAdapterRx adapter;
@@ -65,18 +65,6 @@ public class AlbumsFragment extends Fragment {
         binding.albumsRecycler.setLayoutManager(layoutManager);
         binding.albumsRecycler.setItemAnimator(new DefaultItemAnimator());
         adapter=new AlbumAdapterRx();
-        disposable.add(albumsViewModel.getAlbums()
-                .subscribeOn(Schedulers.io())
-                .doOnError(throwable->{
-                    Log.d("AlbumsFragment.onViewCreated","Error getting albums!!! "+throwable.getMessage());
-                })
-                .subscribe(
-                        albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData),
-                        error->{
-                            Log.d("AlbumsFragment","Error");
-                        }
-                )
-        );
         binding.albumsRecycler.setHasFixedSize(true);
         binding.albumsRecycler.setAdapter(
                 adapter.withLoadStateHeaderAndFooter(new AlbumLoadStateAdapter(),new AlbumLoadStateAdapter())
@@ -108,6 +96,19 @@ public class AlbumsFragment extends Fragment {
         });
     }
     @Override
+    public void onStart()
+    {
+        super.onStart();
+        disposable.add(albumsViewModel.getAlbums()
+                .subscribeOn(Schedulers.io())
+                .doOnError(throwable-> Log.d("AlbumsFragment.onViewCreated","Error getting albums!!! "+throwable.getMessage()))
+                .subscribe(
+                        albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData),
+                        error-> Log.d("AlbumsFragment","Error")
+                )
+        );
+    }
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         // Get the SearchView and set the searchable configuration
@@ -115,9 +116,12 @@ public class AlbumsFragment extends Fragment {
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // If there is already a search string stored in the model, go and get it.
         String currentSearchString=albumsViewModel.getQuery().getValue();
-        if(currentSearchString!=null && !currentSearchString.equals(""))
+        if(currentSearchString!=null && !currentSearchString.equals("")) {
+            assert searchView != null;
             searchView.setQuery(currentSearchString,true);
+        }
         // Assumes current activity is the searchable activity
+        assert searchView != null;
         searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().getComponentName()));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

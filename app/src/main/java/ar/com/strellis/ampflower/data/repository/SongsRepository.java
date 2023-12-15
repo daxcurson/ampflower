@@ -8,6 +8,8 @@ import androidx.lifecycle.LiveData;
 
 import com.google.gson.JsonSyntaxException;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
@@ -25,10 +27,10 @@ import ar.com.strellis.ampflower.data.model.LoginResponse;
 import ar.com.strellis.ampflower.data.model.PlaylistWithSongs;
 import ar.com.strellis.ampflower.data.model.Song;
 import ar.com.strellis.ampflower.error.AmpacheSessionExpiredException;
+import ar.com.strellis.ampflower.event.AmpacheSessionExpiredEvent;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Predicate;
 import retrofit2.HttpException;
 
 public class SongsRepository
@@ -43,7 +45,7 @@ public class SongsRepository
     private final SongsMemoryInteractor<PlaylistWithSongs> songsMemoryInteractorPlaylists;
     private final SongsDatabaseInteractorPlaylists songsDatabaseInteractorPlaylists;
     private final SongsNetworkInteractorPlaylists songsNetworkInteractorPlaylists;
-    private LiveData<LoginResponse> settings;
+    private final LiveData<LoginResponse> settings;
     public SongsRepository(Context context,AmpacheService ampacheService, LiveData<LoginResponse> settings)
     {
         this.settings=settings;
@@ -64,9 +66,9 @@ public class SongsRepository
      * retrieve the songs is still in progress.
      * @return true if the songs are currently being retrieved from the network
      */
-    private boolean isNetworkInProgress()
+    private boolean isNetworkIdle()
     {
-        return dataProviderDisposable != null && !dataProviderDisposable.isDisposed();
+        return dataProviderDisposable == null || dataProviderDisposable.isDisposed();
     }
     protected void handleNonHttpException(Throwable throwable) {
         // if not an HttpException throw further
@@ -85,6 +87,7 @@ public class SongsRepository
         {
             Log.d("SongsRepository","Ampache expired session! "+throwable);
             // Should we request for a token renewal here???
+            EventBus.getDefault().post(new AmpacheSessionExpiredEvent());
         }
         else {
             Log.d("SongsRepository","New exception of some kind: "+throwable);
@@ -105,18 +108,13 @@ public class SongsRepository
         Observable<AlbumWithSongs> memoryObservable=songsMemoryInteractorAlbums.getSongs().toObservable();
         Observable<AlbumWithSongs> databaseObservable=songsDatabaseInteractorAlbums.getSongs(String.valueOf(album_id)).toObservable();
         Observable<AlbumWithSongs> networkObservable=songsNetworkInteractorAlbums.getSongs(String.valueOf(album_id)).toObservable();
-        if(!isNetworkInProgress())
+        if(isNetworkIdle())
         {
             Log.d("SongsRepository","Network is not in progress, go ahead and check the observable");
             // I'll request the 3 observables and keep the entry that is returned first.
             dataProviderDisposable=Observable
                     .concat(memoryObservable,databaseObservable,networkObservable)
-                    .filter(new Predicate<AlbumWithSongs>() {
-                        @Override
-                        public boolean test(AlbumWithSongs albumWithSongs) throws Throwable {
-                            return !albumWithSongs.getSongs().isEmpty();
-                        }
-                    })
+                    .filter(albumWithSongs -> !albumWithSongs.getSongs().isEmpty())
                     //.firstElement()
                     .subscribe((data)->{
                         // If I get here, the previous Observables were successful.
@@ -140,7 +138,7 @@ public class SongsRepository
         Observable<ArtistWithSongs> memoryObservable=songsMemoryInteractorArtists.getSongs().toObservable();
         Observable<ArtistWithSongs> databaseObservable=songsDatabaseInteractorArtists.getSongs(String.valueOf(artist_id)).toObservable();
         Observable<ArtistWithSongs> networkObservable=songsNetworkInteractorArtists.getSongs(String.valueOf(artist_id)).toObservable();
-        if(!isNetworkInProgress())
+        if(isNetworkIdle())
         {
             Log.d("SongsRepository","Network is not in progress, go ahead and check the observable");
             // I'll request the 3 observables and keep the entry that is returned first.
@@ -163,7 +161,7 @@ public class SongsRepository
         Observable<PlaylistWithSongs> memoryObservable=songsMemoryInteractorPlaylists.getSongs().toObservable();
         Observable<PlaylistWithSongs> databaseObservable=songsDatabaseInteractorPlaylists.getSongs(String.valueOf(playlistId)).toObservable();
         Observable<PlaylistWithSongs> networkObservable=songsNetworkInteractorPlaylists.getSongs(String.valueOf(playlistId)).toObservable();
-        if(!isNetworkInProgress())
+        if(isNetworkIdle())
         {
             Log.d("SongsRepository","Network is not in progress, go ahead and check the observable");
             // I'll request the 3 observables and keep the entry that is returned first.

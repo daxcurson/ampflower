@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelKt;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.PagingData;
 import androidx.paging.rxjava3.PagingRx;
 
@@ -12,7 +13,10 @@ import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepositoryRx;
 import io.reactivex.rxjava3.core.Flowable;
 import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.ExperimentalCoroutinesApi;
 
+@ExperimentalPagingApi
+@ExperimentalCoroutinesApi
 public class AlbumsViewModel extends ViewModel
 {
     private int currentPage;

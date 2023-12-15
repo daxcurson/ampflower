@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "ar.com.strellis.ampflower"
         minSdkVersion 26
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
 
@@ -28,6 +28,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'ar.com.strellis.ampflower'
 }
 
 dependencies {
@@ -103,4 +104,6 @@ dependencies {
     implementation 'com.github.guilhe:placeholder-recyclerview:1.1.0'
     // Shimmer effect library
     //implementation 'com.facebook.shimmer:shimmer:0.4.0'
+    // Event Bus
+    implementation("org.greenrobot:eventbus:3.3.1")
 }

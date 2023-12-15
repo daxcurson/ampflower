@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LifecycleService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.paging.ExperimentalPagingApi;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -50,7 +51,7 @@ import ar.com.strellis.ampflower.BuildConfig;
 import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Song;
-
+@ExperimentalPagingApi
 public class MediaPlayerService extends LifecycleService
 {
     public class MediaPlayerServiceBinder extends Binder
@@ -97,7 +98,7 @@ public class MediaPlayerService extends LifecycleService
         exoPlayer=new ExoPlayer.Builder(getApplicationContext()).build();
         AudioAttributes audioAttributes=new AudioAttributes.Builder()
                 .setUsage(C.USAGE_MEDIA)
-                .setContentType(C.CONTENT_TYPE_MUSIC)
+                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
                 .build();
         exoPlayer.setAudioAttributes(audioAttributes,true);
         exoPlayer.addListener(new PlayerEventListener());
@@ -156,7 +157,7 @@ public class MediaPlayerService extends LifecycleService
                                 return PendingIntent.getActivity(getApplicationContext(),
                                         0,
                                         intent,
-                                        PendingIntent.FLAG_UPDATE_CURRENT);
+                                        PendingIntent.FLAG_UPDATE_CURRENT| android.app.PendingIntent.FLAG_MUTABLE);
                             }
                             @NotNull
                             @Override
@@ -194,7 +195,7 @@ public class MediaPlayerService extends LifecycleService
             @NotNull
             @Override
             public MediaDescriptionCompat getMediaDescription(@NotNull Player player, int windowIndex) {
-                Bitmap bitmap = getBitmapFromVectorDrawable(getApplicationContext(), R.drawable.bs_play_2);
+                Bitmap bitmap = getBitmapFromVectorDrawable(getApplicationContext(), R.mipmap.ic_launcher_ampflower);
                 Bundle extras = new Bundle();
                 // The system looks for information about the item windowIndex in the playlist.
                 // So let's give them that.

@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void configureTokenRenewalObserver()
     {
-        Observer<Boolean> needTokenRemovalObserver=requireRenewal->{
+        Observer<Boolean> needTokenRenewalObserver=requireRenewal->{
             if(requireRenewal)
             {
                 // Renew the token, and create a callback which will rebuild the models.
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 serverStatusViewModel.setNeedTokenRenewal(false);
             }
         };
-        serverStatusViewModel.getNeedTokenRenewal().observe(this,needTokenRemovalObserver);
+        serverStatusViewModel.getNeedTokenRenewal().observe(this,needTokenRenewalObserver);
     }
     private LoginCallback getLoginCallback()
     {

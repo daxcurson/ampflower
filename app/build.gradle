@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "ar.com.strellis.ampflower"
         minSdkVersion 26
-        targetSdkVersion 33
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
 
@@ -36,8 +36,8 @@ dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation 'org.jetbrains:annotations:15.0'
     def lifecycle_version = '2.2.0'
-    def exoplayer_version="2.18.1"
-    def room_version = "2.4.2"
+    def exoplayer_version="2.19.1"
+    def room_version = "2.6.1"
     def retrofit2_version="2.9.0"
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
@@ -99,8 +99,8 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.1.0'
     annotationProcessor 'org.parceler:parceler:1.1.13'
-    implementation 'androidx.paging:paging-runtime:3.1.1'
-    implementation "androidx.paging:paging-rxjava3:3.1.1"
+    implementation 'androidx.paging:paging-runtime:3.2.1'
+    implementation "androidx.paging:paging-rxjava3:3.2.1"
     implementation 'com.github.guilhe:placeholder-recyclerview:1.1.0'
     // Shimmer effect library
     //implementation 'com.facebook.shimmer:shimmer:0.4.0'

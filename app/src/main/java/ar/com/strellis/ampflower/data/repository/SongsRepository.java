@@ -178,8 +178,4 @@ public class SongsRepository
         }
         return songsMemoryInteractorPlaylists.getSongsObservable();
     }
-    public LoginResponse getLoginResponse()
-    {
-        return this.settings.getValue();
-    }
 }

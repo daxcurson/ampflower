@@ -119,9 +119,4 @@ public class SongsViewModel extends ViewModel
                 .map(SelectableSong::getSong)
                 .collect(Collectors.toList());
     }
-    public LoginResponse getLoginResponse()
-    {
-        return songsRepository.getLoginResponse();
-    }
-
 }

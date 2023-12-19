@@ -27,7 +27,8 @@ public class ServerStatusViewModel extends ViewModel {
     }
     public void setServerStatus(ServerStatus serverStatus)
     {
-        serverStatusMutableLiveData.setValue(serverStatus);
+        //serverStatusMutableLiveData.setValue(serverStatus);
+        serverStatusMutableLiveData.postValue(serverStatus);
     }
     public MutableLiveData<AmpacheSettings> getAmpacheSettings()
     {
@@ -44,13 +45,5 @@ public class ServerStatusViewModel extends ViewModel {
     public void setLoginResponse(LoginResponse response)
     {
         loginResponseMutableLiveData.setValue(response);
-    }
-    public void setNeedTokenRenewal(boolean value)
-    {
-        //needTokenRenewal.setValue(value);
-        needTokenRenewal.postValue(value);
-    }
-    public MutableLiveData<Boolean> getNeedTokenRenewal() {
-        return needTokenRenewal;
     }
 }

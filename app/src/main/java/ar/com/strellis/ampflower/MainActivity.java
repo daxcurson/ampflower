@@ -38,6 +38,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -61,6 +63,7 @@ import ar.com.strellis.ampflower.data.repository.ArtistsRepositoryRx;
 import ar.com.strellis.ampflower.data.repository.PlaylistsRepositoryRx;
 import ar.com.strellis.ampflower.data.repository.SongsRepository;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
+import ar.com.strellis.ampflower.event.AmpacheSessionExpiredEvent;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.networkutils.LoginCallback;
@@ -119,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureServerStatusObserver();
         configureButtons();
         bindMediaPlayerService();
-        configureTokenRenewalObserver();
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -145,18 +148,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Configures an observer to refresh the login token when required.
      */
-    private void configureTokenRenewalObserver()
-    {
-        Observer<Boolean> needTokenRenewalObserver=requireRenewal->{
-            if(requireRenewal)
-            {
-                // Renew the token, and create a callback which will rebuild the models.
-                AmpacheUtil.loginToAmpache(serverStatusViewModel, serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
-                serverStatusViewModel.setNeedTokenRenewal(false);
-            }
-        };
-        serverStatusViewModel.getNeedTokenRenewal().observe(this,needTokenRenewalObserver);
-    }
     private LoginCallback getLoginCallback()
     {
         return new LoginCallback() {
@@ -292,15 +283,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Observer<AmpacheSettings> loadedSettingsObserver=settings->{
             Log.d("configureSettingsLoader","Loaded settings");
             ServerStatus serverStatus=serverStatusViewModel.getServerStatus().getValue();
-            assert serverStatus != null;
-            if(!serverStatus.equals(ServerStatus.CONNECTING) && !serverStatus.equals(ServerStatus.LOGIN_DENIED) && !serverStatus.equals(ServerStatus.ONLINE))
+            if(serverStatus != null && !serverStatus.equals(ServerStatus.CONNECTING) && !serverStatus.equals(ServerStatus.LOGIN_DENIED) && !serverStatus.equals(ServerStatus.ONLINE))
             {
                 Log.d("configureSettingsLoader","The server is not connecting, we are not denied and not online and we loaded settings, trying to connect");
                 AmpacheUtil.loginToAmpache(serverStatusViewModel,serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
             }
             else
             {
-                Log.d("configureSettingsLoader","The server is in the state "+serverStatus.name()+", I won't try to connect");
+                if(serverStatus!=null)
+                    Log.d("configureSettingsLoader","The server is in the state "+serverStatus.name()+", I won't try to connect");
+                else
+                    Log.d("configureSettingsLoader","Server settings are null?!?");
             }
         };
         serverStatusViewModel.getAmpacheSettings().observe(this,loadedSettingsObserver);
@@ -632,6 +625,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(disposableObserver!=null)
             disposableObserver.dispose();
         Log.d("MainActivity","I'm destroyed");
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -652,6 +646,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStop() {
         super.onStop();
         Log.d("MainActivity","I'm stopped");
+        EventBus.getDefault().unregister(this);
     }
 
     private void bindMediaPlayerService()
@@ -1002,5 +997,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // I'll make a default of it.
         //return TimeUnit.SECONDS.convert(milliseconds,TimeUnit.MILLISECONDS);
         return Objects.requireNonNull(serverStatusViewModel.getAmpacheSettings().getValue()).getSessionRenewalTime();
+    }
+    @Subscribe
+    public void onSessionExpired(AmpacheSessionExpiredEvent e)
+    {
+        Log.d("MainActivity","Session expired");
+        AmpacheUtil.loginToAmpache(serverStatusViewModel, serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
     }
 }

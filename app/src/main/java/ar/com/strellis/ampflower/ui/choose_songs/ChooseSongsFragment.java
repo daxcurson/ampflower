@@ -22,12 +22,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.paging.ExperimentalPagingApi;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +48,7 @@ import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
+@ExperimentalPagingApi
 public class ChooseSongsFragment extends Fragment {
     private FragmentChooseSongsBinding binding;
     private SongsViewModel songsViewModel;
@@ -79,6 +80,7 @@ public class ChooseSongsFragment extends Fragment {
         SearchManager searchManager = (SearchManager) requireActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // Assumes current activity is the searchable activity
+        assert searchView != null;
         searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().getComponentName()));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -111,6 +113,7 @@ public class ChooseSongsFragment extends Fragment {
         binding.addToPlaylistRecycler.setNestedScrollingEnabled(true);
         binding.addToPlaylistRecycler.setItemAnimator(new DefaultItemAnimator());
         binding.addToPlaylistRecycler.setAdapter(chooseSongsAdapter);
+        Log.d("ChooseSongsFragment","The view has been created");
         binding.addToPlaylistRecycler.addOnItemTouchListener(new ClickItemTouchListener(binding.addToPlaylistRecycler) {
             @Override
             public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
@@ -157,71 +160,90 @@ public class ChooseSongsFragment extends Fragment {
         // the changes in getSongsByAlbum. Sounds cumbersome, let's hope this works.
         songsViewModel.getSearchableItem().observe(getViewLifecycleOwner(),
                 selectedEntity -> {
-            if(AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse()))
-            {
-                // Force a token renewal
-                serverStatusViewModel.setNeedTokenRenewal(true);
+            if (selectedEntity instanceof Album) {
+                Log.d("ChooseSongsFragment", "I have to get an album's songs!");
+                disposable.add(songsViewModel.getSongsRepository().getSongsByAlbum((Integer) selectedEntity.getId())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError(error -> Log.d("ChooseSongsFragment", "Error when receiving album songs, doOnError"))
+                        .subscribe(albumWithSongs -> chooseSongsAdapter.submitList(albumWithSongs), error -> {
+                            Log.d("ChooseSongsFragment", "Error when receiving album songs for the recycler");
+                            // It is possible that we may need to renew the authentication token.
+                            if (AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue()))) {
+                                Log.d("ChooseSongsFragment", "The login is expired, must be renewed");
+                                // By way of this model, I'll send a messaage to activity to require a token renewal.
+                                EventBus.getDefault().post(new AmpacheSessionExpiredEvent());
+                            }
+                        })
+                );
             }
-            else {
-                if (selectedEntity instanceof Album) {
-                    Log.d("ChooseSongsFragment", "I have to get an album's songs!");
-                    disposable.add(songsViewModel.getSongsRepository().getSongsByAlbum((Integer) selectedEntity.getId())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnError(error -> Log.d("ChooseSongsFragment", "Error when receiving album songs, doOnError"))
-                            .subscribe(albumWithSongs -> chooseSongsAdapter.submitList(albumWithSongs), error -> {
-                                Log.d("ChooseSongsFragment", "Error when receiving album songs for the recycler");
-                                // It is possible that we may need to renew the authentication token.
-                                if (AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse())) {
-                                    Log.d("ChooseSongsFragment", "The login is expired, must be renewed");
-                                    // By way of this model, I'll send a messaage to activity to require a token renewal.
-                                    serverStatusViewModel.setNeedTokenRenewal(true);
-                                }
-                            })
-                    );
-                }
-                if (selectedEntity instanceof Artist) {
-                    Log.d("ChooseSongsFragment", "I have to get an artist's songs!");
-                    disposable.add(songsViewModel.getSongsRepository().getSongsByArtist((Integer) selectedEntity.getId())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnError(error -> Log.d("ChooseSongsFragment", "Error when receiving artist songs, doOnError"))
-                            .subscribe(artistWithSongs -> chooseSongsAdapter.submitList(artistWithSongs), error -> {
-                                Log.d("ChooseSongsFragment", "Error when receiving album songs for the recycler");
-                                // It is possible that we may need to renew the authentication token.
-                                if (AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse())) {
-                                    Log.d("ChooseSongsFragment", "The login is expired, must be renewed");
-                                }
-                            })
-                    );
-                }
-                if (selectedEntity instanceof Playlist) {
-                    Log.d("ChooseSongsFragment", "I have to get a playlist's songs!");
-                    disposable.add(songsViewModel.getSongsRepository().getSongsByPlaylist((String) selectedEntity.getId())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnError(error -> Log.d("ChooseSongsFragment", "Error when receiving playlist songs, doOnError"))
-                            .subscribe(playlistWithSongs -> chooseSongsAdapter.submitList(playlistWithSongs), error -> {
-                                Log.d("ChooseSongsFragment", "Error when receiving playlist songs for the recycler");
-                                // It is possible that we may need to renew the authentication token.
-                                if (AmpacheUtil.isLoginExpired(songsViewModel.getLoginResponse())) {
-                                    Log.d("ChooseSongsFragment", "The login is expired, must be renewed");
-                                }
-                            })
-                    );
-                }
+            if (selectedEntity instanceof Artist) {
+                Log.d("ChooseSongsFragment", "I have to get an artist's songs!");
+                disposable.add(songsViewModel.getSongsRepository().getSongsByArtist((Integer) selectedEntity.getId())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError(error -> Log.d("ChooseSongsFragment", "Error when receiving artist songs, doOnError"))
+                        .subscribe(artistWithSongs -> chooseSongsAdapter.submitList(artistWithSongs), error -> {
+                            Log.d("ChooseSongsFragment", "Error when receiving album songs for the recycler");
+                            // It is possible that we may need to renew the authentication token.
+                            if (AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue()))) {
+                                Log.d("ChooseSongsFragment", "The login is expired, must be renewed");
+                            }
+                        })
+                );
+            }
+            if (selectedEntity instanceof Playlist) {
+                Log.d("ChooseSongsFragment", "I have to get a playlist's songs!");
+                disposable.add(songsViewModel.getSongsRepository().getSongsByPlaylist((String) selectedEntity.getId())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError(error -> Log.d("ChooseSongsFragment", "Error when receiving playlist songs, doOnError"))
+                        .subscribe(playlistWithSongs -> chooseSongsAdapter.submitList(playlistWithSongs), error -> {
+                            Log.d("ChooseSongsFragment", "Error when receiving playlist songs for the recycler");
+                            // It is possible that we may need to renew the authentication token.
+                            if (AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue()))) {
+                                Log.d("ChooseSongsFragment", "The login is expired, must be renewed");
+                            }
+                        })
+                );
             }
                 });
         hideKeyboardFrom(requireContext(),view);
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d("ChooseSongsFragment","I'm created");
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
+        Log.d("ChooseSongsFragment","I'm started");
+        if(AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue())))
+            EventBus.getDefault().post(new AmpacheSessionExpiredEvent());
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
+        Log.d("ChooseSongsFragment","I'm stopped");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("ChooseSongsFragment","I'm paused");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("ChooseSongsFragment","I'm resumed");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("ChooseSongsFragment","I'm destroyed");
     }
 
     public static void hideKeyboardFrom(Context context, View view) {
@@ -256,11 +278,5 @@ public class ChooseSongsFragment extends Fragment {
         }
         Log.d("ChooseSongsFragment","Clicked on item: "+id);
         return true;
-    }
-    @Subscribe
-    public void onSessionExpired(AmpacheSessionExpiredEvent e)
-    {
-        // The session expired, renew it.
-        Log.d("ChooseSongsFragment","Session expired");
     }
 }

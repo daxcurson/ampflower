@@ -35,6 +35,8 @@ public class Playlist extends ModelEntity implements Searchable<String>,Serializ
     private int items;
     private String type;
     private String art;
+
+    private boolean has_art;
     private String preciserating;
     private String rating;
     private String averagerating;
@@ -86,6 +88,14 @@ public class Playlist extends ModelEntity implements Searchable<String>,Serializ
     public String getArt()
     {
         return art;
+    }
+    public boolean isHas_art()
+    {
+        return has_art;
+    }
+    public void setHas_art(boolean has_art)
+    {
+        this.has_art=has_art;
     }
     public void setArt(String art)
     {

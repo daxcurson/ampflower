@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -29,6 +30,8 @@ import java.util.Objects;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentAlbumsBinding;
+import ar.com.strellis.ampflower.event.AmpacheSessionExpiredEvent;
+import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.AlbumsViewModel;
 import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
@@ -99,12 +102,27 @@ public class AlbumsFragment extends Fragment {
     public void onStart()
     {
         super.onStart();
+        getAlbums();
+        serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
+            getAlbums();
+        });
+    }
+    public void getAlbums()
+    {
         disposable.add(albumsViewModel.getAlbums()
                 .subscribeOn(Schedulers.io())
                 .doOnError(throwable-> Log.d("AlbumsFragment.onViewCreated","Error getting albums!!! "+throwable.getMessage()))
+                .retry((retryCount,error)->retryCount<3)
                 .subscribe(
                         albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData),
-                        error-> Log.d("AlbumsFragment","Error")
+                        error-> {
+                            Log.d("AlbumsFragment.onStart", "Error caught");
+                            if (AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue()))) {
+                                Log.d("AlbumsFragment", "The login is expired, must be renewed");
+                                // By way of this model, I'll send a messaage to activity to require a token renewal.
+                                EventBus.getDefault().post(new AmpacheSessionExpiredEvent());
+                            }
+                        }
                 )
         );
     }

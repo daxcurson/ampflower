@@ -22,13 +22,19 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Searchable;
 import ar.com.strellis.ampflower.databinding.FragmentArtistsBinding;
+import ar.com.strellis.ampflower.event.AmpacheSessionExpiredEvent;
+import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.ui.utils.ClickItemTouchListener;
 import ar.com.strellis.ampflower.viewmodel.ArtistsViewModel;
+import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -38,6 +44,7 @@ public class ArtistsFragment extends Fragment {
     private ArtistsViewModel artistsViewModel;
     private SongsViewModel songsViewModel;
     private ArtistAdapterRx adapter;
+    private ServerStatusViewModel serverStatusViewModel;
     private final CompositeDisposable disposable=new CompositeDisposable();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -48,6 +55,7 @@ public class ArtistsFragment extends Fragment {
         View root = binding.getRoot();
         artistsViewModel=new ViewModelProvider(requireActivity()).get(ArtistsViewModel.class);
         songsViewModel=new ViewModelProvider(requireActivity()).get(SongsViewModel.class);
+        serverStatusViewModel=new ViewModelProvider(requireActivity()).get(ServerStatusViewModel.class);
         setHasOptionsMenu(true);
         return root;
     }
@@ -61,11 +69,10 @@ public class ArtistsFragment extends Fragment {
         adapter=new ArtistAdapterRx(getContext());
         // If the artists repository hasn't been initialized, the getArtists may be called on a null method reference
         // within the viewModel, which causes the application to crash
-        disposable.add(artistsViewModel.getArtists()
-                .subscribeOn(Schedulers.io())
-                .doOnError(throwable-> Log.d("ArtistsFragment.onViewCreated","Error getting artists!!! "+throwable.getMessage()))
-                .subscribe(artistPagingData -> adapter.submitData(getLifecycle(),artistPagingData))
-        );
+        getArtists();
+        serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
+            getArtists();
+        });
         binding.artistsRecycler.setAdapter(
                 adapter.withLoadStateHeaderAndFooter(new ArtistLoadStateAdapter(),new ArtistLoadStateAdapter())
         );
@@ -90,6 +97,22 @@ public class ArtistsFragment extends Fragment {
                 return false;
             }
         });
+    }
+    public void getArtists()
+    {
+        disposable.add(artistsViewModel.getArtists()
+                .subscribeOn(Schedulers.io())
+                .doOnError(throwable-> Log.d("ArtistsFragment.onViewCreated","Error getting artists!!! "+throwable.getMessage()))
+                .retry((retryCount,error)->retryCount<3)
+                .subscribe(artistPagingData -> adapter.submitData(getLifecycle(),artistPagingData),error->{
+                    Log.d("ArtistsFragment.onViewCreated","Error caught");
+                    if (AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue()))) {
+                        Log.d("ArtistsFragment", "The login is expired, must be renewed");
+                        // By way of this model, I'll send a messaage to activity to require a token renewal.
+                        EventBus.getDefault().post(new AmpacheSessionExpiredEvent());
+                    }
+                })
+        );
     }
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {

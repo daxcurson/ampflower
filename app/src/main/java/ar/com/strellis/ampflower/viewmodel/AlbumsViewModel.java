@@ -11,6 +11,7 @@ import androidx.paging.rxjava3.PagingRx;
 import ar.com.strellis.ampflower.data.model.Album;
 import ar.com.strellis.ampflower.data.model.NetworkState;
 import ar.com.strellis.ampflower.data.repository.AlbumsRepositoryRx;
+import ar.com.strellis.ampflower.error.AmpacheException;
 import io.reactivex.rxjava3.core.Flowable;
 import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.ExperimentalCoroutinesApi;
@@ -39,8 +40,7 @@ public class AlbumsViewModel extends ViewModel
         this.albumsRepository=repository;
         currentPage=0;
     }
-    public Flowable<PagingData<Album>> getAlbums()
-    {
+    public Flowable<PagingData<Album>> getAlbums() {
         Flowable<PagingData<Album>> newResult=albumsRepository.getAlbums(currentPage);
         CoroutineScope coroutineScope= ViewModelKt.getViewModelScope(this);
         PagingRx.cachedIn(newResult,coroutineScope);

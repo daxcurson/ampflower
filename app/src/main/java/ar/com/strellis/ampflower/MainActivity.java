@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         configureServerStatusObserver();
         configureButtons();
         bindMediaPlayerService();
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -613,6 +612,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         here, when the onStart method of the Activity is executed.
          */
         Log.d("MainActivity","I'm started");
+        EventBus.getDefault().register(this);
     }
 
 
@@ -625,7 +625,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(disposableObserver!=null)
             disposableObserver.dispose();
         Log.d("MainActivity","I'm destroyed");
-        EventBus.getDefault().unregister(this);
     }
 
     @Override

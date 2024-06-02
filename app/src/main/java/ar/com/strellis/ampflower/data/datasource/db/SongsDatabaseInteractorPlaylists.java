@@ -24,14 +24,16 @@ public class SongsDatabaseInteractorPlaylists extends SongsDatabaseInteractor<Pl
     public void saveData(PlaylistWithSongs songs) {
         Log.d("SongsDatabaseInteractorPlaylist.saveData","Saving the retrieved data");
         List<PlaylistSong> songsToInsert=new LinkedList<>();
-        for(Song s:songs.getSongs()) {
-            PlaylistSong playlistSong = new PlaylistSong();
-            playlistSong.setPlaylistId(songs.getPlaylist().getId());
-            playlistSong.setSongId(s.getId());
-            Log.d("SongsDatabaseInteractorPlaylist.saveData", "Storing PlaylistSong entity for this song: " + s.getName());
-            songsToInsert.add(playlistSong);
+        if(songs!=null) {
+            for (Song s : songs.getSongs()) {
+                PlaylistSong playlistSong = new PlaylistSong();
+                playlistSong.setPlaylistId(songs.getPlaylist().getId());
+                playlistSong.setSongId(s.getId());
+                Log.d("SongsDatabaseInteractorPlaylist.saveData", "Storing PlaylistSong entity for this song: " + s.getName());
+                songsToInsert.add(playlistSong);
+            }
+            appDatabase.playlistSongDao().insertAll(songsToInsert);
         }
-        appDatabase.playlistSongDao().insertAll(songsToInsert);
     }
 
     @Override

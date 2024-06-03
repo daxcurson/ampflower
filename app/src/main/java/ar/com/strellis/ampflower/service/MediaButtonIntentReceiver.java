@@ -6,12 +6,17 @@ import android.content.Intent;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import androidx.annotation.OptIn;
+import androidx.media3.common.util.UnstableApi;
+import androidx.paging.ExperimentalPagingApi;
+
 public class MediaButtonIntentReceiver extends BroadcastReceiver {
 
     public MediaButtonIntentReceiver() {
         super();
     }
 
+    @OptIn(markerClass = ExperimentalPagingApi.class)
     @Override
     public void onReceive(Context context, Intent intent) {
         Toast.makeText(context, "Received!", Toast.LENGTH_SHORT).show();

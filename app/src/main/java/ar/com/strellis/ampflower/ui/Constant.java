@@ -1,6 +1,6 @@
 package ar.com.strellis.ampflower.ui;
 
-import com.google.android.exoplayer2.SimpleExoPlayer;
+import androidx.media3.exoplayer.ExoPlayer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class Constant implements Serializable {
     public static final int DELAY_REFRESH_MEDIUM = 2000;
 
     public static String metadata;
-    public static SimpleExoPlayer simpleExoPlayer;
+    public static ExoPlayer simpleExoPlayer;
     public static Boolean is_playing = false;
     public static Boolean radio_type = true;
     public static Boolean is_app_open = false;

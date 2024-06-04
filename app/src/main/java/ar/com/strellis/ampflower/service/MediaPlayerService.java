@@ -13,33 +13,32 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LifecycleService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.media3.common.AudioAttributes;
-import androidx.media3.common.C;
-import androidx.media3.common.MediaItem;
-import androidx.media3.common.MediaMetadata;
-import androidx.media3.common.PlaybackException;
-import androidx.media3.common.PlaybackParameters;
-import androidx.media3.common.Player;
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.session.LibraryResult;
-import androidx.media3.session.MediaLibraryService;
-import androidx.media3.session.MediaSession;
-import androidx.media3.ui.PlayerNotificationManager;
 import androidx.paging.ExperimentalPagingApi;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
+import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator;
+import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,9 +51,8 @@ import ar.com.strellis.ampflower.BuildConfig;
 import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Song;
-@UnstableApi
 @ExperimentalPagingApi
-public class MediaPlayerService extends MediaLibraryService
+public class MediaPlayerService extends LifecycleService
 {
     public class MediaPlayerServiceBinder extends Binder
     {
@@ -65,51 +63,8 @@ public class MediaPlayerService extends MediaLibraryService
     }
     private ExoPlayer exoPlayer;
     private PlayerNotificationManager playerNotificationManager;
-    private MediaSession mediaSession;
-    private MediaLibrarySession mediaLibrarySession = null;
-    private final MediaLibrarySession.Callback callback = new MediaLibrarySession.Callback() {
-        @NonNull
-        @Override
-        public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRoot(@NonNull MediaLibrarySession session, @NonNull MediaSession.ControllerInfo browser, @Nullable LibraryParams params) {
-            return MediaLibrarySession.Callback.super.onGetLibraryRoot(session, browser, params);
-        }
-
-        @NonNull
-        @Override
-        public ListenableFuture<LibraryResult<MediaItem>> onGetItem(@NonNull MediaLibrarySession session, @NonNull MediaSession.ControllerInfo browser, @NonNull String mediaId) {
-            return MediaLibrarySession.Callback.super.onGetItem(session, browser, mediaId);
-        }
-
-        @NonNull
-        @Override
-        public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetChildren(@NonNull MediaLibrarySession session, @NonNull MediaSession.ControllerInfo browser, @NonNull String parentId, int page, int pageSize, @Nullable LibraryParams params) {
-            return MediaLibrarySession.Callback.super.onGetChildren(session, browser, parentId, page, pageSize, params);
-        }
-
-        @NonNull
-        @Override
-        public ListenableFuture<LibraryResult<Void>> onSubscribe(@NonNull MediaLibrarySession session, @NonNull MediaSession.ControllerInfo browser, @NonNull String parentId, @Nullable LibraryParams params) {
-            return MediaLibrarySession.Callback.super.onSubscribe(session, browser, parentId, params);
-        }
-
-        @NonNull
-        @Override
-        public ListenableFuture<LibraryResult<Void>> onUnsubscribe(@NonNull MediaLibrarySession session, @NonNull MediaSession.ControllerInfo browser, @NonNull String parentId) {
-            return MediaLibrarySession.Callback.super.onUnsubscribe(session, browser, parentId);
-        }
-
-        @NonNull
-        @Override
-        public ListenableFuture<LibraryResult<Void>> onSearch(@NonNull MediaLibrarySession session, @NonNull MediaSession.ControllerInfo browser, @NonNull String query, @Nullable LibraryParams params) {
-            return MediaLibrarySession.Callback.super.onSearch(session, browser, query, params);
-        }
-
-        @NonNull
-        @Override
-        public ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> onGetSearchResult(@NonNull MediaLibrarySession session, @NonNull MediaSession.ControllerInfo browser, @NonNull String query, int page, int pageSize, @Nullable LibraryParams params) {
-            return MediaLibrarySession.Callback.super.onGetSearchResult(session, browser, query, page, pageSize, params);
-        }
-    };
+    private MediaSessionCompat mediaSession;
+    private MediaSessionConnector mediaSessionConnector;
     private static final String PLAYBACK_CHANNEL_ID="ampflower_channel";
     private static final int PLAYBACK_NOTIFICATION_ID=1;
     private static final String MEDIA_SESSION_TAG="sed_audio";
@@ -232,10 +187,41 @@ public class MediaPlayerService extends MediaLibraryService
         playerNotificationManager.setPriority(NotificationCompat.PRIORITY_DEFAULT);
         playerNotificationManager.setUseStopAction(true);
         playerNotificationManager.setPlayer(exoPlayer);
-        mediaSession=new MediaSession.Builder(getApplicationContext(),exoPlayer)
-                .setId(BuildConfig.APPLICATION_ID+".mediaPlayerService"+MEDIA_SESSION_TAG)
-                .build();
-        mediaLibrarySession = new MediaLibrarySession.Builder(this, exoPlayer, callback).build();
+        mediaSession=new MediaSessionCompat(getApplicationContext(),MEDIA_SESSION_TAG);
+        mediaSession.setActive(true);
+        playerNotificationManager.setMediaSessionToken(mediaSession.getSessionToken());
+        mediaSessionConnector=new MediaSessionConnector(mediaSession);
+        mediaSessionConnector.setQueueNavigator(new TimelineQueueNavigator(mediaSession) {
+            @NotNull
+            @Override
+            public MediaDescriptionCompat getMediaDescription(@NotNull Player player, int windowIndex) {
+                Bitmap bitmap = getBitmapFromVectorDrawable(getApplicationContext(), R.mipmap.ic_launcher_ampflower);
+                Bundle extras = new Bundle();
+                // The system looks for information about the item windowIndex in the playlist.
+                // So let's give them that.
+                MediaItem currentItem=player.getCurrentMediaItem();
+                CharSequence currentTitle = "No media playing";
+                if(currentItem!=null)
+                    currentTitle=player.getCurrentMediaItem().mediaMetadata.title;
+                MediaItem wantedItem=player.getMediaItemAt(windowIndex);
+                String album = Objects.requireNonNull(Objects.requireNonNull(wantedItem).mediaMetadata.albumTitle).toString();
+                String artist = Objects.requireNonNull(wantedItem.mediaMetadata.artist).toString();
+
+                extras.putParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+                extras.putParcelable(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, bitmap);
+                extras.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist);
+                extras.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album);
+                // Here we would send the title of the song.
+                CharSequence title = wantedItem.mediaMetadata.title;
+                Log.d("MediaPlayerService", "Playing " + currentTitle + ", sending information about item " + windowIndex + ": "+title+" by "+artist+" in album "+album);
+                return new MediaDescriptionCompat.Builder()
+                        .setIconBitmap(bitmap)
+                        .setTitle(title)
+                        .setExtras(extras)
+                        .build();
+            }
+        });
+        mediaSessionConnector.setPlayer(exoPlayer);
         handler=new Handler();
         // I configure the handler to send periodic updates.
         updateAction= this::dispatchProgressUpdateEvent;
@@ -256,12 +242,6 @@ public class MediaPlayerService extends MediaLibraryService
         return new MediaPlayerServiceBinder();
     }
 
-    @Nullable
-    @Override
-    public MediaLibrarySession onGetSession(MediaSession.ControllerInfo controllerInfo) {
-        return mediaLibrarySession;
-    }
-
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         assert intent != null;
@@ -272,14 +252,9 @@ public class MediaPlayerService extends MediaLibraryService
     @Override
     public void onDestroy() {
         mediaSession.release();
+        mediaSessionConnector.setPlayer(null);
         playerNotificationManager.setPlayer(null);
-        if (mediaLibrarySession != null) {
-            mediaLibrarySession.getPlayer().release();
-            mediaLibrarySession.release();
-            mediaLibrarySession = null;
-        }
         exoPlayer.release();
-        super.onDestroy();
         super.onDestroy();
     }
     private void handleIntent(Intent intent)
@@ -411,7 +386,7 @@ public class MediaPlayerService extends MediaLibraryService
     public void playItemInPosition(int position)
     {
         // I have to tell the player to play this item
-        exoPlayer.seekTo(position, C.TIME_UNSET);
+        exoPlayer.seekTo(position,C.TIME_UNSET);
     }
     public void pause()
     {

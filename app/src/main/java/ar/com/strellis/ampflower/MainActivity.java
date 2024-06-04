@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -26,9 +25,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.media3.common.MediaItem;
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.ui.TimeBar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -36,6 +32,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.paging.ExperimentalPagingApi;
 
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.ui.TimeBar;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -86,7 +84,6 @@ import ar.com.strellis.utils.SlidingUpPanelLayout;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-@UnstableApi
 @ExperimentalPagingApi
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MediaServiceEventsListener
 {
@@ -461,7 +458,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Sets the observers for the buttons.
      */
-    @OptIn(markerClass = UnstableApi.class)
     private void configureButtons()
     {
         binding.layoutMusicPlayer.fabPlay.setOnClickListener(view -> {

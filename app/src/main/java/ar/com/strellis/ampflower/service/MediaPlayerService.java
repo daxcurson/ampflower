@@ -32,9 +32,12 @@ import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.session.CommandButton;
 import androidx.media3.session.LibraryResult;
 import androidx.media3.session.MediaLibraryService;
 import androidx.media3.session.MediaSession;
+import androidx.media3.session.SessionCommand;
+import androidx.media3.session.SessionCommands;
 import androidx.media3.ui.PlayerNotificationManager;
 import androidx.paging.ExperimentalPagingApi;
 
@@ -43,6 +46,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -67,7 +71,15 @@ public class MediaPlayerService extends MediaLibraryService
     private PlayerNotificationManager playerNotificationManager;
     private MediaSession mediaSession;
     private MediaLibrarySession mediaLibrarySession = null;
+    private List<CommandButton> commandButtons;
     private final MediaLibrarySession.Callback callback = new MediaLibrarySession.Callback() {
+        @NonNull
+        @Override
+        public MediaSession.ConnectionResult onConnect(@NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {
+            SessionCommands commands=MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon().build();
+            return new MediaSession.ConnectionResult.AcceptedResultBuilder(session).setAvailableSessionCommands(commands).build();
+        }
+
         @NonNull
         @Override
         public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRoot(@NonNull MediaLibrarySession session, @NonNull MediaSession.ControllerInfo browser, @Nullable LibraryParams params) {
@@ -232,7 +244,7 @@ public class MediaPlayerService extends MediaLibraryService
         playerNotificationManager.setPriority(NotificationCompat.PRIORITY_DEFAULT);
         playerNotificationManager.setUseStopAction(true);
         playerNotificationManager.setPlayer(exoPlayer);
-        mediaSession=new MediaSession.Builder(getApplicationContext(),exoPlayer)
+        mediaSession=new MediaLibrarySession.Builder(getApplicationContext(),exoPlayer,callback)
                 .setId(BuildConfig.APPLICATION_ID+".mediaPlayerService"+MEDIA_SESSION_TAG)
                 .build();
         mediaLibrarySession = new MediaLibrarySession.Builder(this, exoPlayer, callback).build();

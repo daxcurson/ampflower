@@ -46,6 +46,10 @@ public class AlbumsViewModel extends ViewModel
         PagingRx.cachedIn(newResult,coroutineScope);
         return newResult;
     }
+    public boolean isReady()
+    {
+        return albumsRepository!=null;
+    }
     public LiveData<NetworkState> getNetworkState()
     {
         if(albumsRepository==null)

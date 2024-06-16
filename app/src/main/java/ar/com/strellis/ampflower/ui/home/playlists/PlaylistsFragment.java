@@ -66,27 +66,6 @@ public class PlaylistsFragment extends Fragment {
         binding.playlistsRecycler.setLayoutManager(layoutManager);
         binding.playlistsRecycler.setItemAnimator(new DefaultItemAnimator());
         adapter=new PlaylistAdapterRx(getContext());
-        /*
-        If the application is resumed, the Activity executes its onStart method, whose first line is super.onStart(). This causes
-        the rest of the views to be created, and the onViewCreated of the PlaylistsFragments requires the playlists repository to exist,
-        but that repository is initialized after the start has been completed. So it could be impossible to initialize the repository at that stage!!!
-         */
-        serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
-            disposable.add(playlistsViewModel.getPlaylists()
-                    .subscribeOn(Schedulers.io())
-                    .doOnError(throwable-> Log.d("PlaylistFragment.onViewCreated","Error getting playlists!!! "+throwable.getMessage()))
-                    .retry((retryCount,error)->retryCount<3)
-                    .subscribe(albumPagingData -> adapter.submitData(getLifecycle(),albumPagingData),
-                            error->{
-                                Log.d("PlaylistsFragment.onViewCreated","Error caught");
-                                if (AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue()))) {
-                                    Log.d("PlaylistsFragment", "The login is expired, must be renewed");
-                                    // By way of this model, I'll send a messaage to activity to require a token renewal.
-                                    EventBus.getDefault().post(new AmpacheSessionExpiredEvent());
-                                }
-                            })
-            );
-        });
         binding.playlistsRecycler.setAdapter(
                 adapter.withLoadStateHeaderAndFooter(new PlaylistLoadStateAdapter(),new PlaylistLoadStateAdapter())
         );
@@ -112,5 +91,36 @@ public class PlaylistsFragment extends Fragment {
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        /*
+        If the application is resumed, the Activity executes its onStart method, whose first line is super.onStart(). This causes
+        the rest of the views to be created, and the onViewCreated of the PlaylistsFragments requires the playlists repository to exist,
+        but that repository is initialized after the start has been completed. So it could be impossible to initialize the repository at that stage!!!
+         */
+        serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
+            getPlaylists();
+        });
+    }
+
+    public void getPlaylists()
+    {
+        disposable.add(playlistsViewModel.getPlaylists()
+                .subscribeOn(Schedulers.io())
+                .doOnError(throwable-> Log.d("PlaylistFragment.onViewCreated","Error getting playlists!!! "+throwable.getMessage()))
+                .retry((retryCount,error)->retryCount<3)
+                .subscribe(playlistPagingData -> adapter.submitData(getLifecycle(),playlistPagingData),
+                        error->{
+                            Log.d("PlaylistsFragment.onViewCreated","Error caught");
+                            if (AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue()))) {
+                                Log.d("PlaylistsFragment", "The login is expired, must be renewed");
+                                // By way of this model, I'll send a messaage to activity to require a token renewal.
+                                EventBus.getDefault().post(new AmpacheSessionExpiredEvent());
+                            }
+                        })
+        );
     }
 }

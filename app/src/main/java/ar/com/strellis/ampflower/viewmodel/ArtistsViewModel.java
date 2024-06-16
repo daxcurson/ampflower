@@ -39,6 +39,10 @@ public class ArtistsViewModel extends ViewModel
         PagingRx.cachedIn(newResult,coroutineScope);
         return newResult;
     }
+    public boolean isReady()
+    {
+        return artistsRepository!=null;
+    }
     public void setArtistsRepository(@NotNull ArtistsRepositoryRx artistsRepository)
     {
         this.artistsRepository=artistsRepository;

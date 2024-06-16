@@ -1,15 +1,23 @@
 package ar.com.strellis.ampflower.service;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -18,7 +26,10 @@ import android.util.Log;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.lifecycle.LifecycleService;
@@ -35,7 +46,9 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.session.CommandButton;
 import androidx.media3.session.LibraryResult;
 import androidx.media3.session.MediaLibraryService;
+import androidx.media3.session.MediaNotification;
 import androidx.media3.session.MediaSession;
+import androidx.media3.session.MediaStyleNotificationHelper;
 import androidx.media3.session.SessionCommand;
 import androidx.media3.session.SessionCommands;
 import androidx.media3.ui.PlayerNotificationManager;
@@ -56,17 +69,16 @@ import ar.com.strellis.ampflower.BuildConfig;
 import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Song;
+
 @UnstableApi
 @ExperimentalPagingApi
-public class MediaPlayerService extends MediaLibraryService
-{
-    public class MediaPlayerServiceBinder extends Binder
-    {
-        public MediaPlayerService getService()
-        {
+public class MediaPlayerService extends MediaLibraryService {
+    public class MediaPlayerServiceBinder extends Binder {
+        public MediaPlayerService getService() {
             return MediaPlayerService.this;
         }
     }
+
     private ExoPlayer exoPlayer;
     private PlayerNotificationManager playerNotificationManager;
     private MediaSession mediaSession;
@@ -76,7 +88,7 @@ public class MediaPlayerService extends MediaLibraryService
         @NonNull
         @Override
         public MediaSession.ConnectionResult onConnect(@NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {
-            SessionCommands commands=MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon().build();
+            SessionCommands commands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon().build();
             return new MediaSession.ConnectionResult.AcceptedResultBuilder(session).setAvailableSessionCommands(commands).build();
         }
 
@@ -122,9 +134,9 @@ public class MediaPlayerService extends MediaLibraryService
             return MediaLibrarySession.Callback.super.onGetSearchResult(session, browser, query, page, pageSize, params);
         }
     };
-    private static final String PLAYBACK_CHANNEL_ID="ampflower_channel";
-    private static final int PLAYBACK_NOTIFICATION_ID=1;
-    private static final String MEDIA_SESSION_TAG="sed_audio";
+    private static final String PLAYBACK_CHANNEL_ID = "ampflower_channel";
+    private static final int PLAYBACK_NOTIFICATION_ID = 1;
+    private static final String MEDIA_SESSION_TAG = "sed_audio";
     private final List<MediaServiceEventsListener> listeners;
     private Handler handler;
     private Runnable updateAction;
@@ -135,29 +147,28 @@ public class MediaPlayerService extends MediaLibraryService
     public static final String ACTION_PREVIOUS = BuildConfig.APPLICATION_ID + ".action.PREVIOUS";
     public static final String ACTION_NEXT = BuildConfig.APPLICATION_ID + ".action.NEXT";
     public static final String ACTION_TOGGLE = BuildConfig.APPLICATION_ID + ".action.TOGGLE_PLAYPAUSE";
-    public static final String ACTION_SELECT_SONGS = BuildConfig.APPLICATION_ID+".action.SELECT_SONGS";
-    public static final String ACTION_ADD_SONGS = BuildConfig.APPLICATION_ID+".action.ADD_SONGS";
-    public static final String ACTION_MOVE_ITEM = BuildConfig.APPLICATION_ID+".action.MOVE_ITEM";
-    public static final String ACTION_PLAY_ITEM = BuildConfig.APPLICATION_ID+".action.PLAY_ITEM";
-    public static final String ACTION_DELETE_ITEM = BuildConfig.APPLICATION_ID+".action.DELETE_ITEM";
-    public static final String ACTION_SEEK = BuildConfig.APPLICATION_ID+".action.SEEK";
+    public static final String ACTION_SELECT_SONGS = BuildConfig.APPLICATION_ID + ".action.SELECT_SONGS";
+    public static final String ACTION_ADD_SONGS = BuildConfig.APPLICATION_ID + ".action.ADD_SONGS";
+    public static final String ACTION_MOVE_ITEM = BuildConfig.APPLICATION_ID + ".action.MOVE_ITEM";
+    public static final String ACTION_PLAY_ITEM = BuildConfig.APPLICATION_ID + ".action.PLAY_ITEM";
+    public static final String ACTION_DELETE_ITEM = BuildConfig.APPLICATION_ID + ".action.DELETE_ITEM";
+    public static final String ACTION_SEEK = BuildConfig.APPLICATION_ID + ".action.SEEK";
     public static final String ACTION_RENEW_TOKEN = BuildConfig.APPLICATION_ID + ".action.RENEW_LOGINRESPONSE";
 
-    public MediaPlayerService()
-    {
-        listeners=new LinkedList<>();
+    public MediaPlayerService() {
+        listeners = new LinkedList<>();
     }
+
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         super.onCreate();
-        Log.d("MediaPlayerService","Launching the media player service");
-        exoPlayer=new ExoPlayer.Builder(getApplicationContext()).build();
-        AudioAttributes audioAttributes=new AudioAttributes.Builder()
+        Log.d("MediaPlayerService", "Launching the media player service");
+        exoPlayer = new ExoPlayer.Builder(getApplicationContext()).build();
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
                 .setUsage(C.USAGE_MEDIA)
                 .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
                 .build();
-        exoPlayer.setAudioAttributes(audioAttributes,true);
+        exoPlayer.setAudioAttributes(audioAttributes, true);
         exoPlayer.addListener(new PlayerEventListener());
         playerNotificationManager=new PlayerNotificationManager.Builder(
                 getApplicationContext(),
@@ -214,7 +225,7 @@ public class MediaPlayerService extends MediaLibraryService
                                 return PendingIntent.getActivity(getApplicationContext(),
                                         0,
                                         intent,
-                                        PendingIntent.FLAG_UPDATE_CURRENT| android.app.PendingIntent.FLAG_MUTABLE);
+                                        FLAG_UPDATE_CURRENT| android.app.PendingIntent.FLAG_MUTABLE);
                             }
                             @NotNull
                             @Override
@@ -493,7 +504,7 @@ public class MediaPlayerService extends MediaLibraryService
         // Remove scheduled updates.
         // It turns out, that the very code of the ExoPlayer removes this progress update
         // before adding a new one with the postDelayed!!!!
-        handler.removeCallbacks(updateAction);
+        //handler.removeCallbacks(updateAction);
         long position=exoPlayer.getCurrentPosition();
         long nextUpdateTime=1000-position%1000;
         PlayerPositionEvent event = new PlayerPositionEvent();
@@ -507,7 +518,7 @@ public class MediaPlayerService extends MediaLibraryService
             for (MediaServiceEventsListener l : listeners)
                 l.updateProgress(event);
             // Now that the event has been sent, schedule the next update.
-            handler.postDelayed(updateAction,nextUpdateTime);
+            //handler.postDelayed(updateAction,nextUpdateTime);
         }
         else if(exoPlayer!=null && playbackstate==Player.STATE_BUFFERING)
         {
@@ -515,7 +526,7 @@ public class MediaPlayerService extends MediaLibraryService
             Log.d("MediaPlayerService","The player is buffering, sending progress update");
             for(MediaServiceEventsListener l:listeners)
                 l.updateProgress(event);
-            handler.postDelayed(updateAction,1000);
+            //handler.postDelayed(updateAction,1000);
         }
     }
     /**

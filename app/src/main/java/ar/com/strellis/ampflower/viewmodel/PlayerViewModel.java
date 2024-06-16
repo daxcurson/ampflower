@@ -2,13 +2,11 @@ package ar.com.strellis.ampflower.viewmodel;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.media3.common.MediaItem;
-import androidx.paging.ExperimentalPagingApi;
 
+import com.google.android.exoplayer2.MediaItem;
 
 import ar.com.strellis.ampflower.MainActivity;
 
-@ExperimentalPagingApi
 public class PlayerViewModel extends ViewModel
 {
     private final MutableLiveData<MainActivity.State> playerState;

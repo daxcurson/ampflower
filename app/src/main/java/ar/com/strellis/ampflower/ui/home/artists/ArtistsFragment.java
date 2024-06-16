@@ -67,12 +67,6 @@ public class ArtistsFragment extends Fragment {
         binding.artistsRecycler.setLayoutManager(layoutManager);
         binding.artistsRecycler.setItemAnimator(new DefaultItemAnimator());
         adapter=new ArtistAdapterRx(getContext());
-        // If the artists repository hasn't been initialized, the getArtists may be called on a null method reference
-        // within the viewModel, which causes the application to crash
-        getArtists();
-        serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
-            getArtists();
-        });
         binding.artistsRecycler.setAdapter(
                 adapter.withLoadStateHeaderAndFooter(new ArtistLoadStateAdapter(),new ArtistLoadStateAdapter())
         );
@@ -98,6 +92,20 @@ public class ArtistsFragment extends Fragment {
             }
         });
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // If the artists repository hasn't been initialized, the getArtists may be called on a null method reference
+        // within the viewModel, which causes the application to crash
+        // We must ask if the viewModel is ready befre trying to get the artists.
+        if(artistsViewModel.isReady())
+            getArtists();
+        serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
+            getArtists();
+        });
+    }
+
     public void getArtists()
     {
         disposable.add(artistsViewModel.getArtists()

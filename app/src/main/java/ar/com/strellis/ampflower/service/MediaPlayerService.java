@@ -26,13 +26,11 @@ import android.util.Log;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.lifecycle.LifecycleService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
@@ -44,25 +42,27 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.session.CommandButton;
+import androidx.media3.session.DefaultMediaNotificationProvider;
 import androidx.media3.session.LibraryResult;
+import androidx.media3.session.MediaController;
 import androidx.media3.session.MediaLibraryService;
-import androidx.media3.session.MediaNotification;
 import androidx.media3.session.MediaSession;
 import androidx.media3.session.MediaStyleNotificationHelper;
-import androidx.media3.session.SessionCommand;
 import androidx.media3.session.SessionCommands;
+import androidx.media3.session.SessionToken;
 import androidx.media3.ui.PlayerNotificationManager;
 import androidx.paging.ExperimentalPagingApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.BuildConfig;
@@ -81,7 +81,6 @@ public class MediaPlayerService extends MediaLibraryService {
 
     private ExoPlayer exoPlayer;
     private PlayerNotificationManager playerNotificationManager;
-    private MediaSession mediaSession;
     private MediaLibrarySession mediaLibrarySession = null;
     private List<CommandButton> commandButtons;
     private final MediaLibrarySession.Callback callback = new MediaLibrarySession.Callback() {
@@ -250,15 +249,28 @@ public class MediaPlayerService extends MediaLibraryService {
                                 Log.d("MediaPlayerService", "getCurrentLargeIcon");
                                 return null;
                             }
-                        }).build();
+                        })
+                .setSmallIconResourceId(R.drawable.ic_note_foreground)
+                .build();
 
         playerNotificationManager.setPriority(NotificationCompat.PRIORITY_DEFAULT);
         playerNotificationManager.setUseStopAction(true);
         playerNotificationManager.setPlayer(exoPlayer);
-        mediaSession=new MediaLibrarySession.Builder(getApplicationContext(),exoPlayer,callback)
+        mediaLibrarySession=new MediaLibrarySession.Builder(getApplicationContext(),exoPlayer,callback)
                 .setId(BuildConfig.APPLICATION_ID+".mediaPlayerService"+MEDIA_SESSION_TAG)
                 .build();
-        mediaLibrarySession = new MediaLibrarySession.Builder(this, exoPlayer, callback).build();
+        /*Notification notification = new NotificationCompat.Builder(getApplicationContext(), PLAYBACK_CHANNEL_ID)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setSmallIcon(androidx.media3.session.R.drawable.media3_notification_small_icon)
+                .addAction(R.drawable.ic_noti_previous, "Previous", null)
+                .addAction(R.drawable.ic_noti_pause, "Pause", null)
+                .addAction(R.drawable.ic_noti_next, "Next", null)
+                .setStyle(new MediaStyleNotificationHelper.MediaStyle(mediaLibrarySession)
+                        .setShowActionsInCompactView(1 )) //Pause
+                .setContentTitle("Wonderful music")
+                .setContentText("My Awesome Band")
+                .build();*/
+
         handler=new Handler();
         // I configure the handler to send periodic updates.
         updateAction= this::dispatchProgressUpdateEvent;
@@ -294,7 +306,6 @@ public class MediaPlayerService extends MediaLibraryService {
 
     @Override
     public void onDestroy() {
-        mediaSession.release();
         playerNotificationManager.setPlayer(null);
         if (mediaLibrarySession != null) {
             mediaLibrarySession.getPlayer().release();
@@ -504,7 +515,7 @@ public class MediaPlayerService extends MediaLibraryService {
         // Remove scheduled updates.
         // It turns out, that the very code of the ExoPlayer removes this progress update
         // before adding a new one with the postDelayed!!!!
-        //handler.removeCallbacks(updateAction);
+        handler.removeCallbacks(updateAction);
         long position=exoPlayer.getCurrentPosition();
         long nextUpdateTime=1000-position%1000;
         PlayerPositionEvent event = new PlayerPositionEvent();
@@ -518,7 +529,7 @@ public class MediaPlayerService extends MediaLibraryService {
             for (MediaServiceEventsListener l : listeners)
                 l.updateProgress(event);
             // Now that the event has been sent, schedule the next update.
-            //handler.postDelayed(updateAction,nextUpdateTime);
+            handler.postDelayed(updateAction,nextUpdateTime);
         }
         else if(exoPlayer!=null && playbackstate==Player.STATE_BUFFERING)
         {
@@ -526,7 +537,7 @@ public class MediaPlayerService extends MediaLibraryService {
             Log.d("MediaPlayerService","The player is buffering, sending progress update");
             for(MediaServiceEventsListener l:listeners)
                 l.updateProgress(event);
-            //handler.postDelayed(updateAction,1000);
+            handler.postDelayed(updateAction,1000);
         }
     }
     /**
@@ -538,6 +549,7 @@ public class MediaPlayerService extends MediaLibraryService {
     }
 
     private class PlayerEventListener implements Player.Listener {
+
         @Override
         public void onPlaybackStateChanged(int state) {
             String stringState="";

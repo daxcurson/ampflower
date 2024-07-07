@@ -23,7 +23,7 @@ public class SongsNetworkInteractorArtists extends SongsNetworkInteractor<Artist
     @Override
     public Single<ArtistWithSongs> getSongs(String entityId) {
         Log.d("SongsNetworkInteractorArtists.getSongs","Getting songs from artist "+entityId+"from the network, auth: "+ Objects.requireNonNull(settings.getValue()).getAuth());
-        return ampacheService.artist_songs(Objects.requireNonNull(settings.getValue()).getAuth(),String.valueOf(entityId),0,Integer.MAX_VALUE)
+        return ampacheService.artist_songs(Objects.requireNonNull(settings.getValue()).getAuth(),String.valueOf(entityId),0,Integer.MAX_VALUE,"album,ASC,album_disk,ASC")
                 .map(songs -> {
                     Log.d("SongsNetworkInteractorArtists.getSongs$1","Received songs from the network!");
                     Artist artist=new Artist();

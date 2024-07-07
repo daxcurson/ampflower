@@ -101,7 +101,8 @@ public interface AmpacheService
             @Query("auth") String auth,
             @Query("filter") String artist_id,
             @Query("offset") Integer offset,
-            @Query("limit") Integer limit
+            @Query("limit") Integer limit,
+            @Query("sort") String sort
     );
     @GET("server/json.server.php?action=user")
     Call<UserResponse> user(

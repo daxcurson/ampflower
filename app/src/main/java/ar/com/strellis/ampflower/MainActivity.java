@@ -646,7 +646,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) ==
                 PackageManager.PERMISSION_GRANTED) {
             // You can use the API that requires the permission.
-            Log.d("MainActivity","I have the permission");
+            Log.d("MainActivity","I have the notification permission");
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(
                 this, android.Manifest.permission.POST_NOTIFICATIONS)) {
             // In an educational UI, explain to the user why your app requires this

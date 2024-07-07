@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -16,11 +18,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -107,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean boundToService=false;
     private MediaPlayerService playerService;
     private Disposable disposableObserver;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -603,6 +611,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onStart() {
         super.onStart();
@@ -617,6 +626,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          */
         Log.d("MainActivity","I'm started");
         EventBus.getDefault().register(this);
+        // Request permissions to show notifications
+        requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        // Permission is granted. Continue the action or workflow in your
+                        // app.
+                        Log.d("MainActivity","Permission granted for notifications");
+                    } else {
+                        // Explain to the user that the feature is unavailable because the
+                        // feature requires a permission that the user has denied. At the
+                        // same time, respect the user's decision. Don't link to system
+                        // settings in an effort to convince the user to change their
+                        // decision.
+                        Log.d("MainActivity","Permission not granted for notifications");
+                    }
+                });
+        if (ContextCompat.checkSelfPermission(
+                getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED) {
+            // You can use the API that requires the permission.
+            Log.d("MainActivity","I have the permission");
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this, android.Manifest.permission.POST_NOTIFICATIONS)) {
+            // In an educational UI, explain to the user why your app requires this
+            // permission for a specific feature to behave as expected, and what
+            // features are disabled if it's declined. In this UI, include a
+            // "cancel" or "no thanks" button that lets the user continue
+            // using your app without granting the permission.
+            Log.d("MainActivity","I should explain why I need this notification");
+        } else {
+            // You can directly ask for the permission.
+            // The registered ActivityResultCallback gets the result of this request.
+            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+        }
     }
 
 

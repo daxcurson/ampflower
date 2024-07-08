@@ -655,6 +655,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // "cancel" or "no thanks" button that lets the user continue
             // using your app without granting the permission.
             Log.d("MainActivity","I should explain why I need this notification");
+            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
         } else {
             // You can directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.

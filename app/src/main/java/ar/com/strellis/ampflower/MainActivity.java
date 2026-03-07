@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -32,7 +31,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.ui.TimeBar;
@@ -49,6 +47,7 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -73,6 +72,7 @@ import ar.com.strellis.ampflower.data.repository.PlaylistsRepositoryRx;
 import ar.com.strellis.ampflower.data.repository.SongsRepository;
 import ar.com.strellis.ampflower.databinding.ActivityMainBinding;
 import ar.com.strellis.ampflower.event.AmpacheSessionExpiredEvent;
+import ar.com.strellis.ampflower.event.RenewLoginEvent;
 import ar.com.strellis.ampflower.networkutils.AmpacheService;
 import ar.com.strellis.ampflower.networkutils.AmpacheUtil;
 import ar.com.strellis.ampflower.networkutils.LoginCallback;
@@ -679,12 +679,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onResume() {
         super.onResume();
         Log.d("MainActivity","I'm resumed");
-        LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver,new IntentFilter(BuildConfig.APPLICATION_ID+".action.RENEW_LOGINRESPONSE"));
+        EventBus.getDefault().post(new RenewLoginEvent());
     }
 
     @Override
     protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver);
+        EventBus.getDefault().post(new RenewLoginEvent());
         Log.d("MainActivity","I'm paused");
         super.onPause();
     }
@@ -1050,5 +1050,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         Log.d("MainActivity","Session expired");
         AmpacheUtil.loginToAmpache(serverStatusViewModel, serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
+    }
+    @Subscribe(threadMode= ThreadMode.MAIN)
+    public void onRenewSession(RenewLoginEvent e)
+    {
+        Log.d("MainActivity","Need to renew session");
+        if(AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue())))
+            AmpacheUtil.loginToAmpache(serverStatusViewModel,serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
     }
 }

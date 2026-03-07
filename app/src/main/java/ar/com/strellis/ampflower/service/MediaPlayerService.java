@@ -1,23 +1,17 @@
 package ar.com.strellis.ampflower.service;
 
-import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -27,11 +21,8 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -42,33 +33,29 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.session.CommandButton;
-import androidx.media3.session.DefaultMediaNotificationProvider;
 import androidx.media3.session.LibraryResult;
-import androidx.media3.session.MediaController;
 import androidx.media3.session.MediaLibraryService;
 import androidx.media3.session.MediaSession;
-import androidx.media3.session.MediaStyleNotificationHelper;
 import androidx.media3.session.SessionCommands;
-import androidx.media3.session.SessionToken;
 import androidx.media3.ui.PlayerNotificationManager;
 import androidx.paging.ExperimentalPagingApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import ar.com.strellis.ampflower.BuildConfig;
 import ar.com.strellis.ampflower.MainActivity;
 import ar.com.strellis.ampflower.R;
 import ar.com.strellis.ampflower.data.model.Song;
+import ar.com.strellis.ampflower.event.AmpacheSessionExpiredEvent;
 
 @UnstableApi
 @ExperimentalPagingApi
@@ -333,10 +320,10 @@ public class MediaPlayerService extends MediaLibraryService {
                     exoPlayer.pause();
                     break;
                 case ACTION_NEXT:
-                    exoPlayer.next();
+                    exoPlayer.seekToNext();
                     break;
                 case ACTION_PREVIOUS:
-                    exoPlayer.previous();
+                    exoPlayer.seekToPrevious();
                     break;
                 case ACTION_TOGGLE:
                     if(exoPlayer.isPlaying())
@@ -545,7 +532,7 @@ public class MediaPlayerService extends MediaLibraryService {
      */
     private void requestRenewLoginResponse() {
         Intent intent = new Intent(ACTION_RENEW_TOKEN);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        EventBus.getDefault().post(new AmpacheSessionExpiredEvent());
     }
 
     private class PlayerEventListener implements Player.Listener {

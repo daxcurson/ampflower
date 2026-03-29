@@ -102,7 +102,8 @@ public class PlaylistsFragment extends Fragment {
         but that repository is initialized after the start has been completed. So it could be impossible to initialize the repository at that stage!!!
          */
         serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
-            getPlaylists();
+            if (playlistsViewModel.isReady())
+                getPlaylists();
         });
     }
 

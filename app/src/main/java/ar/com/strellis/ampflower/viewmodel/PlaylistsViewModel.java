@@ -39,6 +39,10 @@ public class PlaylistsViewModel  extends ViewModel
     {
         this.query.setValue(query);
     }
+    public boolean isReady()
+    {
+        return playlistsRepository != null;
+    }
     public Flowable<PagingData<Playlist>> getPlaylists()
     {
         // here is a problem where the repository is not initialized before

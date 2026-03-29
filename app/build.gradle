@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "ar.com.strellis.ampflower"
         minSdkVersion 31
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode 1
         versionName "1.0"
 
@@ -34,9 +34,9 @@ android {
 dependencies {
 
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-    implementation 'org.jetbrains:annotations:23.0.0'
+    implementation 'org.jetbrains:annotations:26.1.0'
     def lifecycle_version = '2.2.0'
-    def exoplayer_version="1.9.2"
+    def exoplayer_version="1.10.0"
     def room_version = "2.8.4"
     def retrofit2_version="2.9.0"
     implementation 'androidx.appcompat:appcompat:1.7.1'

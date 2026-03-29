@@ -102,7 +102,8 @@ public class ArtistsFragment extends Fragment {
         if(artistsViewModel.isReady())
             getArtists();
         serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
-            getArtists();
+            if (artistsViewModel.isReady())
+                getArtists();
         });
     }
 

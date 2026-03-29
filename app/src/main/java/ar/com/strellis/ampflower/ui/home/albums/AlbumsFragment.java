@@ -105,7 +105,8 @@ public class AlbumsFragment extends Fragment {
         if(albumsViewModel.isReady())
             getAlbums();
         serverStatusViewModel.getLoginResponse().observe(getViewLifecycleOwner(),receivedLogin->{
-            getAlbums();
+            if (albumsViewModel.isReady())
+                getAlbums();
         });
     }
     public void getAlbums()

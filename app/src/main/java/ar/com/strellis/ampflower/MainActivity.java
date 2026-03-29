@@ -60,6 +60,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import ar.com.strellis.ampflower.data.PlaylistPref;
 import ar.com.strellis.ampflower.data.model.AmpacheError;
 import ar.com.strellis.ampflower.data.model.AmpacheSettings;
 import ar.com.strellis.ampflower.data.model.LoginResponse;
@@ -695,7 +696,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d("MainActivity","I'm stopped");
         if (disposableObserver != null && !disposableObserver.isDisposed())
             disposableObserver.dispose();
+        savePlaylistState();
         EventBus.getDefault().unregister(this);
+    }
+
+    private void savePlaylistState() {
+        List<SelectableSong> playlist = songsViewModel.getCurrentPlaylist().getValue();
+        if (playlist != null && !playlist.isEmpty()) {
+            Integer currentItem = songsViewModel.getCurrentItemInPlaylist().getValue();
+            Long currentPosition = playerViewModel.getCurrentPosition().getValue();
+            new PlaylistPref(this).savePlaylist(playlist, currentItem, currentPosition);
+            Log.d("MainActivity", "Playlist state saved: " + playlist.size() + " songs, item " + currentItem);
+        }
     }
 
     private void bindMediaPlayerService()
@@ -882,6 +894,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void renewPlaylist()
     {
         List<SelectableSong> currentPlaylist=songsViewModel.getCurrentPlaylist().getValue();
+        if (currentPlaylist == null || currentPlaylist.isEmpty()) {
+            PlaylistPref playlistPref = new PlaylistPref(this);
+            List<SelectableSong> savedPlaylist = playlistPref.loadPlaylist();
+            if (savedPlaylist != null && !savedPlaylist.isEmpty()) {
+                Log.d("MainActivity", "Restoring playlist from saved state: " + savedPlaylist.size() + " songs");
+                int savedItem = playlistPref.loadCurrentItem();
+                long savedPosition = playlistPref.loadCurrentPosition();
+                if (savedItem >= 0)
+                    songsViewModel.setCurrentItemInPlaylist(savedItem);
+                playerViewModel.setCurrentPosition(savedPosition);
+                currentPlaylist = savedPlaylist;
+            }
+        }
         LoginResponse loginResponse=serverStatusViewModel.getLoginResponse().getValue();
         if(currentPlaylist!=null && !currentPlaylist.isEmpty()) {
             List<SelectableSong> newPlaylist=new LinkedList<>();

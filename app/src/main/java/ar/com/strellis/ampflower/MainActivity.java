@@ -53,6 +53,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -90,6 +91,7 @@ import ar.com.strellis.ampflower.viewmodel.ServerStatusViewModel;
 import ar.com.strellis.ampflower.viewmodel.SettingsViewModel;
 import ar.com.strellis.ampflower.viewmodel.SongsViewModel;
 import ar.com.strellis.utils.SlidingUpPanelLayout;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -168,8 +170,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("MainActivity.loginToAmpache", "We're in");
                 serverStatusViewModel.setLoginResponse(response);
                 serverStatusViewModel.setServerStatus(ServerStatus.ONLINE);
-                // Try to renew the session
-                //scheduleSessionRenewal(getNextUpdateTime(response));
+                scheduleSessionRenewal(getNextUpdateTime(response));
             }
 
             @Override
@@ -684,7 +685,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onPause() {
-        EventBus.getDefault().post(new RenewLoginEvent());
         Log.d("MainActivity","I'm paused");
         super.onPause();
     }
@@ -693,6 +693,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStop() {
         super.onStop();
         Log.d("MainActivity","I'm stopped");
+        if (disposableObserver != null && !disposableObserver.isDisposed())
+            disposableObserver.dispose();
         EventBus.getDefault().unregister(this);
     }
 
@@ -1022,40 +1024,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Schedules the next session renewal
      * @param delay interval in seconds until the next session renewal
      */
-    private void scheduleSessionRenewal(Long delay)
+    private void scheduleSessionRenewal(long delay)
     {
-        if(disposableObserver==null)
-            disposableObserver= Observable.interval(delay,TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.io())
-                .subscribe(data->renewSession(),error-> Log.d("MainActivity.scheduleSessionRenewal","Error renewing the session"));
+        if (disposableObserver != null && !disposableObserver.isDisposed())
+            disposableObserver.dispose();
+        disposableObserver = Observable.timer(delay, TimeUnit.SECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                ignored -> AmpacheUtil.loginToAmpache(serverStatusViewModel, serverStatusViewModel.getAmpacheSettings().getValue(), getLoginCallback()),
+                error -> Log.d("MainActivity.scheduleSessionRenewal", "Error scheduling session renewal: " + error.getMessage())
+            );
     }
 
     /**
-     * Calculates the next update time based on the current session expiration time
+     * Calculates the delay in seconds until the session should be renewed,
+     * targeting 60 seconds before the token expires.
      * @param response LoginResponse received from the server
-     * @return interval in seconds until the next update
+     * @return delay in seconds until the next renewal
      */
     private long getNextUpdateTime(LoginResponse response)
     {
-        /*Date now=new Date();
-        long milliseconds=Math.abs(response.getSession_expire().getTime()-now.getTime());*/
-        // I could do some calculation based on the expiration time of the token,
-        // but I could also make this time a setting.
-        // I'll make a default of it.
-        //return TimeUnit.SECONDS.convert(milliseconds,TimeUnit.MILLISECONDS);
-        return Objects.requireNonNull(serverStatusViewModel.getAmpacheSettings().getValue()).getSessionRenewalTime();
+        Date now = new Date();
+        long millisUntilExpiry = response.getSession_expire().getTime() - now.getTime();
+        long millisUntilRenewal = millisUntilExpiry - TimeUnit.SECONDS.toMillis(60);
+        if (millisUntilRenewal <= 0)
+            return 0;
+        return TimeUnit.MILLISECONDS.toSeconds(millisUntilRenewal);
     }
-    @Subscribe
+    @Subscribe(threadMode= ThreadMode.MAIN)
     public void onSessionExpired(AmpacheSessionExpiredEvent e)
     {
         Log.d("MainActivity","Session expired");
+        ServerStatus status = serverStatusViewModel.getServerStatus().getValue();
+        if (status == ServerStatus.CONNECTING) {
+            Log.d("MainActivity","Already connecting, skipping duplicate auth attempt");
+            return;
+        }
         AmpacheUtil.loginToAmpache(serverStatusViewModel, serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
     }
     @Subscribe(threadMode= ThreadMode.MAIN)
     public void onRenewSession(RenewLoginEvent e)
     {
         Log.d("MainActivity","Need to renew session");
-        if(AmpacheUtil.isLoginExpired(Objects.requireNonNull(serverStatusViewModel.getLoginResponse().getValue())))
+        LoginResponse response = serverStatusViewModel.getLoginResponse().getValue();
+        if (response == null) return;
+        if(AmpacheUtil.isLoginExpired(response))
             AmpacheUtil.loginToAmpache(serverStatusViewModel,serverStatusViewModel.getAmpacheSettings().getValue(),getLoginCallback());
     }
 }

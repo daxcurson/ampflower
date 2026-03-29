@@ -1015,7 +1015,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     public void setPositionInSong(long position)
     {
-        songsViewModel.setCurrentPlaylist(songsViewModel.getSelectedSongsIntoPlaylist());
         Intent intent=new Intent(MainActivity.this, MediaPlayerService.class);
         intent.setAction(MediaPlayerService.ACTION_SEEK);
         Bundle bundle=new Bundle();

@@ -45,10 +45,9 @@ public class ViewPlaylistAdapter extends RecyclerView.Adapter<ViewPlaylistViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewPlaylistViewHolder holder, int position) {
-        List<SelectableSong> songs=songsViewModel.getSongsInView().getValue();
-        if(songs!=null)
-        {
-            SelectableSong song = Objects.requireNonNull(songsViewModel.getCurrentPlaylist().getValue()).get(position);
+        List<SelectableSong> playlist = songsViewModel.getCurrentPlaylist().getValue();
+        if (playlist != null) {
+            SelectableSong song = playlist.get(position);
             holder.getSongTitle().setText(song.getSong().getName());
             holder.getArtistName().setText(song.getSong().getArtist().getName());
             Picasso.get().load(song.getSong().getArt()).into(holder.getAlbumImage());

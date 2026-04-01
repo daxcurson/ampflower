@@ -54,19 +54,19 @@
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
-        <receiver android:name="ar.com.strellis.ampflower.service.MediaButtonIntentReceiver"
+        <receiver android:name="ar.com.strellis.ampflower2.service.MediaButtonIntentReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-        <receiver android:name="ar.com.strellis.ampflower.service.AudioPlayerBroadcastReceiver"
+        <receiver android:name="ar.com.strellis.ampflower2.service.AudioPlayerBroadcastReceiver"
             android:exported="true"
             tools:ignore="ExportedReceiver">
             <intent-filter>
-                <action android:name="ar.com.strellis.ampflower.ACTION_PLAY_PAUSE" />
-                <action android:name="ar.com.strellis.ampflower.ACTION_NEXT" />
-                <action android:name="ar.com.strellis.ampflower.ACTION_PREV" />
+                <action android:name="ar.com.strellis.ampflower2.ACTION_PLAY_PAUSE" />
+                <action android:name="ar.com.strellis.ampflower2.ACTION_NEXT" />
+                <action android:name="ar.com.strellis.ampflower2.ACTION_PREV" />
             </intent-filter>
         </receiver>
     </application>

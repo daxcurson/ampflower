@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="ar.com.strellis.ampflower.ui.home.HomeFragment"
+        android:name="ar.com.strellis.ampflower2.ui.home.HomeFragment"
         android:label="@string/ampflower"
         tools:layout="@layout/fragment_home" >
         <action
@@ -29,25 +29,25 @@
 
     <fragment
         android:id="@+id/nav_library"
-        android:name="ar.com.strellis.ampflower.ui.library.LibraryFragment"
+        android:name="ar.com.strellis.ampflower2.ui.library.LibraryFragment"
         android:label="@string/menu_library"
         tools:layout="@layout/fragment_library" />
 
     <fragment
         android:id="@+id/nav_settings"
-        android:name="ar.com.strellis.ampflower.ui.settings.SettingsFragment"
+        android:name="ar.com.strellis.ampflower2.ui.settings.SettingsFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/nav_server_status"
-        android:name="ar.com.strellis.ampflower.ui.serverstatus.ServerStatusFragment"
+        android:name="ar.com.strellis.ampflower2.ui.serverstatus.ServerStatusFragment"
         android:label="@string/server_status"
         tools:layout="@layout/fragment_server_status"/>
 
     <fragment
         android:id="@+id/nav_choose_songs"
-        android:name="ar.com.strellis.ampflower.ui.choose_songs.ChooseSongsFragment"
+        android:name="ar.com.strellis.ampflower2.ui.choose_songs.ChooseSongsFragment"
         android:label="@string/choose_songs"
         tools:layout="@layout/fragment_choose_songs" >
         <action
@@ -56,7 +56,7 @@
     </fragment>
     <fragment
         android:id="@+id/nav_view_playlist"
-        android:name="ar.com.strellis.ampflower.ui.view_playlist.ViewPlaylistFragment"
+        android:name="ar.com.strellis.ampflower2.ui.view_playlist.ViewPlaylistFragment"
         android:label="@string/view_playlist"
         tools:layout="@layout/fragment_view_playlist">
         <action

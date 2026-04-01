@@ -44,7 +44,7 @@
                         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-                    <ar.com.strellis.ampflower.ui.statusbar.StatusBarView
+                    <ar.com.strellis.ampflower2.ui.statusbar.StatusBarView
                         android:id="@+id/statusBar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />

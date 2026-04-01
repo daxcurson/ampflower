@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:clipToPadding="false"
-    tools:context="ar.com.strellis.ampflower.ui.serverstatus.ServerStatusFragment">
+    tools:context="ar.com.strellis.ampflower2.ui.serverstatus.ServerStatusFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

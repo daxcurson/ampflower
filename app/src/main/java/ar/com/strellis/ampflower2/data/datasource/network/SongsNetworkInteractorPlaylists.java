@@ -1,0 +1,41 @@
+package ar.com.strellis.ampflower2.data.datasource.network;
+
+import android.util.Log;
+
+import androidx.lifecycle.LiveData;
+
+import java.util.Objects;
+
+import ar.com.strellis.ampflower2.data.datasource.db.SongsDatabaseInteractor;
+import ar.com.strellis.ampflower2.data.datasource.memory.SongsMemoryInteractor;
+import ar.com.strellis.ampflower2.data.model.LoginResponse;
+import ar.com.strellis.ampflower2.data.model.Playlist;
+import ar.com.strellis.ampflower2.data.model.PlaylistWithSongs;
+import ar.com.strellis.ampflower2.networkutils.AmpacheService;
+import io.reactivex.rxjava3.core.Single;
+
+public class SongsNetworkInteractorPlaylists extends SongsNetworkInteractor<PlaylistWithSongs>
+{
+    public SongsNetworkInteractorPlaylists(LiveData<LoginResponse> settings, AmpacheService ampacheService, SongsDatabaseInteractor<PlaylistWithSongs> databaseInteractor, SongsMemoryInteractor<PlaylistWithSongs> memoryInteractor) {
+        super(settings, ampacheService, databaseInteractor, memoryInteractor);
+    }
+
+    @Override
+    public Single<PlaylistWithSongs> getSongs(String entityId) {
+        Log.d("SongsNetworkInteractorPlaylists.getSongs","Getting songs from playlist "+entityId+"from the network, auth: "+ Objects.requireNonNull(settings.getValue()).getAuth());
+        return ampacheService.playlist_songs(Objects.requireNonNull(settings.getValue()).getAuth(),entityId,0,Integer.MAX_VALUE)
+                .map(songs -> {
+                    Log.d("SongsNetworkInteractorPlaylists.getSongs$1","Received songs from the network!");
+                    Playlist playlist=new Playlist();
+                    playlist.setId(entityId);
+                    PlaylistWithSongs s=new PlaylistWithSongs();
+                    s.setPlaylist(playlist);
+                    s.setSongs(songs.getSong());
+                    return s;
+                })
+                .doOnSuccess(databaseInteractor::saveData)
+                .doOnSuccess(memoryInteractor::saveData)
+                .doOnError(throwable -> Log.d("SongsNetworkInteractorPlaylists","Error interacting with the network: "+throwable));
+
+    }
+}

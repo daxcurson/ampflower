@@ -7,6 +7,7 @@ public class ArtistListResponse
     private List<Artist> artist;
     private int total_count;
     private AmpacheError error;
+    private String md5;
 
     public void setArtist(List<Artist> artist)
     {
@@ -31,5 +32,13 @@ public class ArtistListResponse
     public int getTotal_count()
     {
         return total_count;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
     }
 }

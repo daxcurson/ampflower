@@ -6,6 +6,7 @@ public class AlbumListResponse {
     private List<Album> album;
     private AmpacheError error;
     private int total_count;
+    private String md5;
 
     public List<Album> getAlbum()
     {
@@ -30,5 +31,13 @@ public class AlbumListResponse {
     public int getTotal_count()
     {
         return this.total_count;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
     }
 }

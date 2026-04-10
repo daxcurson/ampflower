@@ -12,6 +12,7 @@ import java.io.Serializable;
 public class Playlist extends ModelEntity implements Searchable<String>,Serializable
 {
     private String playlistName;
+    private User user;
 
     public Playlist()
     {
@@ -41,6 +42,10 @@ public class Playlist extends ModelEntity implements Searchable<String>,Serializ
     private String rating;
     private String averagerating;
     private boolean flag;
+    private boolean has_access;
+    private boolean has_collaborate;
+    private String md5;
+    private int last_update;
     @Ignore
     private int page;
     @NonNull
@@ -143,5 +148,45 @@ public class Playlist extends ModelEntity implements Searchable<String>,Serializ
         }
         else
             return false;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public boolean isHas_access() {
+        return has_access;
+    }
+
+    public void setHas_access(boolean has_access) {
+        this.has_access = has_access;
+    }
+
+    public boolean isHas_collaborate() {
+        return has_collaborate;
+    }
+
+    public void setHas_collaborate(boolean has_collaborate) {
+        this.has_collaborate = has_collaborate;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public int getLast_update() {
+        return last_update;
+    }
+
+    public void setLast_update(int last_update) {
+        this.last_update = last_update;
     }
 }

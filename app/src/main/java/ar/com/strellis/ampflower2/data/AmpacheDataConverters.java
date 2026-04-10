@@ -13,6 +13,7 @@ import ar.com.strellis.ampflower2.data.model.Album;
 import ar.com.strellis.ampflower2.data.model.Artist;
 import ar.com.strellis.ampflower2.data.model.Genre;
 import ar.com.strellis.ampflower2.data.model.Tag;
+import ar.com.strellis.ampflower2.data.model.User;
 
 /**
  * Converts between the database types and those used in the data structures
@@ -69,5 +70,15 @@ public class AmpacheDataConverters
     {
         Type listType = new TypeToken<LinkedList<Genre>>() {}.getType();
         return new Gson().fromJson(genreList, listType);
+    }
+    @TypeConverter
+    public static String fromUser(User user) {
+        Gson gson = new Gson();
+        return gson.toJson(user);
+    }
+    @TypeConverter
+    public static User toUser(String user) {
+        User userObject = new User();
+        return userObject;
     }
 }

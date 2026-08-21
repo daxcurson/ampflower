@@ -308,6 +308,7 @@ public class MediaPlayerService extends MediaLibraryService {
         String action=intent.getAction();
         if(action!=null)
         {
+            Log.d("MediaPlayerService","handleIntent received action "+action+" at "+System.currentTimeMillis());
             switch (action)
             {
                 case ACTION_STOP:
@@ -326,6 +327,7 @@ public class MediaPlayerService extends MediaLibraryService {
                     exoPlayer.seekToPrevious();
                     break;
                 case ACTION_TOGGLE:
+                    Log.d("MediaPlayerService","ACTION_TOGGLE, isPlaying="+exoPlayer.isPlaying()+", playWhenReady="+exoPlayer.getPlayWhenReady());
                     if(exoPlayer.isPlaying())
                         exoPlayer.pause();
                     else
@@ -659,6 +661,16 @@ public class MediaPlayerService extends MediaLibraryService {
 
         @Override
         public void onPlaybackParametersChanged(@NotNull PlaybackParameters playbackParameters) {
+        }
+
+        @Override
+        public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+            Log.d("MediaPlayerService", "playWhenReady changed to " + playWhenReady + ", reason=" + reason);
+        }
+
+        @Override
+        public void onPlaybackSuppressionReasonChanged(int playbackSuppressionReason) {
+            Log.d("MediaPlayerService", "Playback suppression reason changed to " + playbackSuppressionReason);
         }
     }
 }

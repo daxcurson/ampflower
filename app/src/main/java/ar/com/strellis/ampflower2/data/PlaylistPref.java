@@ -32,7 +32,18 @@ public class PlaylistPref {
         editor.putString(KEY_PLAYLIST, gson.toJson(playlist));
         editor.putInt(KEY_CURRENT_ITEM, currentItem != null ? currentItem : NO_ITEM);
         editor.putLong(KEY_CURRENT_POSITION, currentPosition != null ? currentPosition : 0L);
-        editor.apply();
+        editor.commit(); // commit() instead of apply() so the write completes before process death
+    }
+
+    /**
+     * Updates only the playback position and current item index, leaving the playlist unchanged.
+     * Called from MediaPlayerService to keep the saved position current during background playback.
+     */
+    public void saveCurrentPositionAndItem(int itemIndex, long positionMs) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(KEY_CURRENT_ITEM, itemIndex);
+        editor.putLong(KEY_CURRENT_POSITION, positionMs);
+        editor.commit();
     }
 
     public List<SelectableSong> loadPlaylist() {

@@ -23,7 +23,12 @@
 hs_err_pid*
 .gradle/
 .idea/
+/.claude/
 local.properties
 app/.DS_Store
 app/debug/
 app/release/
+/build/
+keystore.properties
+/ampflower-55dd011e0615.json
+/.claude/settings.local.json

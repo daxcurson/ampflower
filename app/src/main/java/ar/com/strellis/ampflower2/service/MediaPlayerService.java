@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import ar.com.strellis.ampflower2.BuildConfig;
 import ar.com.strellis.ampflower2.MainActivity;
 import ar.com.strellis.ampflower2.R;
+import ar.com.strellis.ampflower2.data.PlaylistPref;
 import ar.com.strellis.ampflower2.data.model.Song;
 import ar.com.strellis.ampflower2.event.AmpacheSessionExpiredEvent;
 
@@ -126,6 +127,8 @@ public class MediaPlayerService extends MediaLibraryService {
     private final List<MediaServiceEventsListener> listeners;
     private Handler handler;
     private Runnable updateAction;
+    private long lastPositionSaveTime = 0;
+    private static final long POSITION_SAVE_INTERVAL_MS = 15_000;
 
     public static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".action.STOP";
     public static final String ACTION_PLAY = BuildConfig.APPLICATION_ID + ".action.PLAY";
@@ -517,6 +520,13 @@ public class MediaPlayerService extends MediaLibraryService {
         if(exoPlayer!=null && exoPlayer.isPlaying()) {
             for (MediaServiceEventsListener l : listeners)
                 l.updateProgress(event);
+            // Periodically persist position so background playback is resumable after process death.
+            long now = System.currentTimeMillis();
+            if (now - lastPositionSaveTime >= POSITION_SAVE_INTERVAL_MS) {
+                new PlaylistPref(getApplicationContext()).saveCurrentPositionAndItem(
+                        exoPlayer.getCurrentMediaItemIndex(), position);
+                lastPositionSaveTime = now;
+            }
             // Now that the event has been sent, schedule the next update.
             handler.postDelayed(updateAction,nextUpdateTime);
         }
@@ -641,8 +651,15 @@ public class MediaPlayerService extends MediaLibraryService {
                 // the playback ends.
                 dispatchProgressUpdateEvent();
             }
-            else
+            else {
                 dispatchPausedEvent();
+                // Persist position immediately when playback pauses so it survives process death.
+                if (exoPlayer != null) {
+                    new PlaylistPref(getApplicationContext()).saveCurrentPositionAndItem(
+                            exoPlayer.getCurrentMediaItemIndex(), exoPlayer.getCurrentPosition());
+                    lastPositionSaveTime = System.currentTimeMillis();
+                }
+            }
         }
 
         @Override
